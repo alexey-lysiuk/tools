@@ -583,9 +583,9 @@ class PKGDecrypt
 
             return PKGFileName + ".Dec";
         }
-        catch (Exception /*ex*/)
+        catch (Exception ex)
         {
-            Console.WriteLine("\nERROR: An error occurred during the decryption process");
+            Console.WriteLine("\nERROR: An error occurred during the decryption process.\n\nMessage:\n{0}", ex.ToString());
             return string.Empty;
         }
     }
@@ -758,8 +758,8 @@ class PKGDecrypt
                 //contentType == 0x90 = PSP file/dir
                 if (contentType == 0x90)
                 {
-                    string FileDir = WorkDir + "\\" + ExtractedFileName;
-                    FileDir = FileDir.Replace("/", "\\");
+                    string FileDir = WorkDir + "/" + ExtractedFileName;
+                    //FileDir = FileDir.Replace("/", "\\");
                     DirectoryInfo FileDirectory = Directory.GetParent(FileDir);
 
                     if (!Directory.Exists(FileDirectory.ToString()))
@@ -786,14 +786,14 @@ class PKGDecrypt
                         try
                         {
                             if (!Directory.Exists(ExtractedFileName))
-                                Directory.CreateDirectory(WorkDir + "\\" + ExtractedFileName);
+                                Directory.CreateDirectory(WorkDir + "/" + ExtractedFileName);
                         }
                         catch (Exception /*ex*/)
                         {
                             //This should not happen xD
                             ExtractedFileName = ii.ToString() + ".raw";
                             if (!Directory.Exists(ExtractedFileName))
-                                Directory.CreateDirectory(WorkDir + "\\" + ExtractedFileName);
+                                Directory.CreateDirectory(WorkDir + "/" + ExtractedFileName);
                         }
                     }
                     else
@@ -801,13 +801,13 @@ class PKGDecrypt
                         //File
                         try
                         {
-                            ExtractedFileWriteStream = new FileStream(WorkDir + "\\" + ExtractedFileName, FileMode.CreateNew, FileAccess.ReadWrite, FileShare.ReadWrite);
+                            ExtractedFileWriteStream = new FileStream(WorkDir + "/" + ExtractedFileName, FileMode.CreateNew, FileAccess.ReadWrite, FileShare.ReadWrite);
                         }
                         catch (Exception /*ex*/)
                         {
                             //This should not happen xD
                             ExtractedFileName = ii.ToString() + ".raw";
-                            ExtractedFileWriteStream = new FileStream(WorkDir + "\\" + ExtractedFileName, FileMode.CreateNew, FileAccess.ReadWrite, FileShare.ReadWrite);
+                            ExtractedFileWriteStream = new FileStream(WorkDir + "/" + ExtractedFileName, FileMode.CreateNew, FileAccess.ReadWrite, FileShare.ReadWrite);
                         }
                     }
                 }
@@ -911,9 +911,9 @@ class PKGDecrypt
 
             return true;
         }
-        catch (Exception /*ex*/)
+        catch (Exception ex)
         {
-            Console.WriteLine("\nERROR: An error occurred during the files extraction process");
+            Console.WriteLine("\nERROR: An error occurred during the files extraction process.\n\nMessage:\n{0}", ex.ToString());
             return false;
         }
     }
