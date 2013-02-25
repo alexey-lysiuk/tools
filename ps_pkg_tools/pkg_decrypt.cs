@@ -555,11 +555,6 @@ class PKGDecrypt
             if (filemod > 0)
                 filepieces += 1;
 
-            //progressBar.Value = 0;
-            //progressBar.Maximum = (int)filepieces - 1;
-            //progressBar.Step = 1;
-            //Application.DoEvents();
-
             for (UInt64 i = 0; i < filepieces; i++)
             {
                 //If we have a mod and this is the last piece then...
@@ -590,17 +585,11 @@ class PKGDecrypt
                 //XOR Decrypt and save every 16 bytes of data:
                 DecryptedData = XOREngine.XOR(EncryptedData, 0, PKGXorKeyConsec.Length, PKGXorKeyConsec);
 
-                //progressBar.PerformStep();
-                //Application.DoEvents();
-
-                //Console.Write('.');
-
                 Console.Write("Decrypting block {0} of {1}...", i + 1, filepieces);
                 Console.SetCursorPosition(0, Console.CursorTop);
 
                 bwDecryptedFile.Write(DecryptedData);
             }
-            //Application.DoEvents();
 
             Console.WriteLine();
 
@@ -666,9 +655,6 @@ class PKGDecrypt
             UInt32 OffsetShift = 0;
             long positionIdx = 0;
 
-            //String WorkDir = "";
-            //WorkDir = decryptedPKGFileName + ".EXT";
-
             String WorkDir = encryptedPKGFileName + ".EXT";
 
             if (Directory.Exists(WorkDir))
@@ -731,11 +717,6 @@ class PKGDecrypt
                 Console.WriteLine("ERROR: An error occurred during the files extraction process cause of a decryption error");
                 return false;
             }
-
-            //progressBar.Value = 0;
-            //progressBar.Maximum = (int)uiFileNr - 1;
-            //progressBar.Step = 1;
-            //Application.DoEvents();
 
             //Table:
             //0-3         4-7         8-11        12-15       16-19       20-23       24-27       28-31
@@ -907,14 +888,9 @@ class PKGDecrypt
 
                 positionIdx = positionIdx + 32;
 
-                //progressBar.PerformStep();
-                //Application.DoEvents();
-
                 Console.Write("Extracting file {0} of {1}...", ii + 1, uiFileNr);
                 Console.SetCursorPosition(0, Console.CursorTop);
             }
-
-            //Application.DoEvents();
 
             //Close File
             encrPKGReadStream.Close();
@@ -930,10 +906,6 @@ class PKGDecrypt
             }
 
             Console.WriteLine("\nSUCCESS: Pkg extracted and decrypted successfully.");
-
-            //fileDirBrowser.PathFileDir = "Open Encrypted PKG file here first...";
-
-            //progressBar.Value = 0;
 
             return true;
         }
