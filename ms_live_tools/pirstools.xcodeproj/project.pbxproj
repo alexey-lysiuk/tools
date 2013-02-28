@@ -1,0 +1,300 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		8A4549C216DF1745003D2E36 /* pirs_alloc.c in Sources */ = {isa = PBXBuildFile; fileRef = 8A4549A916DF1744003D2E36 /* pirs_alloc.c */; };
+		8A4549C316DF1745003D2E36 /* pirs_desc.c in Sources */ = {isa = PBXBuildFile; fileRef = 8A4549AC16DF1744003D2E36 /* pirs_desc.c */; };
+		8A4549C416DF1745003D2E36 /* pirs_extract.c in Sources */ = {isa = PBXBuildFile; fileRef = 8A4549AE16DF1744003D2E36 /* pirs_extract.c */; };
+		8A4549C516DF1745003D2E36 /* pirs_filetable.c in Sources */ = {isa = PBXBuildFile; fileRef = 8A4549B016DF1744003D2E36 /* pirs_filetable.c */; };
+		8A4549C616DF1745003D2E36 /* pirs_hashtables.c in Sources */ = {isa = PBXBuildFile; fileRef = 8A4549B216DF1744003D2E36 /* pirs_hashtables.c */; };
+		8A4549C716DF1745003D2E36 /* pirs_main.c in Sources */ = {isa = PBXBuildFile; fileRef = 8A4549B416DF1745003D2E36 /* pirs_main.c */; };
+		8A4549C816DF1745003D2E36 /* pirs_titles.c in Sources */ = {isa = PBXBuildFile; fileRef = 8A4549B616DF1745003D2E36 /* pirs_titles.c */; };
+		8A4549C916DF1745003D2E36 /* sha1.c in Sources */ = {isa = PBXBuildFile; fileRef = 8A4549B816DF1745003D2E36 /* sha1.c */; };
+		8A4549CA16DF1745003D2E36 /* util.c in Sources */ = {isa = PBXBuildFile; fileRef = 8A4549BA16DF1745003D2E36 /* util.c */; };
+		8A4549CB16DF1745003D2E36 /* pirs_display.c in Sources */ = {isa = PBXBuildFile; fileRef = 8A4549BC16DF1745003D2E36 /* pirs_display.c */; };
+		8A4549CC16DF1745003D2E36 /* pirs.c in Sources */ = {isa = PBXBuildFile; fileRef = 8A4549BE16DF1745003D2E36 /* pirs.c */; };
+		8A4549CE16DF1745003D2E36 /* util.c in Sources */ = {isa = PBXBuildFile; fileRef = 8A4549C016DF1745003D2E36 /* util.c */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		8A45499716DF168F003D2E36 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		8A45499916DF168F003D2E36 /* pirstools */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = pirstools; sourceTree = BUILT_PRODUCTS_DIR; };
+		8A4549A816DF1744003D2E36 /* libpirs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = libpirs.h; sourceTree = "<group>"; };
+		8A4549A916DF1744003D2E36 /* pirs_alloc.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = pirs_alloc.c; sourceTree = "<group>"; };
+		8A4549AA16DF1744003D2E36 /* pirs_alloc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = pirs_alloc.h; sourceTree = "<group>"; };
+		8A4549AB16DF1744003D2E36 /* pirs_datatypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = pirs_datatypes.h; sourceTree = "<group>"; };
+		8A4549AC16DF1744003D2E36 /* pirs_desc.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = pirs_desc.c; sourceTree = "<group>"; };
+		8A4549AD16DF1744003D2E36 /* pirs_desc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = pirs_desc.h; sourceTree = "<group>"; };
+		8A4549AE16DF1744003D2E36 /* pirs_extract.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = pirs_extract.c; sourceTree = "<group>"; };
+		8A4549AF16DF1744003D2E36 /* pirs_extract.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = pirs_extract.h; sourceTree = "<group>"; };
+		8A4549B016DF1744003D2E36 /* pirs_filetable.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = pirs_filetable.c; sourceTree = "<group>"; };
+		8A4549B116DF1744003D2E36 /* pirs_filetable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = pirs_filetable.h; sourceTree = "<group>"; };
+		8A4549B216DF1744003D2E36 /* pirs_hashtables.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = pirs_hashtables.c; sourceTree = "<group>"; };
+		8A4549B316DF1745003D2E36 /* pirs_hashtables.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = pirs_hashtables.h; sourceTree = "<group>"; };
+		8A4549B416DF1745003D2E36 /* pirs_main.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = pirs_main.c; sourceTree = "<group>"; };
+		8A4549B516DF1745003D2E36 /* pirs_main.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = pirs_main.h; sourceTree = "<group>"; };
+		8A4549B616DF1745003D2E36 /* pirs_titles.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = pirs_titles.c; sourceTree = "<group>"; };
+		8A4549B716DF1745003D2E36 /* pirs_titles.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = pirs_titles.h; sourceTree = "<group>"; };
+		8A4549B816DF1745003D2E36 /* sha1.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = sha1.c; sourceTree = "<group>"; };
+		8A4549B916DF1745003D2E36 /* sha1.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sha1.h; sourceTree = "<group>"; };
+		8A4549BA16DF1745003D2E36 /* util.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = util.c; sourceTree = "<group>"; };
+		8A4549BB16DF1745003D2E36 /* util.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = util.h; sourceTree = "<group>"; };
+		8A4549BC16DF1745003D2E36 /* pirs_display.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = pirs_display.c; path = src/pirs_display.c; sourceTree = "<group>"; };
+		8A4549BD16DF1745003D2E36 /* pirs_display.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = pirs_display.h; path = src/pirs_display.h; sourceTree = "<group>"; };
+		8A4549BE16DF1745003D2E36 /* pirs.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = pirs.c; path = src/pirs.c; sourceTree = "<group>"; };
+		8A4549BF16DF1745003D2E36 /* pirsread.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = pirsread.c; path = src/pirsread.c; sourceTree = "<group>"; };
+		8A4549C016DF1745003D2E36 /* util.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = util.c; path = src/util.c; sourceTree = "<group>"; };
+		8A4549C116DF1745003D2E36 /* util.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = util.h; path = src/util.h; sourceTree = "<group>"; };
+		8A4549CF16DF1751003D2E36 /* config.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = config.h; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		8A45499616DF168F003D2E36 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		8A45498E16DF168F003D2E36 = {
+			isa = PBXGroup;
+			children = (
+				8A4549A616DF1736003D2E36 /* Sources */,
+				8A45499A16DF168F003D2E36 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		8A45499A16DF168F003D2E36 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				8A45499916DF168F003D2E36 /* pirstools */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		8A4549A616DF1736003D2E36 /* Sources */ = {
+			isa = PBXGroup;
+			children = (
+				8A4549A716DF1744003D2E36 /* lib */,
+				8A4549CF16DF1751003D2E36 /* config.h */,
+				8A4549BC16DF1745003D2E36 /* pirs_display.c */,
+				8A4549BD16DF1745003D2E36 /* pirs_display.h */,
+				8A4549BE16DF1745003D2E36 /* pirs.c */,
+				8A4549BF16DF1745003D2E36 /* pirsread.c */,
+				8A4549C016DF1745003D2E36 /* util.c */,
+				8A4549C116DF1745003D2E36 /* util.h */,
+			);
+			name = Sources;
+			sourceTree = "<group>";
+		};
+		8A4549A716DF1744003D2E36 /* lib */ = {
+			isa = PBXGroup;
+			children = (
+				8A4549A816DF1744003D2E36 /* libpirs.h */,
+				8A4549A916DF1744003D2E36 /* pirs_alloc.c */,
+				8A4549AA16DF1744003D2E36 /* pirs_alloc.h */,
+				8A4549AB16DF1744003D2E36 /* pirs_datatypes.h */,
+				8A4549AC16DF1744003D2E36 /* pirs_desc.c */,
+				8A4549AD16DF1744003D2E36 /* pirs_desc.h */,
+				8A4549AE16DF1744003D2E36 /* pirs_extract.c */,
+				8A4549AF16DF1744003D2E36 /* pirs_extract.h */,
+				8A4549B016DF1744003D2E36 /* pirs_filetable.c */,
+				8A4549B116DF1744003D2E36 /* pirs_filetable.h */,
+				8A4549B216DF1744003D2E36 /* pirs_hashtables.c */,
+				8A4549B316DF1745003D2E36 /* pirs_hashtables.h */,
+				8A4549B416DF1745003D2E36 /* pirs_main.c */,
+				8A4549B516DF1745003D2E36 /* pirs_main.h */,
+				8A4549B616DF1745003D2E36 /* pirs_titles.c */,
+				8A4549B716DF1745003D2E36 /* pirs_titles.h */,
+				8A4549B816DF1745003D2E36 /* sha1.c */,
+				8A4549B916DF1745003D2E36 /* sha1.h */,
+				8A4549BA16DF1745003D2E36 /* util.c */,
+				8A4549BB16DF1745003D2E36 /* util.h */,
+			);
+			name = lib;
+			path = src/lib;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		8A45499816DF168F003D2E36 /* pirstools */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 8A4549A316DF168F003D2E36 /* Build configuration list for PBXNativeTarget "pirstools" */;
+			buildPhases = (
+				8A45499516DF168F003D2E36 /* Sources */,
+				8A45499616DF168F003D2E36 /* Frameworks */,
+				8A45499716DF168F003D2E36 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = pirstools;
+			productName = pirstools;
+			productReference = 8A45499916DF168F003D2E36 /* pirstools */;
+			productType = "com.apple.product-type.tool";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		8A45499016DF168F003D2E36 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0450;
+				ORGANIZATIONNAME = company;
+			};
+			buildConfigurationList = 8A45499316DF168F003D2E36 /* Build configuration list for PBXProject "pirstools" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = 8A45498E16DF168F003D2E36;
+			productRefGroup = 8A45499A16DF168F003D2E36 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				8A45499816DF168F003D2E36 /* pirstools */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		8A45499516DF168F003D2E36 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				8A4549C216DF1745003D2E36 /* pirs_alloc.c in Sources */,
+				8A4549C316DF1745003D2E36 /* pirs_desc.c in Sources */,
+				8A4549C416DF1745003D2E36 /* pirs_extract.c in Sources */,
+				8A4549C516DF1745003D2E36 /* pirs_filetable.c in Sources */,
+				8A4549C616DF1745003D2E36 /* pirs_hashtables.c in Sources */,
+				8A4549C716DF1745003D2E36 /* pirs_main.c in Sources */,
+				8A4549C816DF1745003D2E36 /* pirs_titles.c in Sources */,
+				8A4549C916DF1745003D2E36 /* sha1.c in Sources */,
+				8A4549CA16DF1745003D2E36 /* util.c in Sources */,
+				8A4549CB16DF1745003D2E36 /* pirs_display.c in Sources */,
+				8A4549CC16DF1745003D2E36 /* pirs.c in Sources */,
+				8A4549CE16DF1745003D2E36 /* util.c in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		8A4549A116DF168F003D2E36 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = (
+					src,
+					src/lib,
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.8;
+				ONLY_ACTIVE_ARCH = YES;
+			};
+			name = Debug;
+		};
+		8A4549A216DF168F003D2E36 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = (
+					src,
+					src/lib,
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.8;
+			};
+			name = Release;
+		};
+		8A4549A416DF168F003D2E36 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		8A4549A516DF168F003D2E36 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		8A45499316DF168F003D2E36 /* Build configuration list for PBXProject "pirstools" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				8A4549A116DF168F003D2E36 /* Debug */,
+				8A4549A216DF168F003D2E36 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		8A4549A316DF168F003D2E36 /* Build configuration list for PBXNativeTarget "pirstools" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				8A4549A416DF168F003D2E36 /* Debug */,
+				8A4549A516DF168F003D2E36 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 8A45499016DF168F003D2E36 /* Project object */;
+}
