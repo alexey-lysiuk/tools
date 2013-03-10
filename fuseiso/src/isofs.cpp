@@ -1,6 +1,8 @@
 /***************************************************************************
- *   Copyright (C) 2005, 2006 by Dmitry Morozhnikov   *
- *   dmiceman@mail.ru   *
+ *   Copyright (C) 2005, 2006 by Dmitry Morozhnikov                        *
+ *   dmiceman@mail.ru                                                      *
+ *                                                                         *
+ *   Copyright (C) 2013 Alexey Lysiuk <alexey.lysiuk@gmail.com>            *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -21,18 +23,20 @@
 // for struct tm->tm_gmtoff
 #define _BSD_SOURCE
 
-#include <stdio.h>
-#include <fcntl.h>
-#include <errno.h>
-#include <string.h>
+#include <cstdlib>
+#include <cstdio>
+#include <cstring>
+#include <cerrno>
+
+#include <sys/syslimits.h>
 #include <unistd.h>
-#include <stdlib.h>
-#include <assert.h>
-#include <zlib.h>
+#include <fcntl.h>
 #include <dirent.h>
 #include <pthread.h>
-#include <sys/syslimits.h>
+
+
 #include <iconv.h>
+#include <zlib.h>
 
 #include <string>
 #include <map>
@@ -49,7 +53,7 @@ inline void g_hash_table_insert(inode_table& table, const char* const key, isofs
 	table.insert( std::make_pair(key, value) );
 }
 
-isofs_inode* g_hash_table_lookup(const inode_table& table, const char* const key)
+inline isofs_inode* g_hash_table_lookup(const inode_table& table, const char* const key)
 {
 	const auto result = table.find(key);
 
@@ -57,6 +61,19 @@ isofs_inode* g_hash_table_lookup(const inode_table& table, const char* const key
 		? NULL
 		: result->second;
 }
+
+template <typename T>
+inline unsigned int isonum_733(const T& value)
+{
+    /* Ignore bigendian datum due to broken mastering programs */
+#ifdef WORDS_BIGENDIAN
+    return bswap_32( *reinterpret_cast<unsigned int*>(&value) );
+#else // !WORDS_BIGENDIAN
+    //return *(unsigned int *)value;
+    return *reinterpret_cast<const unsigned int*>(&value);
+#endif // WORDS_BIGENDIAN
+}
+
 
 static isofs_context context;
 
@@ -82,9 +99,23 @@ struct iso_definition
 };
 
 extern char* iocharset;
+extern int g_verbosity;
 
-int isofs_real_preinit( char* imagefile, int fd) {
-    
+static void VerbosePrint(const char* const format, ...) __printflike(1, 2);
+
+static void VerbosePrint(const char* const format, ...)
+{
+    if (g_verbosity > 0)
+    {
+        va_list varArgs;
+        va_start(varArgs, format);
+
+        vprintf(format, varArgs);
+    }
+}
+
+int isofs_real_preinit(char* imagefile, int fd)
+{
     memset(&context, 0, sizeof(isofs_context));
     
     context.imagefile = imagefile;
@@ -92,46 +123,59 @@ int isofs_real_preinit( char* imagefile, int fd) {
     
     identify_iso();
     
-/*    printf("CD001 found at %d, bs %d, boff %d, ds %d\n", 
-        context.id_offset, context.block_size, context.block_offset, context.data_size);*/
-    while(read_next_volume_descriptor() != ISO_VD_END) {
-           
+    VerbosePrint("isofs_real_preinit(): CD001 found at %d, bs %zd, boff %zd, ds %zd\n",
+        context.id_offset, context.block_size, context.block_offset, context.data_size);
+
+    while (read_next_volume_descriptor() != ISO_VD_END)
+    {
         int vd_type = isonum_711((unsigned char *)(vd.type));
-//         printf("init: found volume descriptor type %d, vd_num %d\n", vd_type, vd_num);
+
+        VerbosePrint("isofs_real_preinit(): found volume descriptor type %d\n", vd_type);
         
-        switch(vd_type) {
+        switch(vd_type)
+        {
             case ISO_VD_PRIMARY:
-                // check if this is only primary descriptor found
-                if(context.pd.type[0]) {
+                // Check if this is only primary descriptor found
+                if(context.pd.type[0])
+                {
                     fprintf(stderr, "init: primary volume descriptor already found, skipping..\n");
-                } else {
+                }
+                else
+                {
                     memcpy(&context.pd, &vd, sizeof(struct iso_volume_descriptor));
                     context.root = (struct iso_directory_record *)& context.pd.root_directory_record;
                     context.data_size = isonum_723(context.pd.logical_block_size);
                     
-                    if(!context.data_size) {
-                        fprintf(stderr, "init: wrong block data size %d, using default 2048\n", context.data_size);
+                    if (!context.data_size)
+                    {
+                        fprintf(stderr, "init: wrong block data size %zd, using default 2048\n", context.data_size);
                         context.data_size = 2048;
-                    };
+                    }
                     
-                    if(isofs_check_rr(context.root)) {
+                    if (isofs_check_rr(context.root))
+                    {
                         context.pd_have_rr = 1;
-                    };
-                };
+                    }
+                }
                 break;
             
             case ISO_VD_SUPPLEMENTARY:
                 {
-                    struct iso_supplementary_descriptor *sd = (struct iso_supplementary_descriptor *)&vd;
+                    iso_supplementary_descriptor* sd = reinterpret_cast<iso_supplementary_descriptor*>(&vd);
                     
-                    if(!context.pd.type[0]) {
+                    if (!context.pd.type[0])
+                    {
                         fprintf(stderr, "init: supplementary volume descriptor found, but no primary descriptor!\n");
                         exit(EIO);
-                    } else {
+                    }
+                    else
+                    {
                         int joliet_level = 0;
                         
-                        if(sd->escape[0] == 0x25 && sd->escape[1] == 0x2f) {
-                            switch(sd->escape[2]) {
+                        if (sd->escape[0] == 0x25 && sd->escape[1] == 0x2f)
+                        {
+                            switch (sd->escape[2])
+                            {
                                 case 0x40:
                                     joliet_level = 1;
                                     break;
@@ -141,33 +185,36 @@ int isofs_real_preinit( char* imagefile, int fd) {
                                 case 0x45:
                                     joliet_level = 3;
                                     break;
-                            };
-                        };
+                            }
+                        }
                         
-                        int have_rr = 
+                        const int have_rr =
                             isofs_check_rr((struct iso_directory_record *) sd->root_directory_record);
                         
-                        // switch to SVD only if it contain RRIP or if PVD have no RRIP
+                        // Switch to SVD only if it contain RRIP or if PVD have no RRIP
                         // in other words, prefer VD with RRIP
-                        if((joliet_level && have_rr) ||
-                            (have_rr && !context.pd_have_rr) || 
-                            (joliet_level && !context.pd_have_rr)) {
-                            
+
+                        if ( (joliet_level && have_rr)
+                            || (have_rr && !context.pd_have_rr)
+                            || (joliet_level && !context.pd_have_rr))
+                        {
                             context.joliet_level = joliet_level;
                             memcpy(&context.sd, &vd, sizeof(struct iso_volume_descriptor));
                             context.supplementary = 1;
                             
                             context.root = (struct iso_directory_record *) context.sd.root_directory_record;
-                            
-                            // printf("init: switching to supplementary descriptor %d, joliet_level %d, have_rr %d\n", 
-                            //     vd_num, context.joliet_level, have_rr);
-                        } else {
+
+                            VerbosePrint("isofs_real_preinit(): switching to supplementary descriptor, joliet_level %d, have_rr %d\n",
+                                context.joliet_level, have_rr);
+                        }
+                        else
+                        {
                             context.joliet_level = 0;
-                            // printf("init: found supplementary descriptor %d, flags %d\n", 
-                            //     vd_num, isonum_711(sd->flags));
-                        };
-                    };
-                };
+                            VerbosePrint("isofs_real_preinit(): found supplementary descriptor with flags %d\n",
+                                isonum_711( reinterpret_cast<unsigned char*>(sd->flags) ));
+                        }
+                    }
+                }
                 break;
             
             case 0:
@@ -178,9 +225,10 @@ int isofs_real_preinit( char* imagefile, int fd) {
                 fprintf(stderr, "init: unsupported volume descriptor type %d\n", vd_type);
                 break;
         }
-    };
+    }
     
-    if(!context.pd.type[0]) {
+    if (!context.pd.type[0])
+    {
         fprintf(stderr, "init: primary volume descriptor not found! exiting..\n");
         exit(EIO);
     };
@@ -188,12 +236,9 @@ int isofs_real_preinit( char* imagefile, int fd) {
     context.susp = 0;
     context.susp_skip = 0;
     
-    isofs_inode *inode = (isofs_inode *) malloc(sizeof(isofs_inode));
-    if(!inode) {
-        perror("Can`t malloc: ");
-        exit(ENOMEM);
-    };
+    isofs_inode* inode = new isofs_inode;
     memset(inode, 0, sizeof(isofs_inode));
+
     inode->record = context.root;
     context.last_ino++; // set to 1
     inode->st_ino = context.last_ino;
@@ -373,45 +418,51 @@ void* isofs_real_init()
     return &context;
 }
 
-static int isofs_check_rr(struct iso_directory_record *root_record) {
-    int extent = isonum_733(root_record->extent);
-    char *buf = (char *) malloc(context.data_size); // can we use "standard" 2048 there?
-    if(!buf) {
-        perror("Can`t malloc: ");
-        return -ENOMEM;
-    };
+static int isofs_check_rr(struct iso_directory_record *root_record)
+{
+    const int extent = isonum_733(root_record->extent);
     
-    int rc = isofs_read_raw_block(extent, buf);
-    if(rc < 0) {
-        free(buf);
+    //char* buf = new char[context.data_size]; // can we use "standard" 2048 there?
+    char* buf = reinterpret_cast<char*>( alloca(context.data_size) ); // can we use "standard" 2048 there?
+
+//    const int rc = isofs_read_raw_block(extent, buf);
+    if (isofs_read_raw_block(extent, buf) < 0)
+    {
+        //delete[] buf;
         return 0;
     };
+
+    iso_directory_record* record = reinterpret_cast<iso_directory_record*>(buf);
+    const size_t record_length = isonum_711((unsigned char*) record->length);
+    const size_t name_len = isonum_711(record->name_len);
+    const size_t pad_len = ((name_len & 1) ? 0 : 1); // padding byte if name_len is even
+    const ssize_t sa_len = record_length - name_len - sizeof(iso_directory_record) - pad_len;
+
+    if (record_length < sizeof(struct iso_directory_record))
+    {
+        fprintf(stderr, "check_rr: directory record length too small: %zd\n", record_length);
+        //delete[] buf;
+        return -EIO;
+    }
     
-    struct iso_directory_record *record = (struct iso_directory_record *) buf;
-    size_t record_length = isonum_711((unsigned char*) record->length);
-    size_t name_len = isonum_711(record->name_len);
-    size_t pad_len = ((name_len & 1) ? 0 : 1); // padding byte if name_len is even
-    size_t sa_len = record_length - name_len - sizeof(struct iso_directory_record) - pad_len;
-    if(record_length < sizeof(struct iso_directory_record)) {
-        fprintf(stderr, "check_rr: directory record length too small: %d\n", record_length);
-        free(buf);
+    if (name_len != 1)
+    {
+        fprintf(stderr, "check_rr: file name length too big for . record: %zd\n", name_len);
+        //delete[] buf;
         return -EIO;
-    };
-    if(name_len != 1) {
-        fprintf(stderr, "check_rr: file name length too big for . record: %d\n", name_len);
-        free(buf);
-        return -EIO;
-    };
-    if(sa_len < 0) {
+    }
+    
+    if (sa_len < 0)
+    {
         // probably something wrong with name_len
-        fprintf(stderr, "check_rr: wrong name_len in directory entry: %d, record_length %d\n", 
+        fprintf(stderr, "check_rr: wrong name_len in directory entry: %zd, record_length %zd\n", 
             name_len, record_length);
-        free(buf);
+        //delete[] buf;
         return -EIO;
-    };
-    
-    
-    if(sa_len >= 7) {
+    }
+
+    if (sa_len >= 7)
+    {
         struct rock_ridge *sue = (struct rock_ridge *) (((char *) record) + 
             sizeof(struct iso_directory_record) + 
             name_len + pad_len);
@@ -423,26 +474,28 @@ static int isofs_check_rr(struct iso_directory_record *root_record) {
         if(sue_sig == SIG('S', 'P')) {
             if(sue_len != 7 || sue_version != 1 || sue->u.SP.magic[0] != 0xbe || sue->u.SP.magic[1] != 0xef) {
                 // incorrect SP entry
-                free(buf);
+                //free(buf);
                 return 0;
             } else {
                 // got it!
-                free(buf);
+                //free(buf);
                 return 1;
             };
         } else {
             // not SP record
-            free(buf);
+            //free(buf);
             return 0;
-        };
-    } else {
+        }
+    }
+    else
+    {
         // no space for SP record
-        free(buf);
+        //free(buf);
         return 0;
-    };
+    }
     
     // should not happen
-    free(buf);
+    //free(buf);
     return 0;
 };
 

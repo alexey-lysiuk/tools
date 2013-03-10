@@ -1,6 +1,8 @@
 /***************************************************************************
- *   Copyright (C) 2005, 2006 by Dmitry Morozhnikov   *
- *   dmiceman@mail.ru   *
+ *   Copyright (C) 2005, 2006 by Dmitry Morozhnikov                        *
+ *   dmiceman@mail.ru                                                      *
+ *                                                                         *
+ *   Copyright (C) 2013 Alexey Lysiuk <alexey.lysiuk@gmail.com>            *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -58,6 +60,8 @@ static char *mount_point = NULL;
 static int image_fd = -1;
 
 char* iocharset = NULL;
+
+int g_verbosity = 0;
 
 static char* normalize_name(const char* fname)
 {
@@ -165,6 +169,7 @@ static void usage(const char* prog)
         "Where options are:\n"
         "    -c <iocharset>     -- specify iocharset for Joliet filesystem\n"
         "    -h                 -- print this screen\n"
+        "    -v                 -- enable additional output\n"
         "\nCommon FUSE library options are:\n"
         "    -f                 -- run in foreground, do not daemonize\n"
         "    -d                 -- run in foreground and print debug information\n"
@@ -180,7 +185,7 @@ int main(int argc, char *argv[])
     
     char c;
     
-    while ((c = (char) getopt(argc, argv, "+npc:h")) > 0)
+    while ((c = (char) getopt(argc, argv, "+vc:h")) > 0)
     {
         switch (c)
         {
@@ -194,6 +199,10 @@ int main(int argc, char *argv[])
             case 'h':
                 usage(argv[0]);
                 exit(0);
+                break;
+
+            case 'v':
+                g_verbosity = 1;
                 break;
 
             case '?':

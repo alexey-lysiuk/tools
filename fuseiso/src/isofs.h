@@ -1,6 +1,8 @@
 /***************************************************************************
- *   Copyright (C) 2005, 2006 by Dmitry Morozhnikov   *
- *   dmiceman@mail.ru   *
+ *   Copyright (C) 2005, 2006 by Dmitry Morozhnikov                        *
+ *   dmiceman@mail.ru                                                      *
+ *                                                                         * 
+ *   Copyright (C) 2013 Alexey Lysiuk <alexey.lysiuk@gmail.com>            *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -148,15 +150,15 @@ static inline unsigned int isonum_731(char *p)
 // {
 //     return be32_to_cpu(get_unaligned((__le32 *)p));
 // }
-static inline unsigned int isonum_733(char *p)
-{
-    /* Ignore bigendian datum due to broken mastering programs */
-#if defined(WORDS_BIGENDIAN)
-    return bswap_32(*(unsigned int *)p);
-#else
-    return *(unsigned int *)p;
-#endif
-}
+//static inline unsigned int isonum_733(char *p)
+//{
+//    /* Ignore bigendian datum due to broken mastering programs */
+//#if defined(WORDS_BIGENDIAN)
+//    return bswap_32(*(unsigned int *)p);
+//#else
+//    return *(unsigned int *)p;
+//#endif
+//}
 
 #ifdef __cplusplus
 extern "C" {
