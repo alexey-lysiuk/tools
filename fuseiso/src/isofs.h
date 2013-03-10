@@ -22,6 +22,7 @@
 #define _ISOFS_H
 
 #include <sys/stat.h>
+#include <sys/statvfs.h>
 #include <linux/iso_fs.h>
 #include <linux/rock.h>
 
@@ -97,7 +98,14 @@ typedef struct _zf_file_header {
 /* Number conversion inlines, named after the section in ISO 9660
    they correspond to. */
 
+#ifdef __APPLE__
+#include <libkern/OSByteOrder.h>
+#define bswap_16 OSSwapInt16
+#define bswap_32 OSSwapInt32
+#define bswap_64 OSSwapInt64
+#else // !__APPLE__
 #include <byteswap.h>
+#endif // __APPLE__
 
 static inline int isonum_711(unsigned char *p)
 {
@@ -150,6 +158,10 @@ static inline unsigned int isonum_733(char *p)
 #endif
 }
 
+#ifdef __cplusplus
+extern "C" {
+#endif // __cplusplus
+
 int isofs_real_preinit(char* imagefile, int fd);
 void* isofs_real_init();
 
@@ -159,6 +171,10 @@ int isofs_real_getattr(const char *path, struct stat *stbuf);
 int isofs_real_readlink(const char *path, char *target, size_t size);
 int isofs_real_open(const char *path);
 int isofs_real_read(const char *path, char *out_buf, size_t size, off_t offset);
-int isofs_real_statfs(struct statfs *stbuf);
+int isofs_real_statfs(struct statvfs *stbuf);
+
+#ifdef __cplusplus
+} // extern "C"
+#endif // __cplusplus
 
 #endif // _ISOFS_H

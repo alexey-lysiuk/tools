@@ -29,16 +29,14 @@
 #include <fcntl.h>
 #include <errno.h>
 #include <unistd.h>
-#include <linux/stat.h>
 #include <unistd.h>
 #include <getopt.h>
-#include <mntent.h>
 #include <sys/param.h>
 #include <pwd.h>
 
 #include <linux/iso_fs.h>
 
-#define FUSE_USE_VERSION 22
+#define FUSE_USE_VERSION 25
 #include <fuse.h>
 
 #include <zlib.h>
@@ -53,12 +51,13 @@
 # define UNUSED(x) x
 #endif
 
+#define VERSION "20070708"
+
 static char *imagefile = NULL;
 static char *mount_point = NULL;
 static int image_fd = -1;
 
 int maintain_mount_point;
-int maintain_mtab;
 char* iocharset;
 
 char* normalize_name(const char* fname) {
@@ -92,128 +91,6 @@ void del_mount_point() {
     };
 };
 
-char* get_mtab_path() {
-    char* mtab_path = (char*) malloc(PATH_MAX);
-    uid_t uid = getuid();
-    struct passwd* passwd = getpwuid(uid);
-    if(!passwd) {
-        fprintf(stderr, "Can`t get home directory for user %d: %s\n", uid, strerror(errno));
-        return NULL;
-    };
-    mtab_path[0] = 0;
-    if(passwd->pw_dir) { // may be NULL, who know..
-        strncpy(mtab_path, passwd->pw_dir, PATH_MAX - 16);
-        mtab_path[PATH_MAX - 1] = 0;
-    };
-    strcat(mtab_path, "/.mtab.fuseiso");
-    return mtab_path;
-};
-
-int add_mtab_record() {
-    int rc;
-    char* mtab_path = get_mtab_path();
-    if(!mtab_path) {
-        return -EIO;
-    };
-    int fd = open(mtab_path, O_RDWR | O_CREAT, 0644);
-    if(fd < 0) {
-        perror("Can`t open mtab");
-        return -EIO;
-    };
-    rc = lockf(fd, F_LOCK, 0);
-    if(rc != 0) {
-        perror("Can`t lock mtab");
-        return -EIO;
-    };
-    FILE* mtab = setmntent(mtab_path, "a");
-    if(!mtab) {
-        perror("Can`t open mtab");
-        return -EIO;
-    };
-    struct mntent ent;
-    ent.mnt_fsname = imagefile;
-    ent.mnt_dir = mount_point;
-    ent.mnt_type = "fuseiso";
-    ent.mnt_opts = "defaults";
-    ent.mnt_freq = 0;
-    ent.mnt_passno = 0;    
-    rc = addmntent(mtab, &ent);
-    if(rc != 0) {
-        perror("Can`t add mtab entry");
-        return -EIO;
-    };
-    endmntent(mtab);
-    rc = lockf(fd, F_ULOCK, 0);
-    if(rc != 0) {
-        perror("Can`t unlock mtab");
-        return -EIO;
-    };
-    close(fd);
-    free(mtab_path);
-    return 0;
-};
-
-int del_mtab_record() {
-    int rc;
-    char* mtab_path = get_mtab_path();
-    char new_mtab_path[PATH_MAX];
-    if(!mtab_path) {
-        return -EIO;
-    };
-    int fd = open(mtab_path, O_RDWR | O_CREAT, 0644);
-    if(fd < 0) {
-        perror("Can`t open mtab");
-        return -EIO;
-    };
-    rc = lockf(fd, F_LOCK, 0);
-    if(rc != 0) {
-        perror("Can`t lock mtab");
-        return -EIO;
-    };
-    strncpy(new_mtab_path, mtab_path, PATH_MAX - 16);
-    new_mtab_path[PATH_MAX - 1] = 0;
-    strcat(new_mtab_path, ".new");
-    FILE* mtab = setmntent(mtab_path, "r");
-    if(!mtab) {
-        perror("Can`t open mtab");
-        return -EIO;
-    };
-    FILE* new_mtab = setmntent(new_mtab_path, "a+");
-    if(!new_mtab) {
-        perror("Can`t open new mtab");
-        return -EIO;
-    };
-    struct mntent* ent;
-    while((ent = getmntent(mtab)) != NULL) {
-        if(strcmp(ent->mnt_fsname, imagefile) == 0 && 
-            strcmp(ent->mnt_dir, mount_point) == 0 &&
-            strcmp(ent->mnt_type, "fuseiso") == 0) {
-            // skip
-        } else {
-            rc = addmntent(new_mtab, ent);
-            if(rc != 0) {
-                perror("Can`t add mtab entry");
-                return -EIO;
-            };
-        };
-    };
-    endmntent(mtab);
-    endmntent(new_mtab);
-    rc = rename(new_mtab_path, mtab_path);
-    if(rc != 0) {
-        perror("Can`t rewrite mtab");
-        return -EIO;
-    };
-    rc = lockf(fd, F_ULOCK, 0);
-    if(rc != 0) {
-        perror("Can`t unlock mtab");
-        return -EIO;
-    };
-    close(fd);
-    free(mtab_path);
-    return 0;
-};
-
 static int isofs_getattr(const char *path, struct stat *stbuf)
 {
     return isofs_real_getattr(path, stbuf);
@@ -239,21 +116,10 @@ static int isofs_flush(const char *UNUSED(path), struct fuse_file_info *UNUSED(f
 };
 
 static void* isofs_init() {
-    int rc;
-    if(maintain_mtab) {
-        rc = add_mtab_record();
-        if(rc != 0) {
-            exit(EXIT_FAILURE);
-        };
-    };
     return isofs_real_init();
 };
 
 static void isofs_destroy(void* param) {
-    if(maintain_mtab) {
-        del_mtab_record();
-    };
-    return;
 };
 
 static int isofs_opendir(const char *path, struct fuse_file_info *UNUSED(fi)) {
@@ -265,7 +131,7 @@ static int isofs_readdir(const char *path, void *buf, fuse_fill_dir_t filler, of
     return isofs_real_readdir(path, buf, filler);
 };
 
-static int isofs_statfs(const char *UNUSED(path), struct statfs *stbuf)
+static int isofs_statfs(const char *UNUSED(path), struct statvfs *stbuf)
 {
     return isofs_real_statfs(stbuf);
 }
@@ -284,9 +150,8 @@ static struct fuse_operations isofs_oper = {
 };
 
 void usage(const char* prog) {
-    printf("Version: %s\nUsage: %s [-n] [-p] [-c <iocharset>] [-h] <isofs_image_file> <mount_point> [<FUSE library options>]\n"
+    printf("Version: %s\nUsage: %s [-p] [-c <iocharset>] [-h] <isofs_image_file> <mount_point> [<FUSE library options>]\n"
         "Where options are:\n"
-        "    -n                 -- do NOT maintain file $HOME/.mtab.fuseiso\n"
         "    -p                 -- maintain mount point; \n"
         "                          create it if it does not exists and delete it on exit\n"
         "    -c <iocharset>     -- specify iocharset for Joliet filesystem\n"
@@ -306,15 +171,11 @@ int main(int argc, char *argv[])
     
     // defaults
     maintain_mount_point = 0;
-    maintain_mtab = 1;
     iocharset = NULL;
     
     char c;
     while((c = getopt(argc, argv, "+npc:h")) > 0) {
         switch(c) {
-            case 'n':
-                maintain_mtab = 0;
-                break;
             case 'p':
                 maintain_mount_point = 1;
                 break;
@@ -386,7 +247,34 @@ int main(int argc, char *argv[])
         nargv[nargc] = "use_ino";
         nargc++;
     };
-    
+
+	// Prepare volume name
+
+	char* volumeName = strrchr(imagefile, '/');
+	if (NULL == volumeName)
+	{
+		volumeName = imagefile;
+	}
+	else
+	{
+		++volumeName; // skip leading path separator
+	}
+
+	// Combine volume name with other options
+
+	static char optionsBuffer[PATH_MAX + 128] = {0};
+	snprintf(optionsBuffer, sizeof(optionsBuffer), "-oallow_other,ro,volname=%s", volumeName);
+
+	// Remove file extension from volume name
+
+	char* extensionPosition = strrchr(optionsBuffer, '.');
+	if (NULL != extensionPosition)
+	{
+		*extensionPosition = '\0';
+	}
+
+	nargv[nargc++] = optionsBuffer;
+
     if(!iocharset) {
         char *nlcharset = nl_langinfo(CODESET);
         if(nlcharset) {

@@ -24,7 +24,6 @@
 #include <stdio.h>
 #include <fcntl.h>
 #include <errno.h>
-#include <glib.h>
 #include <string.h>
 #include <unistd.h>
 #include <stdlib.h>
@@ -32,18 +31,40 @@
 #include <zlib.h>
 #include <dirent.h>
 #include <pthread.h>
-#include <sys/statfs.h>
+#include <sys/syslimits.h>
 #include <iconv.h>
+
+#include <string>
+#include <map>
 
 #include "isofs.h"
 
 #define ARR_LENGTH(arr) \
 	(sizeof(arr) == 0) ? (0) : (sizeof(arr) / sizeof(arr[0]))
 
+typedef std::map<std::string, isofs_inode*> inode_table;
+
+inline void g_hash_table_insert(inode_table& table, const char* const key, isofs_inode* const value)
+{
+	table.insert( std::make_pair(key, value) );
+}
+
+isofs_inode* g_hash_table_lookup(const inode_table& table, const char* const key)
+{
+	const auto result = table.find(key);
+
+	return table.end() == result
+		? NULL
+		: result->second;
+}
+
+
 static isofs_context context;
-static GHashTable *lookup_table;
-static GHashTable *negative_lookup_table;
-static char *negative_value = "not exists";
+
+static inode_table lookup_table;
+static inode_table negative_lookup_table;
+
+static isofs_inode* const negative_value = reinterpret_cast<isofs_inode*>(0x12345678);
 static pthread_mutex_t fd_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 static int isofs_check_rr(struct iso_directory_record *root_record);
@@ -61,16 +82,6 @@ typedef struct _iso_definition {
 } iso_definition;
 
 extern char* iocharset;
-
-// locally implement g_strv_length, this is missing in glib2 for rhel3/rhel4
-// -- Chandan Dutta Chowdhury 2007-07-06
-guint local_g_strv_length (gchar **str_array) {
-    guint i = 0;
-    g_return_val_if_fail (str_array != NULL, 0);
-    while (str_array[i])
-    ++i;
-    return i;
-};
 
 int isofs_real_preinit( char* imagefile, int fd) {
     
@@ -176,9 +187,6 @@ int isofs_real_preinit( char* imagefile, int fd) {
     
     context.susp = 0;
     context.susp_skip = 0;
-    
-    lookup_table = g_hash_table_new(g_str_hash, g_str_equal);
-    negative_lookup_table = g_hash_table_new(g_str_hash, g_str_equal);
     
     isofs_inode *inode = (isofs_inode *) malloc(sizeof(isofs_inode));
     if(!inode) {
@@ -407,49 +415,77 @@ static int isofs_check_rr(struct iso_directory_record *root_record) {
     return 0;
 };
 
-static isofs_inode *isofs_lookup(const char *path) {
-    if(path[0] == '\0') {
+static isofs_inode *isofs_lookup(const char *path)
+{
+    if ('\0' == path[0])
+	{
         return NULL;
     };
-    isofs_inode *inode = g_hash_table_lookup(lookup_table, path);
-    if(inode) {
+
+    isofs_inode* inode = g_hash_table_lookup(lookup_table, path);
+
+	if (NULL != inode)
+	{
+		printf("[FOUND] isofs_lookup: %s\n", path);
         return inode;
     };
-    if(g_hash_table_lookup(negative_lookup_table, path)) {
+
+    if ( NULL != g_hash_table_lookup(negative_lookup_table, path) )
+	{
+		printf("[NOT FOUND] isofs_lookup: %s\n", path);
         return NULL;
-    };
-//     printf("start search for %s\n", path);
-    gchar **parts = g_strsplit(path, "/", -1);
-    guint parts_len = local_g_strv_length(parts);
-    int partno = 1;
-    gchar *rpath = g_strdup("/");
-    gchar *rpath1 = "";
-    gchar *part = parts[partno];
-    while(part && partno < parts_len) {
-        rpath1 = g_strconcat(rpath1, "/", part, NULL);
-//         printf("looking for %s in %s...\n", rpath1, rpath);
-        inode = g_hash_table_lookup(lookup_table, rpath1);
-        if(!inode) {
-//             printf("trying to load %s...\n", rpath);
-            int rc = isofs_real_readdir(rpath, NULL, NULL);
-            if(rc) {
-                fprintf(stderr, "lookup: error %d from readdir: %s\n", rc, strerror(-rc));
-                g_strfreev(parts);
-                g_free(rpath);
-                return NULL;
-            };
-        };
-        partno++;
-        part = parts[partno];
-        g_free(rpath);
-        rpath = rpath1;
-    };
-    g_strfreev(parts);
-    g_free(rpath);
+    }
+
+	const std::string pathString = path;
+	std::string workPathString;
+
+	size_t start = 0;
+	size_t end;
+
+	do
+	{
+		end = pathString.find_first_of('/', start);
+
+		if (start != end) // empty part check
+		{
+			const std::string pathPartString = pathString.substr(start, end - start);
+			const char* const pathPart = pathPartString.c_str();
+
+			workPathString += '/';
+			workPathString += pathPart;
+
+			const char* const workPath = workPathString.c_str();
+
+			printf("[PROCESS] isofs_lookup: %s\n", workPath);
+
+			inode = g_hash_table_lookup(lookup_table, workPath);
+
+			if (NULL != inode)
+			{
+				printf("[READ] isofs_lookup: %s\n", workPath);
+
+				const int rc = isofs_real_readdir(workPath, NULL, NULL);
+
+				if (0 != rc)
+				{
+					fprintf( stderr, "lookup: error %d from readdir: %s\n", rc, strerror(-rc) );
+
+					return NULL;
+				};
+			}
+		}
+
+        start = end + 1;
+    }
+	while (std::string::npos != end);
+
     inode = g_hash_table_lookup(lookup_table, path);
-    if(!inode) {
-        g_hash_table_insert(negative_lookup_table, g_strdup(path), negative_value);
-    };
+
+    if (NULL == inode)
+	{
+        g_hash_table_insert(negative_lookup_table, path, negative_value);
+    }
+
     return inode;
 };
 
@@ -1525,7 +1561,7 @@ int isofs_real_readdir(const char *path, void *filler_buf, isofs_dir_fill_t fill
                 // already in lookup cache
                 isofs_free_inode(inode);
             } else {
-                g_hash_table_insert(lookup_table, g_strdup(absolute_entry), inode);
+                g_hash_table_insert(lookup_table, absolute_entry, inode);
             };
             
             free(entry);
@@ -1794,14 +1830,15 @@ int isofs_real_read(const char *path, char *out_buf, size_t size, off_t offset) 
     return total_size;
 };
 
-int isofs_real_statfs(struct statfs *stbuf) {
-    stbuf->f_type = ISOFS_SUPER_MAGIC;
+int isofs_real_statfs(struct statvfs* stbuf)
+{
+    stbuf->f_fsid = ISOFS_SUPER_MAGIC;
     stbuf->f_bsize = context.data_size; // or PAGE_CACHE_SIZE?
     stbuf->f_blocks = 0; // while it is possible to calculate this, i see no reasons to do so
     stbuf->f_bfree = 0;
     stbuf->f_bavail = 0;
     stbuf->f_files = 0;
     stbuf->f_ffree = 0;
-    stbuf->f_namelen = NAME_MAX - 1; // ? not sure..
+    stbuf->f_namemax = NAME_MAX - 1; // ? not sure..
     return 0;
 };

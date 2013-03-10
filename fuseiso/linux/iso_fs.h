@@ -11,7 +11,6 @@
 #ifndef _ISOFS_FS_H
 #define _ISOFS_FS_H
 
-#include <linux/types.h>
 /*
  * The isofs filesystem constants/structures
  */
