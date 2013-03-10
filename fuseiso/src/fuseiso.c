@@ -51,7 +51,7 @@
 # define UNUSED(x) x
 #endif
 
-#define VERSION "20070708"
+#define VERSION "20130310"
 
 static char *imagefile = NULL;
 static char *mount_point = NULL;
@@ -60,45 +60,58 @@ static int image_fd = -1;
 int maintain_mount_point;
 char* iocharset;
 
-char* normalize_name(const char* fname) {
-    char* abs_fname = (char *) malloc(PATH_MAX);
+static char* normalize_name(const char* fname)
+{
+    char* abs_fname = (char*) malloc(PATH_MAX);
     realpath(fname, abs_fname);
     // ignore errors from realpath()
     return abs_fname;
-};
+}
 
-int check_mount_point() {
+static int check_mount_point()
+{
     struct stat st;
     int rc = lstat(mount_point, &st);
-    if(rc == -1 && errno == ENOENT) {
+
+    if (-1 == rc && ENOENT == errno)
+    {
         // directory does not exists, createcontext
         rc = mkdir(mount_point, 0777); // let`s underlying filesystem manage permissions
-        if(rc != 0) {
-            perror("Can`t create mount point");
-            return -EIO;
-        };
-    } else if(rc == -1) {
-        perror("Can`t check mount point");
-        return -1;
-    };
-    return 0;
-};
 
-void del_mount_point() {
+        if (0 != rc)
+        {
+            perror("Can't create mount point");
+            return -EIO;
+        }
+    }
+    else if (-1 == rc)
+    {
+        perror("Can't check mount point");
+        return -1;
+    }
+
+    return 0;
+}
+
+static void del_mount_point()
+{
     int rc = rmdir(mount_point);
-    if(rc != 0) {
+    
+    if (0 != rc)
+    {
         perror("Can`t delete mount point");
-    };
-};
+    }
+}
 
 static int isofs_getattr(const char *path, struct stat *stbuf)
 {
     return isofs_real_getattr(path, stbuf);
 }
 
-static int isofs_readlink(const char *path, char *target, size_t size) {
+static int isofs_readlink(const char *path, char *target, size_t size)
+{
     return isofs_real_readlink(path, target, size);
-};
+}
 
 static int isofs_open(const char *path, struct fuse_file_info *UNUSED(fi))
 {
@@ -106,50 +119,52 @@ static int isofs_open(const char *path, struct fuse_file_info *UNUSED(fi))
 }
 
 static int isofs_read(const char *path, char *buf, size_t size,
-                     off_t offset, struct fuse_file_info *UNUSED(fi))
+    off_t offset, struct fuse_file_info *UNUSED(fi))
 {
     return isofs_real_read(path, buf, size, offset);
 }
 
-static int isofs_flush(const char *UNUSED(path), struct fuse_file_info *UNUSED(fi)) {
+static int isofs_flush(const char *UNUSED(path), struct fuse_file_info *UNUSED(fi))
+{
     return 0;
-};
+}
 
-static void* isofs_init() {
+static void* isofs_init()
+{
     return isofs_real_init();
-};
+}
 
-static void isofs_destroy(void* param) {
-};
-
-static int isofs_opendir(const char *path, struct fuse_file_info *UNUSED(fi)) {
+static int isofs_opendir(const char *path, struct fuse_file_info *UNUSED(fi))
+{
     return isofs_real_opendir(path);
-};
+}
 
-static int isofs_readdir(const char *path, void *buf, fuse_fill_dir_t filler, off_t UNUSED(offset),
-    struct fuse_file_info *UNUSED(fi)) {
+static int isofs_readdir(const char *path, void *buf, fuse_fill_dir_t filler,
+    off_t UNUSED(offset), struct fuse_file_info *UNUSED(fi))
+{
     return isofs_real_readdir(path, buf, filler);
-};
+}
 
 static int isofs_statfs(const char *UNUSED(path), struct statvfs *stbuf)
 {
     return isofs_real_statfs(stbuf);
 }
 
-static struct fuse_operations isofs_oper = {
+static struct fuse_operations isofs_oper =
+{
     .getattr    = isofs_getattr,
     .readlink   = isofs_readlink,
     .open       = isofs_open,
     .read       = isofs_read,
     .flush      = isofs_flush,
     .init       = isofs_init,
-    .destroy    = isofs_destroy,
     .opendir    = isofs_opendir,
     .readdir    = isofs_readdir,
     .statfs     = isofs_statfs,
 };
 
-void usage(const char* prog) {
+static void usage(const char* prog)
+{
     printf("Version: %s\nUsage: %s [-p] [-c <iocharset>] [-h] <isofs_image_file> <mount_point> [<FUSE library options>]\n"
         "Where options are:\n"
         "    -p                 -- maintain mount point; \n"
@@ -163,7 +178,7 @@ void usage(const char* prog) {
         "\nPlease consult with FUSE ducumentation for more information\n",
         VERSION, 
         prog);
-};
+}
 
 int main(int argc, char *argv[])
 {
@@ -174,29 +189,37 @@ int main(int argc, char *argv[])
     iocharset = NULL;
     
     char c;
-    while((c = getopt(argc, argv, "+npc:h")) > 0) {
-        switch(c) {
+    
+    while ((c = (char) getopt(argc, argv, "+npc:h")) > 0)
+    {
+        switch (c)
+        {
             case 'p':
                 maintain_mount_point = 1;
                 break;
+                
             case 'c':
-                if(optarg) {
+                if (optarg)
+                {
                     iocharset = optarg;
                 };
                 break;
+
             case 'h':
                 usage(argv[0]);
                 exit(0);
                 break;
+
             case '?':
             case ':':
                 usage(argv[0]);
                 exit(EXIT_FAILURE);
                 break;
-        };
-    };
+        }
+    }
     
-    if((argc - optind) < 2) {
+    if ((argc - optind) < 2)
+    {
         usage(argv[0]);
         exit(EXIT_FAILURE);
     };
@@ -204,16 +227,18 @@ int main(int argc, char *argv[])
     imagefile = normalize_name(argv[optind]);
     
     image_fd = open(imagefile, O_RDONLY);
-    if(image_fd == -1) {
+
+    if (-1 == image_fd)
+    {
         fprintf(stderr, "Supplied image file name: \"%s\"\n", imagefile);
-        perror("Can`t open image file");
+        perror("Can't open image file");
         exit(EXIT_FAILURE);
     };
     
     mount_point = normalize_name(argv[optind + 1]);
     
     // with space for possible -o use_ino arguments
-    char **nargv = (char **) malloc((argc + 2) * sizeof(char *));
+    char** nargv = (char**) malloc( (size_t)(argc + 2) * sizeof(char*) );
     int nargc = argc - optind;
     
     nargv[0] = argv[0];
@@ -221,89 +246,109 @@ int main(int argc, char *argv[])
     int i;
     int next_opt = 0;
     int use_ino_found = 0;
-    for(i = 0; i < nargc - 1; ++i) {
-        if(next_opt && !use_ino_found) {
-            if(strstr(argv[i + optind + 1], "use_ino")) { // ok, already there
+    
+    for (i = 0; i < nargc - 1; ++i)
+    {
+        if (next_opt && !use_ino_found)
+        {
+            if (strstr(argv[i + optind + 1], "use_ino"))
+            {
+                // ok, already there
                 use_ino_found = 1;
                 nargv[i + 1] = argv[i + optind + 1];
-            } else { // add it
+            }
+            else
+            {
+                // add it
                 char* str = (char*) malloc(strlen(argv[i + optind + 1]) + 10);
                 strcpy(str, argv[i + optind + 1]);
                 strcat(str, ",use_ino");
                 nargv[i + 1] = str;
                 use_ino_found = 1;
-            };
-        } else {
+            }
+        }
+        else
+        {
             nargv[i + 1] = argv[i + optind + 1];
-        };
+        }
+
         // check if this is -o string mean that next argument should be options string
-        if(i > 1 && nargv[i + 1][0] == '-' && nargv[i + 1][1] == 'o') {
+        if(i > 1 && nargv[i + 1][0] == '-' && nargv[i + 1][1] == 'o')
+        {
             next_opt = 1;
-        };
-    };
-    if(!use_ino_found) {
+        }
+    }
+
+    if (!use_ino_found)
+    {
         nargv[nargc] = "-o";
         nargc++;
         nargv[nargc] = "use_ino";
         nargc++;
     };
 
-	// Prepare volume name
+    // Prepare volume name
 
-	char* volumeName = strrchr(imagefile, '/');
-	if (NULL == volumeName)
-	{
-		volumeName = imagefile;
-	}
-	else
-	{
-		++volumeName; // skip leading path separator
-	}
+    char* volumeName = strrchr(imagefile, '/');
+    if (NULL == volumeName)
+    {
+        volumeName = imagefile;
+    }
+    else
+    {
+        ++volumeName; // skip leading path separator
+    }
 
-	// Combine volume name with other options
+    // Combine volume name with other options
 
-	static char optionsBuffer[PATH_MAX + 128] = {0};
-	snprintf(optionsBuffer, sizeof(optionsBuffer), "-oallow_other,ro,volname=%s", volumeName);
+    static char optionsBuffer[PATH_MAX + 128] = {0};
+    snprintf(optionsBuffer, sizeof(optionsBuffer), "-oallow_other,ro,volname=%s", volumeName);
 
-	// Remove file extension from volume name
+    // Remove file extension from volume name
 
-	char* extensionPosition = strrchr(optionsBuffer, '.');
-	if (NULL != extensionPosition)
-	{
-		*extensionPosition = '\0';
-	}
+    char* extensionPosition = strrchr(optionsBuffer, '.');
+    if (NULL != extensionPosition)
+    {
+        *extensionPosition = '\0';
+    }
 
-	nargv[nargc++] = optionsBuffer;
+    nargv[nargc++] = optionsBuffer;
 
-    if(!iocharset) {
+    if (!iocharset)
+    {
         char *nlcharset = nl_langinfo(CODESET);
-        if(nlcharset) {
+
+        if (NULL != nlcharset)
+        {
             iocharset = (char *) malloc(strlen(nlcharset) + 9);
             strcpy(iocharset, nlcharset);
             strcat(iocharset, "//IGNORE");
-        };
-        if(!iocharset) {
+        }
+
+        if (NULL == iocharset)
+        {
             iocharset = "UTF-8//IGNORE";
-        };
-    };
+        }
+    }
     
     int rc;
-    if(maintain_mount_point) {
-        rc = check_mount_point();
-        if(rc != 0) {
-            exit(EXIT_FAILURE);
-        };
-    };
-    if(maintain_mount_point) {
-        rc = atexit(del_mount_point);
-        if(rc != 0) {
-            fprintf(stderr, "Can`t set exit function\n");
+    
+    if (maintain_mount_point)
+    {
+        if (0 != check_mount_point())
+        {
             exit(EXIT_FAILURE);
         }
-    };
+
+        if (0 != atexit(del_mount_point))
+        {
+            fprintf(stderr, "Can't set exit function\n");
+            exit(EXIT_FAILURE);
+        }
+    }
     
     // will exit in case of failure
     rc = isofs_real_preinit(imagefile, image_fd);
     
     return fuse_main(nargc, nargv, &isofs_oper);
-};
+}
