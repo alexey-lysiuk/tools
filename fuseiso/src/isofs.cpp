@@ -40,7 +40,7 @@
 #include "isofs.h"
 
 #define ARR_LENGTH(arr) \
-	(sizeof(arr) == 0) ? (0) : (sizeof(arr) / sizeof(arr[0]))
+	((sizeof(arr) == 0) ? (0) : (sizeof(arr) / sizeof(arr[0])))
 
 typedef std::map<std::string, isofs_inode*> inode_table;
 
@@ -58,7 +58,6 @@ isofs_inode* g_hash_table_lookup(const inode_table& table, const char* const key
 		: result->second;
 }
 
-
 static isofs_context context;
 
 static inode_table lookup_table;
@@ -75,11 +74,12 @@ static int read_next_volume_descriptor();
 
 struct iso_volume_descriptor vd;
 
-typedef struct _iso_definition {
-	size_t block_size;
-	size_t block_offset;
-	int file_offset;
-} iso_definition;
+struct iso_definition
+{
+    size_t block_size;
+    size_t block_offset;
+    size_t file_offset;
+};
 
 extern char* iocharset;
 
@@ -204,55 +204,62 @@ int isofs_real_preinit( char* imagefile, int fd) {
     return 0;
 };
 
-static void identify_iso() {
-	struct iso_volume_descriptor vd;
-	
-	// defaults for iso
+static void identify_iso()
+{
+	// Defaults for ISO
+
     context.block_size = 2048;
     context.data_size = 2048;
     context.block_offset = 0;
     context.file_offset = 0;
-    
-    iso_definition iso_defs[] = {
-    		{2048, 0, 307200}, // NRG
-    		{2048, 0, 0}, // ISO_2048
-    		{2352, 0, 0}, // MODE1_2352_RAW
-    		{2352, 16, 0}, // MODE1_2352
-    		{2352, 24, 0}, // MODE2_2352
-    		{2336, 16, 0}, // MODE2_2336
+
+    iso_definition iso_defs[] =
+    {
+        {2048, 0, 307200}, // NRG
+        {2048, 0, 0},      // ISO_2048
+        {2352, 0, 0},      // MODE1_2352_RAW
+        {2352, 16, 0},     // MODE1_2352
+        {2352, 24, 0},     // MODE2_2352
+        {2336, 16, 0},     // MODE2_2336
+        {2448, 16, 0},     // RAW with sub-channel data
     };
+
+    // Try to find CD001 identifier
     
-    // try to find CD001 identifier
-    int i;
-    for(i = 0; i < ARR_LENGTH(iso_defs); i++) {
-    	int id_offset = iso_defs[i].block_size * 16 +
-    			iso_defs[i].block_offset + iso_defs[i].file_offset;
+    for (size_t i = 0; i < ARR_LENGTH(iso_defs); ++i)
+    {
+    	const off_t id_offset = static_cast<off_t>(
+            iso_defs[i].block_size * 16 + iso_defs[i].block_offset + iso_defs[i].file_offset);
     	
-        if(lseek(context.fd, id_offset, SEEK_SET) == -1) {
-        	fprintf(stderr, "can`t lseek() to next possible data start position (%d); is it really supported file?", id_offset);
+        if (-1 == lseek(context.fd, id_offset, SEEK_SET))
+        {
+        	fprintf(stderr, "ERROR: Can't lseek() to next possible data start position (%zd); is it really supported file?", id_offset);
             exit(EIO);
-        };
-        
-        ssize_t size = read(context.fd, &vd, sizeof(struct iso_volume_descriptor));
-        if(size != sizeof(struct iso_volume_descriptor)) {
-            fprintf(stderr, "only %d bytes read from position %d, %d required; is it really a supported file?\n", 
-                size, id_offset, sizeof(struct iso_volume_descriptor));
+        }
+
+        const ssize_t size = read(context.fd, &vd, sizeof(struct iso_volume_descriptor));
+
+        if (sizeof(iso_volume_descriptor) != size)
+        {
+            fprintf(stderr, "ERROR: Only %zd bytes read from position %zd, %zu required; is it really a supported file?\n",
+                size, id_offset, sizeof(iso_volume_descriptor));
             exit(EIO);
-        };
-        
-        char *vd_id = (char *) (vd.id);
-        if(strncmp("CD001", vd_id, 5) == 0) {
-            // found CD001!
-            // fill context with information about block size and block offsets
+        }
+
+        if (0 == strncmp("CD001", vd.id, 5))
+        {
+            // Found CD001, fill context with information about block size and block offsets
+            
         	context.data_size = 2048;
             context.id_offset = id_offset;
             
             context.block_size = iso_defs[i].block_size;
             context.block_offset = iso_defs[i].block_offset;
             context.file_offset = iso_defs[i].file_offset;
+
             break;
-        };
-    };
+        }
+    }
 }
 
 static int read_next_volume_descriptor() {
