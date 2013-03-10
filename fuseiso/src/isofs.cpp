@@ -308,28 +308,52 @@ static char* dstr(char* str, const char* src, int len) {
     return str;
 };
 
-void* isofs_real_init() {
-    if(context.file_offset == 307200) {
-        printf("NRG image found\n");
-    } else if(context.block_size == 2048) {
-        printf("ISO9660 image found\n");
-    } else if(context.block_size == 2352 && context.block_offset == 0) {
-        printf("MODE2 RAW BIN image found\n");
-    } else if(context.block_size == 2352 && context.block_offset == 16) {
-        printf("MODE1 BIN image found (or CCD MODE1 image, or MDF image)\n");
-    } else if(context.block_size == 2352 && context.block_offset == 24) {
-        printf("MODE2 BIN image found (or CCD MODE2 image)\n");
-    } else if(context.block_size == 2336 && context.block_offset == 16) {
-        printf("MODE2/2336 BIN image found\n");
-    } else {
-        printf("UNKNOWN image found; probably will not work\n");
-    };
-    
-    if(context.block_size != 2048) {
-        // report unusual data block size
-        printf("Data block size: %d\n", context.block_size);
-    };
-    
+void* isofs_real_init()
+{
+    // Report image type
+
+    if (307200 == context.file_offset)
+    {
+        puts("NRG image found");
+    }
+    else if (2048 == context.block_size)
+    {
+        puts("ISO9660 image found");
+    }
+    else if (2352 == context.block_size && 0 == context.block_offset)
+    {
+        puts("MODE2 RAW BIN image found");
+    }
+    else if (2352 == context.block_size && 16 == context.block_offset)
+    {
+        puts("MODE1 BIN image found (or CCD MODE1 image, or MDF image)");
+    }
+    else if (2352 == context.block_size && 24 == context.block_offset)
+    {
+        puts("MODE2 BIN image found (or CCD MODE2 image)");
+    }
+    else if (2336 == context.block_size && 16 == context.block_offset)
+    {
+        puts("MODE2/2336 BIN image found");
+    }
+    else if (2448 == context.block_size && 16 == context.block_offset)
+    {
+        puts("RAW image with sub-channel data found");
+    }
+    else
+    {
+        puts("UNKNOWN image found; probably will not work");
+    }
+
+    // Report unusual data block size
+
+    if (2048 != context.block_size)
+    {
+        printf("Data block size: %zd\n", context.block_size);
+    }
+
+    // Report image information
+
     char buf[129];
     
     printf("System Identifier                 : %s\n", dstr(buf, context.pd.system_id, 32));
@@ -346,8 +370,8 @@ void* isofs_real_init() {
     printf("Volume Expiration Date and Time   : %.17s\n", dstr(buf, context.pd.expiration_date, 17));
     printf("Volume Effective Date and Time    : %.17s\n", dstr(buf, context.pd.effective_date, 17));
     
-    return (void*) &context;
-};
+    return &context;
+}
 
 static int isofs_check_rr(struct iso_directory_record *root_record) {
     int extent = isonum_733(root_record->extent);
