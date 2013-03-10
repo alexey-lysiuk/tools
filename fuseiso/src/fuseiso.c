@@ -51,14 +51,13 @@
 # define UNUSED(x) x
 #endif
 
-#define VERSION "20130310"
+#define VERSION __DATE__
 
 static char *imagefile = NULL;
 static char *mount_point = NULL;
 static int image_fd = -1;
 
-int maintain_mount_point;
-char* iocharset;
+char* iocharset = NULL;
 
 static char* normalize_name(const char* fname)
 {
@@ -95,12 +94,9 @@ static int check_mount_point()
 
 static void del_mount_point()
 {
-    int rc = rmdir(mount_point);
-    
-    if (0 != rc)
-    {
-        perror("Can`t delete mount point");
-    }
+    // Do not check rmdir() return value because mount point directory
+    // can be already remove if unmounted from OS X UI, i.e. from Finder
+    rmdir(mount_point);
 }
 
 static int isofs_getattr(const char *path, struct stat *stbuf)
@@ -165,10 +161,8 @@ static struct fuse_operations isofs_oper =
 
 static void usage(const char* prog)
 {
-    printf("Version: %s\nUsage: %s [-p] [-c <iocharset>] [-h] <isofs_image_file> <mount_point> [<FUSE library options>]\n"
+    printf("Version: %s\nUsage: %s [-c <iocharset>] [-h] <isofs_image_file> [<FUSE library options>]\n"
         "Where options are:\n"
-        "    -p                 -- maintain mount point; \n"
-        "                          create it if it does not exists and delete it on exit\n"
         "    -c <iocharset>     -- specify iocharset for Joliet filesystem\n"
         "    -h                 -- print this screen\n"
         "\nCommon FUSE library options are:\n"
@@ -184,20 +178,12 @@ int main(int argc, char *argv[])
 {
     setlocale(LC_ALL, ""); // set current locale for proper iocharset
     
-    // defaults
-    maintain_mount_point = 0;
-    iocharset = NULL;
-    
     char c;
     
     while ((c = (char) getopt(argc, argv, "+npc:h")) > 0)
     {
         switch (c)
         {
-            case 'p':
-                maintain_mount_point = 1;
-                break;
-                
             case 'c':
                 if (optarg)
                 {
@@ -218,7 +204,7 @@ int main(int argc, char *argv[])
         }
     }
     
-    if ((argc - optind) < 2)
+    if ((argc - optind) < 1)
     {
         usage(argv[0]);
         exit(EXIT_FAILURE);
@@ -234,8 +220,6 @@ int main(int argc, char *argv[])
         perror("Can't open image file");
         exit(EXIT_FAILURE);
     }
-    
-    mount_point = normalize_name(argv[optind + 1]);
     
     // with space for possible -o use_ino arguments
     char** nargv = (char**) malloc( (size_t)(argc + 2) * sizeof(char*) );
@@ -279,41 +263,13 @@ int main(int argc, char *argv[])
         }
     }
 
-    // Prepare volume name
-
-    char* volumeName = strrchr(imagefile, '/');
-    if (NULL == volumeName)
+    if (NULL == iocharset)
     {
-        volumeName = imagefile;
-    }
-    else
-    {
-        ++volumeName; // skip leading path separator
-    }
-
-    // Combine volume name with other options
-
-    static char optionsBuffer[PATH_MAX + 128] = {0};
-    snprintf(optionsBuffer, sizeof(optionsBuffer), "-o%sallow_other,ro,volname=%s",
-        (use_ino_found ? "" : "use_ino,"), volumeName);
-
-    // Remove file extension from volume name
-
-    char* extensionPosition = strrchr(optionsBuffer, '.');
-    if (NULL != extensionPosition)
-    {
-        *extensionPosition = '\0';
-    }
-
-    nargv[nargc++] = optionsBuffer;
-
-    if (!iocharset)
-    {
-        char *nlcharset = nl_langinfo(CODESET);
+        char* nlcharset = nl_langinfo(CODESET);
 
         if (NULL != nlcharset)
         {
-            iocharset = (char *) malloc(strlen(nlcharset) + 9);
+            iocharset = (char*) malloc(strlen(nlcharset) + 9);
             strcpy(iocharset, nlcharset);
             strcat(iocharset, "//IGNORE");
         }
@@ -323,25 +279,60 @@ int main(int argc, char *argv[])
             iocharset = "UTF-8//IGNORE";
         }
     }
-    
-    int rc;
-    
-    if (maintain_mount_point)
-    {
-        if (0 != check_mount_point())
-        {
-            exit(EXIT_FAILURE);
-        }
 
-        if (0 != atexit(del_mount_point))
-        {
-            fprintf(stderr, "Can't set exit function\n");
-            exit(EXIT_FAILURE);
-        }
+    // Prepare volume name
+
+    char* volumePart = strrchr(imagefile, '/');
+    if (NULL == volumePart)
+    {
+        volumePart = imagefile;
     }
-    
+    else
+    {
+        ++volumePart; // skip leading path separator
+    }
+
+    char* volumeName = strdup(volumePart);
+
+    // Remove file extension from volume name
+
+    char* extensionPosition = strrchr(volumeName, '.');
+    if (NULL != extensionPosition)
+    {
+        *extensionPosition = '\0';
+    }
+
+    // Combine volume name with other options
+
+    char optionsBuffer[PATH_MAX + 128] = {0};
+    snprintf(optionsBuffer, sizeof(optionsBuffer), "-o%sallow_other,ro,volname=%s",
+        (use_ino_found ? "" : "use_ino,"), volumeName);
+
+    char mountPointBuffer[PATH_MAX] = {0};
+    snprintf(mountPointBuffer, sizeof(mountPointBuffer), "/Volumes/%s", volumeName);
+
+    free(volumeName);
+
+    nargv[nargc++] = mountPointBuffer;
+    nargv[nargc++] = optionsBuffer;
+
+    // Setup mount point
+
+    mount_point = mountPointBuffer;
+
+    if (0 != check_mount_point())
+    {
+        exit(EXIT_FAILURE);
+    }
+
+    if (0 != atexit(del_mount_point))
+    {
+        fprintf(stderr, "Can't set exit function\n");
+        exit(EXIT_FAILURE);
+    }
+
     // will exit in case of failure
-    rc = isofs_real_preinit(imagefile, image_fd);
+    isofs_real_preinit(imagefile, image_fd);
     
     return fuse_main(nargc, nargv, &isofs_oper);
 }
