@@ -202,7 +202,7 @@ int main(int argc, char *argv[])
                 if (optarg)
                 {
                     iocharset = optarg;
-                };
+                }
                 break;
 
             case 'h':
@@ -222,7 +222,7 @@ int main(int argc, char *argv[])
     {
         usage(argv[0]);
         exit(EXIT_FAILURE);
-    };
+    }
     
     imagefile = normalize_name(argv[optind]);
     
@@ -233,7 +233,7 @@ int main(int argc, char *argv[])
         fprintf(stderr, "Supplied image file name: \"%s\"\n", imagefile);
         perror("Can't open image file");
         exit(EXIT_FAILURE);
-    };
+    }
     
     mount_point = normalize_name(argv[optind + 1]);
     
@@ -279,14 +279,6 @@ int main(int argc, char *argv[])
         }
     }
 
-    if (!use_ino_found)
-    {
-        nargv[nargc] = "-o";
-        nargc++;
-        nargv[nargc] = "use_ino";
-        nargc++;
-    };
-
     // Prepare volume name
 
     char* volumeName = strrchr(imagefile, '/');
@@ -302,7 +294,8 @@ int main(int argc, char *argv[])
     // Combine volume name with other options
 
     static char optionsBuffer[PATH_MAX + 128] = {0};
-    snprintf(optionsBuffer, sizeof(optionsBuffer), "-oallow_other,ro,volname=%s", volumeName);
+    snprintf(optionsBuffer, sizeof(optionsBuffer), "-o%sallow_other,ro,volname=%s",
+        (use_ino_found ? "" : "use_ino,"), volumeName);
 
     // Remove file extension from volume name
 
