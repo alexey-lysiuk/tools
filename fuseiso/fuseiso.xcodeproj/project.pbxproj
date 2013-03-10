@@ -90,6 +90,7 @@
 			name = Sources;
 			path = src;
 			sourceTree = "<group>";
+			usesTabs = 0;
 		};
 		8AC13D4816ECA66600EBCF0F /* linux */ = {
 			isa = PBXGroup;
