@@ -107,6 +107,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 8A4E38C016EA4A8900FB40C5 /* Build configuration list for PBXNativeTarget "fuseiso" */;
 			buildPhases = (
+				8AC13D4D16ECABE900EBCF0F /* Check OSXFUSE Installation */,
 				8A4E38B216EA4A8900FB40C5 /* Sources */,
 				8A4E38B316EA4A8900FB40C5 /* Frameworks */,
 				8A4E38B416EA4A8900FB40C5 /* CopyFiles */,
@@ -145,6 +146,23 @@
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		8AC13D4D16ECABE900EBCF0F /* Check OSXFUSE Installation */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Check OSXFUSE Installation";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\nif [ ! -e /usr/local/include/osxfuse ]; then\n    echo \"ERROR: OSXFUSE 2.5.x or later is not installed!\"\n    exit 1\nfi\n";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		8A4E38B216EA4A8900FB40C5 /* Sources */ = {
