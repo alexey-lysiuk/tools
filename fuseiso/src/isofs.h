@@ -39,10 +39,10 @@ typedef struct _isofs_context {
     int supplementary; // 1 if supplementary descriptor found and in effect
     struct iso_supplementary_descriptor sd;
     struct iso_directory_record *root;
-    int file_offset; // offset to begin of useful data (for .nrg files)
-    int id_offset; // offset to CD001 inside file
+    off_t file_offset; // offset to begin of useful data (for .nrg files)
+    off_t id_offset; // offset to CD001 inside file
     size_t block_size; // raw block size
-    size_t block_offset; // offset from block start to data
+    off_t block_offset; // offset from block start to data
     size_t data_size; // data size inside block 
     int susp; // parse susp entries
     int susp_skip; // skip bytes from susp SP entry
@@ -109,10 +109,10 @@ typedef struct _zf_file_header {
 #include <byteswap.h>
 #endif // __APPLE__
 
-static inline int isonum_711(unsigned char *p)
-{
-    return *(unsigned char *)p;
-}
+//static inline int isonum_711(unsigned char *p)
+//{
+//    return *(unsigned char *)p;
+//}
 // static inline int isonum_712(char *p)
 // {
 //     return *(s8 *)p;

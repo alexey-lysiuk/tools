@@ -63,6 +63,12 @@ inline isofs_inode* g_hash_table_lookup(const inode_table& table, const char* co
 }
 
 template <typename T>
+inline int isonum_711(const T& value)
+{
+    return *reinterpret_cast<const unsigned char*>(&value);
+}
+
+template <typename T>
 inline unsigned int isonum_733(const T& value)
 {
     /* Ignore bigendian datum due to broken mastering programs */
@@ -94,8 +100,8 @@ struct iso_volume_descriptor vd;
 struct iso_definition
 {
     size_t block_size;
-    size_t block_offset;
-    size_t file_offset;
+    off_t block_offset;
+    off_t file_offset;
 };
 
 extern char* iocharset;
@@ -123,12 +129,12 @@ int isofs_real_preinit(char* imagefile, int fd)
     
     identify_iso();
     
-    VerbosePrint("isofs_real_preinit(): CD001 found at %d, bs %zd, boff %zd, ds %zd\n",
+    VerbosePrint("isofs_real_preinit(): CD001 found at %zd, bs %zd, boff %zd, ds %zd\n",
         context.id_offset, context.block_size, context.block_offset, context.data_size);
 
     while (read_next_volume_descriptor() != ISO_VD_END)
     {
-        int vd_type = isonum_711((unsigned char *)(vd.type));
+        int vd_type = isonum_711(vd.type);
 
         VerbosePrint("isofs_real_preinit(): found volume descriptor type %d\n", vd_type);
         
@@ -210,8 +216,7 @@ int isofs_real_preinit(char* imagefile, int fd)
                         else
                         {
                             context.joliet_level = 0;
-                            VerbosePrint("isofs_real_preinit(): found supplementary descriptor with flags %d\n",
-                                isonum_711( reinterpret_cast<unsigned char*>(sd->flags) ));
+                            VerbosePrint("isofs_real_preinit(): found supplementary descriptor with flags %d\n", isonum_711(sd->flags));
                         }
                     }
                 }
@@ -222,14 +227,14 @@ int isofs_real_preinit(char* imagefile, int fd)
                 break;
                 
             default:
-                fprintf(stderr, "init: unsupported volume descriptor type %d\n", vd_type);
+                fprintf(stderr, "ERROR: Unsupported volume descriptor type %d.\n", vd_type);
                 break;
         }
     }
     
     if (!context.pd.type[0])
     {
-        fprintf(stderr, "init: primary volume descriptor not found! exiting..\n");
+        fprintf(stderr, "ERROR: Primary volume descriptor not found.\n");
         exit(EIO);
     };
     
@@ -247,34 +252,34 @@ int isofs_real_preinit(char* imagefile, int fd)
     g_hash_table_insert(lookup_table, "/", inode);
     
     return 0;
-};
+}
 
 static void identify_iso()
 {
 	// Defaults for ISO
 
-    context.block_size = 2048;
-    context.data_size = 2048;
+    context.block_size   = 2048;
+    context.data_size    = 2048;
     context.block_offset = 0;
-    context.file_offset = 0;
+    context.file_offset  = 0;
 
     iso_definition iso_defs[] =
     {
-        {2048, 0, 307200}, // NRG
-        {2048, 0, 0},      // ISO_2048
-        {2352, 0, 0},      // MODE1_2352_RAW
-        {2352, 16, 0},     // MODE1_2352
-        {2352, 24, 0},     // MODE2_2352
-        {2336, 16, 0},     // MODE2_2336
-        {2448, 16, 0},     // RAW with sub-channel data
+        { 2048, 0,  307200 }, // NRG
+        { 2048, 0,  0      }, // ISO_2048
+        { 2352, 0,  0      }, // MODE1_2352_RAW
+        { 2352, 16, 0      }, // MODE1_2352
+        { 2352, 24, 0      }, // MODE2_2352
+        { 2336, 16, 0      }, // MODE2_2336
+        { 2448, 16, 0      }, // RAW with sub-channel data
     };
 
     // Try to find CD001 identifier
     
     for (size_t i = 0; i < ARR_LENGTH(iso_defs); ++i)
     {
-    	const off_t id_offset = static_cast<off_t>(
-            iso_defs[i].block_size * 16 + iso_defs[i].block_offset + iso_defs[i].file_offset);
+    	const off_t id_offset = static_cast<off_t>(iso_defs[i].block_size * 16)
+            + iso_defs[i].block_offset + iso_defs[i].file_offset;
     	
         if (-1 == lseek(context.fd, id_offset, SEEK_SET))
         {
@@ -307,28 +312,37 @@ static void identify_iso()
     }
 }
 
-static int read_next_volume_descriptor() {
+static int read_next_volume_descriptor()
+{
 	static int vd_num = 0;
 
-	if(lseek(context.fd, context.id_offset + context.block_size * vd_num, SEEK_SET) == -1) {
-        perror("can`t lseek() to next volume descriptor");
+    const off_t offset = context.id_offset + static_cast<off_t>(context.block_size) * vd_num;
+
+	if ( -1 == lseek(context.fd, offset, SEEK_SET) )
+    {
+        perror("ERROR: Can't lseek() to next volume descriptor");
         exit(EIO);
     }
     
-    ssize_t size = read(context.fd, &vd, sizeof(struct iso_volume_descriptor));
+    const ssize_t size = read(context.fd, &vd, sizeof(iso_volume_descriptor));
     
-    if(size != sizeof(struct iso_volume_descriptor)) {
-        fprintf(stderr, "only %d bytes read from volume descriptor %d, %d required\n", 
-            size, vd_num, sizeof(struct iso_volume_descriptor));
+    if (sizeof(iso_volume_descriptor) != size)
+    {
+        fprintf(stderr, "ERROR: Only %zd bytes read from volume descriptor %d, %zd required\n",
+            size, vd_num, sizeof(iso_volume_descriptor));
         exit(EIO);
     }
         
-    if(strncmp("CD001", vd.id, 5) != 0) {
-        if(vd_num > 16) {
+    if (strncmp("CD001", vd.id, 5) != 0)
+    {
+        if (vd_num > 16)
+        {
             // no more trying
             fprintf(stderr, "init: wrong standard identifier in volume descriptor %d, exiting..\n", vd_num);
             exit(EIO);
-        } else {
+        }
+        else
+        {
             // try to continue
             fprintf(stderr, "init: wrong standard identifier in volume descriptor %d, skipping..\n", vd_num);
         }
@@ -336,22 +350,28 @@ static int read_next_volume_descriptor() {
     
     vd_num++;
     
-    return isonum_711((unsigned char *)(vd.type));
+    return isonum_711(vd.type);
 }
 
-static char* dstr(char* str, const char* src, int len) {
-    int i;
+static char* dstr(char* str, const char* src, size_t len)
+{
     strncpy(str, src, len);
     str[len] = '\0';
-    for(i = len - 1; i >= 0; --i) {
-        if(str[i] == '\0' || str[i] == ' ' || str[i] == '\t' || str[i] == '\r' || str[i] == '\n') {
+
+    for (ssize_t i = static_cast<ssize_t>(len - 1); i >= 0; --i)
+    {
+        if (str[i] == '\0' || str[i] == ' ' || str[i] == '\t' || str[i] == '\r' || str[i] == '\n')
+        {
             str[i] = '\0';
-        } else {
+        }
+        else
+        {
             return str;
-        };
-    };
+        }
+    }
+    
     return str;
-};
+}
 
 void* isofs_real_init()
 {
@@ -433,7 +453,7 @@ static int isofs_check_rr(struct iso_directory_record *root_record)
     };
 
     iso_directory_record* record = reinterpret_cast<iso_directory_record*>(buf);
-    const size_t record_length = isonum_711((unsigned char*) record->length);
+    const size_t record_length = isonum_711(record->length);
     const size_t name_len = isonum_711(record->name_len);
     const size_t pad_len = ((name_len & 1) ? 0 : 1); // padding byte if name_len is even
     const ssize_t sa_len = record_length - name_len - sizeof(iso_directory_record) - pad_len;
@@ -510,13 +530,13 @@ static isofs_inode *isofs_lookup(const char *path)
 
 	if (NULL != inode)
 	{
-		printf("[FOUND] isofs_lookup: %s\n", path);
+		VerbosePrint("isofs_lookup(): %s found\n", path);
         return inode;
     };
 
     if ( NULL != g_hash_table_lookup(negative_lookup_table, path) )
 	{
-		printf("[NOT FOUND] isofs_lookup: %s\n", path);
+		VerbosePrint("isofs_lookup(): %s NOT found\n", path);
         return NULL;
     }
 
@@ -540,19 +560,19 @@ static isofs_inode *isofs_lookup(const char *path)
 
 			const char* const workPath = workPathString.c_str();
 
-			printf("[PROCESS] isofs_lookup: %s\n", workPath);
+			printf("isofs_lookup(): searching for %s\n", workPath);
 
 			inode = g_hash_table_lookup(lookup_table, workPath);
 
 			if (NULL != inode)
 			{
-				printf("[READ] isofs_lookup: %s\n", workPath);
+				printf("isofs_lookup(): reading %s\n", workPath);
 
 				const int rc = isofs_real_readdir(workPath, NULL, NULL);
 
 				if (0 != rc)
 				{
-					fprintf( stderr, "lookup: error %d from readdir: %s\n", rc, strerror(-rc) );
+					fprintf(stderr, "lookup: error %d from readdir: %s\n", rc, strerror(-rc));
 
 					return NULL;
 				};
@@ -573,7 +593,8 @@ static isofs_inode *isofs_lookup(const char *path)
     return inode;
 };
 
-static int isofs_read_raw_block(int block, char *buf) {
+static int isofs_read_raw_block(int block, char *buf)
+{
     off_t off = block * context.block_size + context.block_offset + context.file_offset;
     if(pthread_mutex_lock(& fd_mutex)) {
         int err = errno;
@@ -963,7 +984,7 @@ static int isofs_parse_sa(isofs_inode *inode, char *sa, size_t sa_len) {
             case SIG('R', 'R'):
                 {
                     // unused
-                    isonum_711((unsigned char *) sue->u.RR.flags);
+                    isonum_711(sue->u.RR.flags);
 /*                    printf("parse_sa: RR entry, sue_version %d, sue_len %d, flags %d\n", 
                         sue_version, sue_len, rr_flags);*/
                 };
@@ -1221,7 +1242,7 @@ static int isofs_parse_sa(isofs_inode *inode, char *sa, size_t sa_len) {
                     };
                     
                     struct iso_directory_record *record = (struct iso_directory_record *) buf;
-                    size_t record_length = isonum_711((unsigned char *) record->length);
+                    size_t record_length = isonum_711(record->length);
                     size_t name_len = isonum_711(record->name_len);
                     size_t pad_len = ((name_len & 1) ? 0 : 1); // padding byte if name_len is even
                     size_t sa_len = record_length - name_len - sizeof(struct iso_directory_record) - pad_len;
@@ -1508,7 +1529,7 @@ int isofs_real_readdir(const char *path, void *filler_buf, isofs_dir_fill_t fill
             total_size <= current_size - sizeof(struct iso_directory_record)) {
             
             struct iso_directory_record *record = (struct iso_directory_record *) (buf + boff);
-            size_t record_length = isonum_711((unsigned char *) record->length);
+            size_t record_length = isonum_711(record->length);
             size_t name_len = isonum_711(record->name_len);
             size_t pad_len = ((name_len & 1) ? 0 : 1); // padding byte if name_len is even
             size_t sa_len = record_length - name_len - sizeof(struct iso_directory_record) - pad_len;
