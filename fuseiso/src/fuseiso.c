@@ -59,6 +59,7 @@ static char *imagefile = NULL;
 static char *mount_point = NULL;
 static int image_fd = -1;
 
+int maintain_mount_point = 0;
 char* iocharset = NULL;
 
 int g_verbosity = 0;
@@ -165,8 +166,10 @@ static struct fuse_operations isofs_oper =
 
 static void usage(const char* prog)
 {
-    printf("Version: %s\nUsage: %s [-c <iocharset>] [-h] <isofs_image_file> [<FUSE library options>]\n"
+    printf("Version: %s\nUsage: %s [-p] [-c <iocharset>] [-h] <isofs_image_file> <mount_point> [<FUSE library options>]\n"
         "Where options are:\n"
+        "    -p                 -- maintain mount point; \n"
+        "                          create it if it does not exists and delete it on exit\n"
         "    -c <iocharset>     -- specify iocharset for Joliet filesystem\n"
         "    -h                 -- print this screen\n"
         "    -v                 -- enable additional output\n"
@@ -185,10 +188,14 @@ int main(int argc, char *argv[])
     
     char c;
     
-    while ((c = (char) getopt(argc, argv, "+vc:h")) > 0)
+    while ((c = (char) getopt(argc, argv, "+pvc:h")) > 0)
     {
         switch (c)
         {
+            case 'p':
+                maintain_mount_point = 1;
+                break;
+                
             case 'c':
                 if (optarg)
                 {
@@ -213,7 +220,7 @@ int main(int argc, char *argv[])
         }
     }
     
-    if ((argc - optind) < 1)
+    if ((argc - optind) < 2)
     {
         usage(argv[0]);
         exit(EXIT_FAILURE);
@@ -229,6 +236,8 @@ int main(int argc, char *argv[])
         perror("Can't open image file");
         exit(EXIT_FAILURE);
     }
+    
+    mount_point = normalize_name(argv[optind + 1]);
     
     // with space for possible -o use_ino arguments
     char** nargv = (char**) malloc( (size_t)(argc + 2) * sizeof(char*) );
@@ -255,7 +264,7 @@ int main(int argc, char *argv[])
                 // add it
                 char* str = (char*) malloc(strlen(argv[i + optind + 1]) + 10);
                 strcpy(str, argv[i + optind + 1]);
-                strcat(str, ",use_ino");
+                strcat(str, ", use_ino");
                 nargv[i + 1] = str;
                 use_ino_found = 1;
             }
@@ -271,6 +280,14 @@ int main(int argc, char *argv[])
             next_opt = 1;
         }
     }
+
+    if (!use_ino_found)
+    {
+        nargv[nargc] = "-o";
+        nargc++;
+        nargv[nargc] = "use_ino";
+        nargc++;
+    };
 
     if (NULL == iocharset)
     {
@@ -289,55 +306,18 @@ int main(int argc, char *argv[])
         }
     }
 
-    // Prepare volume name
-
-    char* volumePart = strrchr(imagefile, '/');
-    if (NULL == volumePart)
+    if (maintain_mount_point)
     {
-        volumePart = imagefile;
-    }
-    else
-    {
-        ++volumePart; // skip leading path separator
-    }
+        if (0 != check_mount_point())
+        {
+            exit(EXIT_FAILURE);
+        }
 
-    char* volumeName = strdup(volumePart);
-
-    // Remove file extension from volume name
-
-    char* extensionPosition = strrchr(volumeName, '.');
-    if (NULL != extensionPosition)
-    {
-        *extensionPosition = '\0';
-    }
-
-    // Combine volume name with other options
-
-    char optionsBuffer[PATH_MAX + 128] = {0};
-    snprintf(optionsBuffer, sizeof(optionsBuffer), "-o%sallow_other,ro,volname=%s",
-        (use_ino_found ? "" : "use_ino,"), volumeName);
-
-    char mountPointBuffer[PATH_MAX] = {0};
-    snprintf(mountPointBuffer, sizeof(mountPointBuffer), "/Volumes/%s", volumeName);
-
-    free(volumeName);
-
-    nargv[nargc++] = mountPointBuffer;
-    nargv[nargc++] = optionsBuffer;
-
-    // Setup mount point
-
-    mount_point = mountPointBuffer;
-
-    if (0 != check_mount_point())
-    {
-        exit(EXIT_FAILURE);
-    }
-
-    if (0 != atexit(del_mount_point))
-    {
-        fprintf(stderr, "Can't set exit function\n");
-        exit(EXIT_FAILURE);
+        if (0 != atexit(del_mount_point))
+        {
+            fprintf(stderr, "Can't set exit function\n");
+            exit(EXIT_FAILURE);
+        }
     }
 
     // will exit in case of failure
