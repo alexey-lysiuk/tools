@@ -9,10 +9,22 @@
 /* Begin PBXBuildFile section */
 		8A1F885216EB2A02007FB912 /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 8A1F885116EB2A02007FB912 /* libz.dylib */; };
 		8A1F885816EB2A6A007FB912 /* libiconv.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 8A1F885716EB2A6A007FB912 /* libiconv.dylib */; };
+		8A3FE87116F5AABC009BF55F /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8A3FE87016F5AABC009BF55F /* Cocoa.framework */; };
+		8A3FE89516F5B273009BF55F /* EasyMount.m in Sources */ = {isa = PBXBuildFile; fileRef = 8A3FE89216F5B235009BF55F /* EasyMount.m */; };
 		8AC13D4616ECA65600EBCF0F /* fuseiso.c in Sources */ = {isa = PBXBuildFile; fileRef = 8AC13D4316ECA65600EBCF0F /* fuseiso.c */; };
 		8AC13D4716ECA65600EBCF0F /* isofs.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8AC13D4416ECA65600EBCF0F /* isofs.cpp */; };
 		8AC13D4C16ECA67D00EBCF0F /* libmacfuse_i64.2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 8AC13D4B16ECA67D00EBCF0F /* libmacfuse_i64.2.dylib */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		8A3FE8AA16F5B5E1009BF55F /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 8A4E38AD16EA4A8900FB40C5 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 8A4E38B516EA4A8900FB40C5;
+			remoteInfo = fuseiso;
+		};
+/* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
 		8A4E38B416EA4A8900FB40C5 /* CopyFiles */ = {
@@ -29,6 +41,10 @@
 /* Begin PBXFileReference section */
 		8A1F885116EB2A02007FB912 /* libz.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libz.dylib; path = usr/lib/libz.dylib; sourceTree = SDKROOT; };
 		8A1F885716EB2A6A007FB912 /* libiconv.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libiconv.dylib; path = usr/lib/libiconv.dylib; sourceTree = SDKROOT; };
+		8A3FE86D16F5AABC009BF55F /* EasyMount.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = EasyMount.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		8A3FE87016F5AABC009BF55F /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
+		8A3FE89216F5B235009BF55F /* EasyMount.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EasyMount.m; sourceTree = "<group>"; };
+		8A3FE89316F5B235009BF55F /* EasyMount-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "EasyMount-Info.plist"; sourceTree = "<group>"; };
 		8A4E38B616EA4A8900FB40C5 /* fuseiso */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = fuseiso; sourceTree = BUILT_PRODUCTS_DIR; };
 		8AC13D4316ECA65600EBCF0F /* fuseiso.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = fuseiso.c; sourceTree = "<group>"; };
 		8AC13D4416ECA65600EBCF0F /* isofs.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = isofs.cpp; sourceTree = "<group>"; };
@@ -39,6 +55,14 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		8A3FE86A16F5AABC009BF55F /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				8A3FE87116F5AABC009BF55F /* Cocoa.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		8A4E38B316EA4A8900FB40C5 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -55,6 +79,7 @@
 		8A1F885016EB29E2007FB912 /* Dependencies */ = {
 			isa = PBXGroup;
 			children = (
+				8A3FE87016F5AABC009BF55F /* Cocoa.framework */,
 				8A1F885716EB2A6A007FB912 /* libiconv.dylib */,
 				8A1F885116EB2A02007FB912 /* libz.dylib */,
 				8AC13D4B16ECA67D00EBCF0F /* libmacfuse_i64.2.dylib */,
@@ -62,10 +87,20 @@
 			name = Dependencies;
 			sourceTree = "<group>";
 		};
+		8A3FE89116F5B235009BF55F /* EasyMount */ = {
+			isa = PBXGroup;
+			children = (
+				8A3FE89216F5B235009BF55F /* EasyMount.m */,
+				8A3FE89316F5B235009BF55F /* EasyMount-Info.plist */,
+			);
+			path = EasyMount;
+			sourceTree = "<group>";
+		};
 		8A4E38AB16EA4A8900FB40C5 = {
 			isa = PBXGroup;
 			children = (
-				8AC13D4216ECA65600EBCF0F /* Sources */,
+				8AC13D4216ECA65600EBCF0F /* FuseISO */,
+				8A3FE89116F5B235009BF55F /* EasyMount */,
 				8A1F885016EB29E2007FB912 /* Dependencies */,
 				8A4E38B716EA4A8900FB40C5 /* Products */,
 			);
@@ -75,11 +110,12 @@
 			isa = PBXGroup;
 			children = (
 				8A4E38B616EA4A8900FB40C5 /* fuseiso */,
+				8A3FE86D16F5AABC009BF55F /* EasyMount.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
 		};
-		8AC13D4216ECA65600EBCF0F /* Sources */ = {
+		8AC13D4216ECA65600EBCF0F /* FuseISO */ = {
 			isa = PBXGroup;
 			children = (
 				8AC13D4816ECA66600EBCF0F /* linux */,
@@ -87,7 +123,7 @@
 				8AC13D4416ECA65600EBCF0F /* isofs.cpp */,
 				8AC13D4516ECA65600EBCF0F /* isofs.h */,
 			);
-			name = Sources;
+			name = FuseISO;
 			path = src;
 			sourceTree = "<group>";
 			usesTabs = 0;
@@ -104,6 +140,24 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		8A3FE86C16F5AABC009BF55F /* EasyMount */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 8A3FE88A16F5AABC009BF55F /* Build configuration list for PBXNativeTarget "EasyMount" */;
+			buildPhases = (
+				8A3FE86916F5AABC009BF55F /* Sources */,
+				8A3FE86A16F5AABC009BF55F /* Frameworks */,
+				8A3FE86B16F5AABC009BF55F /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				8A3FE8AB16F5B5E1009BF55F /* PBXTargetDependency */,
+			);
+			name = EasyMount;
+			productName = EasyMount;
+			productReference = 8A3FE86D16F5AABC009BF55F /* EasyMount.app */;
+			productType = "com.apple.product-type.application";
+		};
 		8A4E38B516EA4A8900FB40C5 /* fuseiso */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 8A4E38C016EA4A8900FB40C5 /* Build configuration list for PBXNativeTarget "fuseiso" */;
@@ -144,9 +198,20 @@
 			projectRoot = "";
 			targets = (
 				8A4E38B516EA4A8900FB40C5 /* fuseiso */,
+				8A3FE86C16F5AABC009BF55F /* EasyMount */,
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		8A3FE86B16F5AABC009BF55F /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
 		8AC13D4D16ECABE900EBCF0F /* Check OSXFUSE Installation */ = {
@@ -166,6 +231,14 @@
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		8A3FE86916F5AABC009BF55F /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				8A3FE89516F5B273009BF55F /* EasyMount.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		8A4E38B216EA4A8900FB40C5 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -177,7 +250,37 @@
 		};
 /* End PBXSourcesBuildPhase section */
 
+/* Begin PBXTargetDependency section */
+		8A3FE8AB16F5B5E1009BF55F /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 8A4E38B516EA4A8900FB40C5 /* fuseiso */;
+			targetProxy = 8A3FE8AA16F5B5E1009BF55F /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
 /* Begin XCBuildConfiguration section */
+		8A3FE88816F5AABC009BF55F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LIBRARY = "libc++";
+				COMBINE_HIDPI_IMAGES = YES;
+				INFOPLIST_FILE = "EasyMount/EasyMount-Info.plist";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				WRAPPER_EXTENSION = app;
+			};
+			name = Debug;
+		};
+		8A3FE88916F5AABC009BF55F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LIBRARY = "libc++";
+				COMBINE_HIDPI_IMAGES = YES;
+				INFOPLIST_FILE = "EasyMount/EasyMount-Info.plist";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				WRAPPER_EXTENSION = app;
+			};
+			name = Release;
+		};
 		8A4E38BE16EA4A8900FB40C5 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -317,6 +420,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		8A3FE88A16F5AABC009BF55F /* Build configuration list for PBXNativeTarget "EasyMount" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				8A3FE88816F5AABC009BF55F /* Debug */,
+				8A3FE88916F5AABC009BF55F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		8A4E38B016EA4A8900FB40C5 /* Build configuration list for PBXProject "fuseiso" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
