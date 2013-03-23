@@ -9,10 +9,10 @@
 /* Begin PBXBuildFile section */
 		8A1F885216EB2A02007FB912 /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 8A1F885116EB2A02007FB912 /* libz.dylib */; };
 		8A1F885816EB2A6A007FB912 /* libiconv.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 8A1F885716EB2A6A007FB912 /* libiconv.dylib */; };
+		8A20F9CC16FDAAEC00009657 /* fuseiso.c in Sources */ = {isa = PBXBuildFile; fileRef = 8AC13D4316ECA65600EBCF0F /* fuseiso.c */; };
+		8A20F9CD16FDAAEE00009657 /* isofs.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8AC13D4416ECA65600EBCF0F /* isofs.cpp */; };
+		8A20F9D216FDABCC00009657 /* EasyMount.m in Sources */ = {isa = PBXBuildFile; fileRef = 8A20F9D016FDABCC00009657 /* EasyMount.m */; };
 		8A3FE87116F5AABC009BF55F /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8A3FE87016F5AABC009BF55F /* Cocoa.framework */; };
-		8A3FE89516F5B273009BF55F /* EasyMount.m in Sources */ = {isa = PBXBuildFile; fileRef = 8A3FE89216F5B235009BF55F /* EasyMount.m */; };
-		8AC13D4616ECA65600EBCF0F /* fuseiso.c in Sources */ = {isa = PBXBuildFile; fileRef = 8AC13D4316ECA65600EBCF0F /* fuseiso.c */; };
-		8AC13D4716ECA65600EBCF0F /* isofs.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8AC13D4416ECA65600EBCF0F /* isofs.cpp */; };
 		8AC13D4C16ECA67D00EBCF0F /* libmacfuse_i64.2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 8AC13D4B16ECA67D00EBCF0F /* libmacfuse_i64.2.dylib */; };
 /* End PBXBuildFile section */
 
@@ -41,16 +41,16 @@
 /* Begin PBXFileReference section */
 		8A1F885116EB2A02007FB912 /* libz.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libz.dylib; path = usr/lib/libz.dylib; sourceTree = SDKROOT; };
 		8A1F885716EB2A6A007FB912 /* libiconv.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libiconv.dylib; path = usr/lib/libiconv.dylib; sourceTree = SDKROOT; };
+		8A20F9CF16FDABCC00009657 /* EasyMount-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "EasyMount-Info.plist"; sourceTree = "<group>"; };
+		8A20F9D016FDABCC00009657 /* EasyMount.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EasyMount.m; sourceTree = "<group>"; };
 		8A3FE86D16F5AABC009BF55F /* EasyMount.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = EasyMount.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		8A3FE87016F5AABC009BF55F /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
-		8A3FE89216F5B235009BF55F /* EasyMount.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EasyMount.m; sourceTree = "<group>"; };
-		8A3FE89316F5B235009BF55F /* EasyMount-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "EasyMount-Info.plist"; sourceTree = "<group>"; };
 		8A4E38B616EA4A8900FB40C5 /* fuseiso */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = fuseiso; sourceTree = BUILT_PRODUCTS_DIR; };
-		8AC13D4316ECA65600EBCF0F /* fuseiso.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = fuseiso.c; sourceTree = "<group>"; };
-		8AC13D4416ECA65600EBCF0F /* isofs.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = isofs.cpp; sourceTree = "<group>"; };
-		8AC13D4516ECA65600EBCF0F /* isofs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = isofs.h; sourceTree = "<group>"; };
-		8AC13D4916ECA66600EBCF0F /* iso_fs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = iso_fs.h; sourceTree = "<group>"; };
-		8AC13D4A16ECA66600EBCF0F /* rock.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = rock.h; sourceTree = "<group>"; };
+		8AC13D4316ECA65600EBCF0F /* fuseiso.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = fuseiso.c; path = src/fuseiso.c; sourceTree = "<group>"; };
+		8AC13D4416ECA65600EBCF0F /* isofs.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = isofs.cpp; path = src/isofs.cpp; sourceTree = "<group>"; };
+		8AC13D4516ECA65600EBCF0F /* isofs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = isofs.h; path = src/isofs.h; sourceTree = "<group>"; };
+		8AC13D4916ECA66600EBCF0F /* iso_fs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = iso_fs.h; path = fuseiso/linux/iso_fs.h; sourceTree = "<group>"; };
+		8AC13D4A16ECA66600EBCF0F /* rock.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = rock.h; path = fuseiso/linux/rock.h; sourceTree = "<group>"; };
 		8AC13D4B16ECA67D00EBCF0F /* libmacfuse_i64.2.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libmacfuse_i64.2.dylib; path = /usr/local/lib/libmacfuse_i64.2.dylib; sourceTree = "<absolute>"; };
 /* End PBXFileReference section */
 
@@ -87,20 +87,20 @@
 			name = Dependencies;
 			sourceTree = "<group>";
 		};
-		8A3FE89116F5B235009BF55F /* EasyMount */ = {
+		8A20F9CE16FDABC100009657 /* EasyMount */ = {
 			isa = PBXGroup;
 			children = (
-				8A3FE89216F5B235009BF55F /* EasyMount.m */,
-				8A3FE89316F5B235009BF55F /* EasyMount-Info.plist */,
+				8A20F9D016FDABCC00009657 /* EasyMount.m */,
+				8A20F9CF16FDABCC00009657 /* EasyMount-Info.plist */,
 			);
-			path = EasyMount;
+			name = EasyMount;
 			sourceTree = "<group>";
 		};
 		8A4E38AB16EA4A8900FB40C5 = {
 			isa = PBXGroup;
 			children = (
+				8A20F9CE16FDABC100009657 /* EasyMount */,
 				8AC13D4216ECA65600EBCF0F /* FuseISO */,
-				8A3FE89116F5B235009BF55F /* EasyMount */,
 				8A1F885016EB29E2007FB912 /* Dependencies */,
 				8A4E38B716EA4A8900FB40C5 /* Products */,
 			);
@@ -109,8 +109,8 @@
 		8A4E38B716EA4A8900FB40C5 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				8A4E38B616EA4A8900FB40C5 /* fuseiso */,
 				8A3FE86D16F5AABC009BF55F /* EasyMount.app */,
+				8A4E38B616EA4A8900FB40C5 /* fuseiso */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -124,7 +124,7 @@
 				8AC13D4516ECA65600EBCF0F /* isofs.h */,
 			);
 			name = FuseISO;
-			path = src;
+			path = fuseiso;
 			sourceTree = "<group>";
 			usesTabs = 0;
 		};
@@ -185,7 +185,7 @@
 				LastUpgradeCheck = 0450;
 				ORGANIZATIONNAME = company;
 			};
-			buildConfigurationList = 8A4E38B016EA4A8900FB40C5 /* Build configuration list for PBXProject "fuseiso" */;
+			buildConfigurationList = 8A4E38B016EA4A8900FB40C5 /* Build configuration list for PBXProject "EasyMount" */;
 			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
@@ -197,8 +197,8 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				8A4E38B516EA4A8900FB40C5 /* fuseiso */,
 				8A3FE86C16F5AABC009BF55F /* EasyMount */,
+				8A4E38B516EA4A8900FB40C5 /* fuseiso */,
 			);
 		};
 /* End PBXProject section */
@@ -235,7 +235,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				8A3FE89516F5B273009BF55F /* EasyMount.m in Sources */,
+				8A20F9D216FDABCC00009657 /* EasyMount.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -243,8 +243,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				8AC13D4616ECA65600EBCF0F /* fuseiso.c in Sources */,
-				8AC13D4716ECA65600EBCF0F /* isofs.cpp in Sources */,
+				8A20F9CC16FDAAEC00009657 /* fuseiso.c in Sources */,
+				8A20F9CD16FDAAEE00009657 /* isofs.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -264,7 +264,7 @@
 			buildSettings = {
 				CLANG_CXX_LIBRARY = "libc++";
 				COMBINE_HIDPI_IMAGES = YES;
-				INFOPLIST_FILE = "EasyMount/EasyMount-Info.plist";
+				INFOPLIST_FILE = "EasyMount-Info.plist";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = app;
 			};
@@ -275,7 +275,7 @@
 			buildSettings = {
 				CLANG_CXX_LIBRARY = "libc++";
 				COMBINE_HIDPI_IMAGES = YES;
-				INFOPLIST_FILE = "EasyMount/EasyMount-Info.plist";
+				INFOPLIST_FILE = "EasyMount-Info.plist";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = app;
 			};
@@ -297,7 +297,11 @@
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PREPROCESSOR_DEFINITIONS = "DEBUG=1";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"_FILE_OFFSET_BITS=64",
+					_DARWIN_USE_64_BIT_INODE,
+				);
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
 				GCC_TREAT_IMPLICIT_FUNCTION_DECLARATIONS_AS_ERRORS = YES;
 				GCC_TREAT_INCOMPATIBLE_POINTER_TYPE_WARNINGS_AS_ERRORS = YES;
@@ -345,6 +349,10 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"_FILE_OFFSET_BITS=64",
+					_DARWIN_USE_64_BIT_INODE,
+				);
 				GCC_TREAT_IMPLICIT_FUNCTION_DECLARATIONS_AS_ERRORS = YES;
 				GCC_TREAT_INCOMPATIBLE_POINTER_TYPE_WARNINGS_AS_ERRORS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
@@ -378,15 +386,10 @@
 		8A4E38C116EA4A8900FB40C5 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"$(inherited)",
-					"_FILE_OFFSET_BITS=64",
-					_DARWIN_USE_64_BIT_INODE,
-				);
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					/usr/local/include/osxfuse,
-					"$(SRCROOT)",
+					fuseiso,
 				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
@@ -399,15 +402,10 @@
 		8A4E38C216EA4A8900FB40C5 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"$(inherited)",
-					"_FILE_OFFSET_BITS=64",
-					_DARWIN_USE_64_BIT_INODE,
-				);
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					/usr/local/include/osxfuse,
-					"$(SRCROOT)",
+					fuseiso,
 				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
@@ -429,7 +427,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		8A4E38B016EA4A8900FB40C5 /* Build configuration list for PBXProject "fuseiso" */ = {
+		8A4E38B016EA4A8900FB40C5 /* Build configuration list for PBXProject "EasyMount" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				8A4E38BE16EA4A8900FB40C5 /* Debug */,
