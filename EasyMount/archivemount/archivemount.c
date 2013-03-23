@@ -2287,6 +2287,11 @@ main( int argc, char **argv )
 	memset( &options, 0, sizeof( struct options ) );
 	if( fuse_opt_parse( &args, &options, ar_opts, ar_opt_proc ) == -1 )
                 return -1;
+
+	/* hard-coded settings to disable write access */
+	options.nobackup = 1;
+	options.readonly = 1;
+
 	if( archiveFile==NULL ) {
                 fprintf(stderr, "missing archive file\n");
                 fprintf(stderr, "see `%s -h' for usage\n", argv[0]);
