@@ -422,13 +422,13 @@
 /* #undef HAVE_LIBEXPAT */
 
 /* Define to 1 if you have the `lzma' library (-llzma). */
-/* #undef HAVE_LIBLZMA */
+#define HAVE_LIBLZMA 1
 
 /* Define to 1 if you have the `lzmadec' library (-llzmadec). */
 /* #undef HAVE_LIBLZMADEC */
 
 /* Define to 1 if you have the `lzo2' library (-llzo2). */
-/* #undef HAVE_LIBLZO2 */
+#define HAVE_LIBLZO2 1
 
 /* Define to 1 if you have the `md' library (-lmd). */
 /* #undef HAVE_LIBMD */
@@ -446,7 +446,7 @@
 /* #undef HAVE_LIBREGEX */
 
 /* Define to 1 if you have the `xml2' library (-lxml2). */
-/* #undef HAVE_LIBXML2 */
+#define HAVE_LIBXML2 1
 
 /* Define to 1 if you have the <libxml/xmlreader.h> header file. */
 #define HAVE_LIBXML_XMLREADER_H 1
@@ -522,13 +522,13 @@
 /* #undef HAVE_LZMADEC_H */
 
 /* Define to 1 if you have the <lzma.h> header file. */
-/* #undef HAVE_LZMA_H */
+#define HAVE_LZMA_H 1
 
 /* Define to 1 if you have the <lzo/lzo1x.h> header file. */
-/* #undef HAVE_LZO_LZO1X_H */
+#define HAVE_LZO_LZO1X_H 1
 
 /* Define to 1 if you have the <lzo/lzoconf.h> header file. */
-/* #undef HAVE_LZO_LZOCONF_H */
+#define HAVE_LZO_LZOCONF_H 1
 
 /* Define to 1 if you have the `mbrtowc' function. */
 #define HAVE_MBRTOWC 1
