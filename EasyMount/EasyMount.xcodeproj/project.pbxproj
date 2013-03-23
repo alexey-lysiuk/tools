@@ -94,6 +94,8 @@
 		8A2001CB16FDCACF00009657 /* x86.c in Sources */ = {isa = PBXBuildFile; fileRef = 8A20012F16FDCACF00009657 /* x86.c */; };
 		8A2001CE16FDCD1700009657 /* liblzo_em.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8A20FB1016FDBA0400009657 /* liblzo_em.a */; };
 		8A2001CF16FDCD1900009657 /* liblzma_em.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8A20FE8916FDC98000009657 /* liblzma_em.a */; };
+		8A2001DC16FDD24A00009657 /* fuseisod in CopyFiles */ = {isa = PBXBuildFile; fileRef = 8A4E38B616EA4A8900FB40C5 /* fuseisod */; };
+		8A2001DD16FDD24B00009657 /* archivemountd in CopyFiles */ = {isa = PBXBuildFile; fileRef = 8A20FAF216FDB19500009657 /* archivemountd */; };
 		8A20F9D216FDABCC00009657 /* EasyMount.m in Sources */ = {isa = PBXBuildFile; fileRef = 8A20F9D016FDABCC00009657 /* EasyMount.m */; };
 		8A20F9DF16FDACE100009657 /* fuseiso.c in Sources */ = {isa = PBXBuildFile; fileRef = 8A20F9DC16FDACE100009657 /* fuseiso.c */; };
 		8A20F9E016FDACE100009657 /* isofs.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8A20F9DD16FDACE100009657 /* isofs.cpp */; };
@@ -318,23 +320,16 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
-		8A20FAF016FDB19500009657 /* CopyFiles */ = {
+		8A2001DB16FDD23C00009657 /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
-			dstPath = /usr/share/man/man1/;
-			dstSubfolderSpec = 0;
+			dstPath = "";
+			dstSubfolderSpec = 6;
 			files = (
+				8A2001DC16FDD24A00009657 /* fuseisod in CopyFiles */,
+				8A2001DD16FDD24B00009657 /* archivemountd in CopyFiles */,
 			);
-			runOnlyForDeploymentPostprocessing = 1;
-		};
-		8A4E38B416EA4A8900FB40C5 /* CopyFiles */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = /usr/share/man/man1/;
-			dstSubfolderSpec = 0;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 1;
+			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXCopyFilesBuildPhase section */
 
@@ -633,7 +628,7 @@
 		8A20FA6916FDADB400009657 /* filter_fork.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = filter_fork.h; sourceTree = "<group>"; };
 		8A20FA6A16FDADB400009657 /* filter_fork_posix.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = filter_fork_posix.c; sourceTree = "<group>"; };
 		8A20FA6B16FDADB400009657 /* filter_fork_windows.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = filter_fork_windows.c; sourceTree = "<group>"; };
-		8A20FAF216FDB19500009657 /* archivemount */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = archivemount; sourceTree = BUILT_PRODUCTS_DIR; };
+		8A20FAF216FDB19500009657 /* archivemountd */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = archivemountd; sourceTree = BUILT_PRODUCTS_DIR; };
 		8A20FAFC16FDB1E300009657 /* libxml2.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libxml2.dylib; path = /usr/lib/libxml2.dylib; sourceTree = "<absolute>"; };
 		8A20FB0116FDB37600009657 /* archivemount.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = archivemount.c; sourceTree = "<group>"; };
 		8A20FB0216FDB37600009657 /* config.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = config.h; sourceTree = "<group>"; };
@@ -1089,6 +1084,19 @@
 			path = simple;
 			sourceTree = "<group>";
 		};
+		8A2001D816FDD18C00009657 /* Sources */ = {
+			isa = PBXGroup;
+			children = (
+				8A20F9CE16FDABC100009657 /* EasyMount */,
+				8A20F9D316FDACE100009657 /* fuseiso */,
+				8A20FB0016FDB37600009657 /* archivemount */,
+				8A20F9E916FDADB400009657 /* libarchive */,
+				8A20008916FDCACF00009657 /* liblzma */,
+				8A20FDBD16FDBBAF00009657 /* liblzo */,
+			);
+			name = Sources;
+			sourceTree = "<group>";
+		};
 		8A20F9CE16FDABC100009657 /* EasyMount */ = {
 			isa = PBXGroup;
 			children = (
@@ -1429,12 +1437,7 @@
 		8A4E38AB16EA4A8900FB40C5 = {
 			isa = PBXGroup;
 			children = (
-				8A20F9CE16FDABC100009657 /* EasyMount */,
-				8A20F9D316FDACE100009657 /* fuseiso */,
-				8A20008916FDCACF00009657 /* liblzma */,
-				8A20FDBD16FDBBAF00009657 /* liblzo */,
-				8A20F9E916FDADB400009657 /* libarchive */,
-				8A20FB0016FDB37600009657 /* archivemount */,
+				8A2001D816FDD18C00009657 /* Sources */,
 				8A1F885016EB29E2007FB912 /* Dependencies */,
 				8A4E38B716EA4A8900FB40C5 /* Products */,
 			);
@@ -1445,8 +1448,8 @@
 			children = (
 				8A3FE86D16F5AABC009BF55F /* EasyMount.app */,
 				8A4E38B616EA4A8900FB40C5 /* fuseisod */,
+				8A20FAF216FDB19500009657 /* archivemountd */,
 				8A20F9E516FDAD2700009657 /* libarchive_em.a */,
-				8A20FAF216FDB19500009657 /* archivemount */,
 				8A20FB1016FDBA0400009657 /* liblzo_em.a */,
 				8A20FE8916FDC98000009657 /* liblzma_em.a */,
 			);
@@ -1478,9 +1481,9 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 8A20FAF816FDB19500009657 /* Build configuration list for PBXNativeTarget "archivemount" */;
 			buildPhases = (
+				8A2001D916FDD1C100009657 /* Check OSXFUSE Installation */,
 				8A20FAEE16FDB19500009657 /* Sources */,
 				8A20FAEF16FDB19500009657 /* Frameworks */,
-				8A20FAF016FDB19500009657 /* CopyFiles */,
 			);
 			buildRules = (
 			);
@@ -1489,7 +1492,7 @@
 			);
 			name = archivemount;
 			productName = archivemount;
-			productReference = 8A20FAF216FDB19500009657 /* archivemount */;
+			productReference = 8A20FAF216FDB19500009657 /* archivemountd */;
 			productType = "com.apple.product-type.tool";
 		};
 		8A20FB0F16FDBA0400009657 /* liblzo */ = {
@@ -1530,7 +1533,7 @@
 			buildPhases = (
 				8A3FE86916F5AABC009BF55F /* Sources */,
 				8A3FE86A16F5AABC009BF55F /* Frameworks */,
-				8A3FE86B16F5AABC009BF55F /* Resources */,
+				8A2001DB16FDD23C00009657 /* CopyFiles */,
 			);
 			buildRules = (
 			);
@@ -1550,7 +1553,6 @@
 				8AC13D4D16ECABE900EBCF0F /* Check OSXFUSE Installation */,
 				8A4E38B216EA4A8900FB40C5 /* Sources */,
 				8A4E38B316EA4A8900FB40C5 /* Frameworks */,
-				8A4E38B416EA4A8900FB40C5 /* CopyFiles */,
 			);
 			buildRules = (
 			);
@@ -1584,25 +1586,29 @@
 			targets = (
 				8A3FE86C16F5AABC009BF55F /* EasyMount */,
 				8A4E38B516EA4A8900FB40C5 /* fuseiso */,
+				8A20FAF116FDB19500009657 /* archivemount */,
+				8A20F9E416FDAD2700009657 /* libarchive */,
 				8A20FE8816FDC98000009657 /* liblzma */,
 				8A20FB0F16FDBA0400009657 /* liblzo */,
-				8A20F9E416FDAD2700009657 /* libarchive */,
-				8A20FAF116FDB19500009657 /* archivemount */,
 			);
 		};
 /* End PBXProject section */
 
-/* Begin PBXResourcesBuildPhase section */
-		8A3FE86B16F5AABC009BF55F /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
+/* Begin PBXShellScriptBuildPhase section */
+		8A2001D916FDD1C100009657 /* Check OSXFUSE Installation */ = {
+			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
+			inputPaths = (
+			);
+			name = "Check OSXFUSE Installation";
+			outputPaths = (
+			);
 			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\nif [ ! -e /usr/local/include/osxfuse ]; then\n    echo \"ERROR: OSXFUSE 2.5.x or later is not installed!\"\n    exit 1\nfi\n";
 		};
-/* End PBXResourcesBuildPhase section */
-
-/* Begin PBXShellScriptBuildPhase section */
 		8AC13D4D16ECABE900EBCF0F /* Check OSXFUSE Installation */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -2010,7 +2016,7 @@
 					libarchive,
 					archivemount,
 				);
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = archivemountd;
 			};
 			name = Debug;
 		};
@@ -2027,7 +2033,7 @@
 					libarchive,
 					archivemount,
 				);
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = archivemountd;
 			};
 			name = Release;
 		};
@@ -2315,6 +2321,7 @@
 				8A20FB1316FDBA0400009657 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		8A20FE8A16FDC98000009657 /* Build configuration list for PBXNativeTarget "liblzma" */ = {
 			isa = XCConfigurationList;
@@ -2323,6 +2330,7 @@
 				8A20FE8C16FDC98000009657 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		8A3FE88A16F5AABC009BF55F /* Build configuration list for PBXNativeTarget "EasyMount" */ = {
 			isa = XCConfigurationList;
