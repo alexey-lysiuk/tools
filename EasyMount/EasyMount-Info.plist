@@ -37,8 +37,52 @@
 			<string>Viewer</string>
 			<key>CFBundleTypeExtensions</key>
 			<array>
+				<string>bin</string>
+				<string>img</string>
 				<string>iso</string>
+				<string>mdf</string>
 			</array>
+			<key>Daemon</key>
+			<string>fuseisod</string>
+		</dict>
+		<dict>
+			<key>CFBundleTypeName</key>
+			<string>ZIP Archive File</string>
+			<key>CFBundleTypeRole</key>
+			<string>Viewer</string>
+			<key>CFBundleTypeExtensions</key>
+			<array>
+				<string>zip</string>
+				<string>pk3</string>
+				<string>ipa</string>
+			</array>
+			<key>Daemon</key>
+			<string>archivemount</string>
+		</dict>
+		<dict>
+			<key>CFBundleTypeName</key>
+			<string>RAR Archive File</string>
+			<key>CFBundleTypeRole</key>
+			<string>Viewer</string>
+			<key>CFBundleTypeExtensions</key>
+			<array>
+				<string>rar</string>
+			</array>
+			<key>Daemon</key>
+			<string>archivemount</string>
+		</dict>
+		<dict>
+			<key>CFBundleTypeName</key>
+			<string>7-Zip Archive File</string>
+			<key>CFBundleTypeRole</key>
+			<string>Viewer</string>
+			<key>CFBundleTypeExtensions</key>
+			<array>
+				<string>7z</string>
+				<string>pk7</string>
+			</array>
+			<key>Daemon</key>
+			<string>archivemount</string>
 		</dict>
 	</array>
 	<key>NSPrincipalClass</key>

@@ -1,9 +1,9 @@
 //
-//  main.m
-//  EasyMount
+//  EasyMount.m
 //
-//  Created by Alexey on 17.03.13.
-//  Copyright (c) 2013 company. All rights reserved.
+// TODO: add license
+//
+//  Copyright (c) 2013 Alexey Lysiuk
 //
 
 #import <Cocoa/Cocoa.h>
@@ -11,7 +11,7 @@
 
 @interface ApplicationDelegate : NSResponder
 {
-	NSString* daemonPath;
+	NSMutableDictionary* extensionToDaemonMap;
 }
 
 - (id)init;
@@ -20,11 +20,28 @@
 
 @end
 
+
 @implementation ApplicationDelegate
 
 - (id)init
 {
-	daemonPath = [[NSBundle mainBundle] pathForAuxiliaryExecutable:@"fuseiso"];
+	extensionToDaemonMap = [[NSMutableDictionary alloc] init];
+
+	NSBundle* bundle = [NSBundle mainBundle];
+	NSArray* documentTypes = [[bundle infoDictionary] objectForKey:@"CFBundleDocumentTypes"];
+
+	for (NSUInteger i = 0, ei = [documentTypes count]; i < ei; ++i)
+	{
+		NSDictionary* documentItem = [documentTypes objectAtIndex:i];
+
+		NSArray* extensions = [documentItem objectForKey:@"CFBundleTypeExtensions"];
+		NSString* daemonName = [documentItem objectForKey:@"Daemon"];
+
+		for (NSUInteger j = 0, ej = [extensions count]; j < ej; ++j)
+		{
+			[extensionToDaemonMap setObject:daemonName forKey:[extensions objectAtIndex:j]];
+		}
+	}
 
 	return self;
 }
@@ -33,25 +50,36 @@
 {
 	(void)theApplication;
 
-	//[NSAlert alertWithMessageText:nil defaultButton:nil alternateButton:nil otherButton:nil informativeTextWithFormat:@"Filename is %s", [filename UTF8String]];
+	NSString* daemonPath = [extensionToDaemonMap objectForKey:[filename pathExtension]];
+
+	if (nil == daemonPath)
+	{
+		return NO;
+	}
+
+	NSString* volumeName   = [[filename lastPathComponent] stringByDeletingPathExtension];
+	NSString* mountPoint   = [NSString stringWithFormat:@"/Volumes/%s", [volumeName UTF8String]];
+	NSString* mountOptions = [NSString stringWithFormat:@"-oallow_other,ro,volname=%s", [volumeName UTF8String]];
+
+	// TODO: mount options
+	// -olocal
+	// -ovolicon=/System/Library/CoreServices/CoreTypes.bundle/Contents/Resources/CDAudioVolumeIcon.icns
+
+	NSArray* arguments = [NSArray arrayWithObjects:filename, mountPoint, mountOptions, nil];
+
+	[[NSFileManager defaultManager] createDirectoryAtPath:mountPoint withIntermediateDirectories:NO attributes:nil error:nil];
+
+	// TODO: check error
 
 	@try
 	{
-		NSString* volumeName = [[filename lastPathComponent] stringByDeletingPathExtension];
-
-		NSString* mountPoint = [NSString stringWithFormat:@"/Volumes/%s", [volumeName UTF8String]];
-//		NSString* mountOptions = [NSString stringWithFormat:@"-oallow_other,ro,local,volicon=/System/Library/CoreServices/CoreTypes.bundle/Contents/Resources/CDAudioVolumeIcon.icns,volname=%s", [volumeName UTF8String]];
-		NSString* mountOptions = [NSString stringWithFormat:@"-oallow_other,ro,volname=%s", [volumeName UTF8String]];
-
-		NSArray* arguments = [NSArray arrayWithObjects:@"-p", filename, mountPoint, mountOptions, nil];
-
 		[NSTask launchedTaskWithLaunchPath:daemonPath arguments:arguments];
 	}
 	@catch (NSException *exception)
 	{
 		(void)exception;
 
-		// TODO ...
+		// TODO: check error
 	}
 
 	return TRUE;
@@ -59,7 +87,8 @@
 
 @end
 
-int main(/*int argc, char *argv[]*/ void)
+
+int main(void)
 {
 	[NSAutoreleasePool new];
 	[NSApplication sharedApplication];
@@ -85,33 +114,3 @@ int main(/*int argc, char *argv[]*/ void)
 
 	return 0;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
