@@ -274,7 +274,7 @@
 /* #undef PTHREAD_CREATE_JOINABLE */
 
 /* The size of `size_t', as computed by sizeof. */
-#define SIZEOF_SIZE_T 8
+/* #undef SIZEOF_SIZE_T */
 
 /* Define to 1 if you have the ANSI C header files. */
 #define STDC_HEADERS 1

@@ -282,73 +282,73 @@
 #define RETSIGTYPE void
 
 /* The size of `dev_t', as computed by sizeof. */
-#define SIZEOF_DEV_T 4
+/* #undef SIZEOF_DEV_T */
 
 /* The size of `double', as computed by sizeof. */
-#define SIZEOF_DOUBLE 8
+/* #undef SIZEOF_DOUBLE */
 
 /* The size of `float', as computed by sizeof. */
-#define SIZEOF_FLOAT 4
+/* #undef SIZEOF_FLOAT */
 
 /* The size of `fpos_t', as computed by sizeof. */
-#define SIZEOF_FPOS_T 8
+/* #undef SIZEOF_FPOS_T */
 
 /* The size of `int', as computed by sizeof. */
-#define SIZEOF_INT 4
+/* #undef SIZEOF_INT */
 
 /* The size of `intmax_t', as computed by sizeof. */
-#define SIZEOF_INTMAX_T 8
+/* #undef SIZEOF_INTMAX_T */
 
 /* The size of `intptr_t', as computed by sizeof. */
-#define SIZEOF_INTPTR_T 8
+/* #undef SIZEOF_INTPTR_T */
 
 /* The size of `long', as computed by sizeof. */
-#define SIZEOF_LONG 8
+/* #undef SIZEOF_LONG */
 
 /* The size of `long double', as computed by sizeof. */
-#define SIZEOF_LONG_DOUBLE 16
+/* #undef SIZEOF_LONG_DOUBLE */
 
 /* The size of `long long', as computed by sizeof. */
-#define SIZEOF_LONG_LONG 8
+/* #undef SIZEOF_LONG_LONG */
 
 /* The size of `mode_t', as computed by sizeof. */
-#define SIZEOF_MODE_T 2
+/* #undef SIZEOF_MODE_T */
 
 /* The size of `off_t', as computed by sizeof. */
-#define SIZEOF_OFF_T 8
+/* #undef SIZEOF_OFF_T */
 
 /* The size of `ptrdiff_t', as computed by sizeof. */
-#define SIZEOF_PTRDIFF_T 8
+/* #undef SIZEOF_PTRDIFF_T */
 
 /* The size of `short', as computed by sizeof. */
-#define SIZEOF_SHORT 2
+/* #undef SIZEOF_SHORT */
 
 /* The size of `size_t', as computed by sizeof. */
-#define SIZEOF_SIZE_T 8
+/* #undef SIZEOF_SIZE_T */
 
 /* The size of `ssize_t', as computed by sizeof. */
-#define SIZEOF_SSIZE_T 8
+/* #undef SIZEOF_SSIZE_T */
 
 /* The size of `time_t', as computed by sizeof. */
-#define SIZEOF_TIME_T 8
+/* #undef SIZEOF_TIME_T */
 
 /* The size of `uintmax_t', as computed by sizeof. */
-#define SIZEOF_UINTMAX_T 8
+/* #undef SIZEOF_UINTMAX_T */
 
 /* The size of `uintptr_t', as computed by sizeof. */
-#define SIZEOF_UINTPTR_T 8
+/* #undef SIZEOF_UINTPTR_T */
 
 /* The size of `void *', as computed by sizeof. */
-#define SIZEOF_VOID_P 8
+/* #undef SIZEOF_VOID_P */
 
 /* The size of `__int16', as computed by sizeof. */
-#define SIZEOF___INT16 0
+/* #undef SIZEOF___INT16 */
 
 /* The size of `__int32', as computed by sizeof. */
-#define SIZEOF___INT32 0
+/* #undef SIZEOF___INT32 */
 
 /* The size of `__int64', as computed by sizeof. */
-#define SIZEOF___INT64 0
+/* #undef SIZEOF___INT64 */
 
 /* Define to 1 if you have the ANSI C header files. */
 #define STDC_HEADERS 1
