@@ -20,12 +20,10 @@
 		8A20015716FDCACF00009657 /* crc32_fast.c in Sources */ = {isa = PBXBuildFile; fileRef = 8A2000B516FDCACF00009657 /* crc32_fast.c */; };
 		8A20015916FDCACF00009657 /* crc32_table.c in Sources */ = {isa = PBXBuildFile; fileRef = 8A2000B716FDCACF00009657 /* crc32_table.c */; };
 		8A20015C16FDCACF00009657 /* crc32_tablegen.c in Sources */ = {isa = PBXBuildFile; fileRef = 8A2000BA16FDCACF00009657 /* crc32_tablegen.c */; };
-		8A20015D16FDCACF00009657 /* crc32_x86.S in Sources */ = {isa = PBXBuildFile; fileRef = 8A2000BB16FDCACF00009657 /* crc32_x86.S */; };
 		8A20015E16FDCACF00009657 /* crc64_fast.c in Sources */ = {isa = PBXBuildFile; fileRef = 8A2000BC16FDCACF00009657 /* crc64_fast.c */; };
 		8A20015F16FDCACF00009657 /* crc64_small.c in Sources */ = {isa = PBXBuildFile; fileRef = 8A2000BD16FDCACF00009657 /* crc64_small.c */; };
 		8A20016016FDCACF00009657 /* crc64_table.c in Sources */ = {isa = PBXBuildFile; fileRef = 8A2000BE16FDCACF00009657 /* crc64_table.c */; };
 		8A20016316FDCACF00009657 /* crc64_tablegen.c in Sources */ = {isa = PBXBuildFile; fileRef = 8A2000C116FDCACF00009657 /* crc64_tablegen.c */; };
-		8A20016416FDCACF00009657 /* crc64_x86.S in Sources */ = {isa = PBXBuildFile; fileRef = 8A2000C216FDCACF00009657 /* crc64_x86.S */; };
 		8A20016616FDCACF00009657 /* sha256.c in Sources */ = {isa = PBXBuildFile; fileRef = 8A2000C416FDCACF00009657 /* sha256.c */; };
 		8A20016716FDCACF00009657 /* alone_decoder.c in Sources */ = {isa = PBXBuildFile; fileRef = 8A2000C616FDCACF00009657 /* alone_decoder.c */; };
 		8A20016916FDCACF00009657 /* alone_encoder.c in Sources */ = {isa = PBXBuildFile; fileRef = 8A2000C816FDCACF00009657 /* alone_encoder.c */; };
@@ -203,7 +201,7 @@
 		8A20FAE816FDADB400009657 /* archive_write_set_options.c in Sources */ = {isa = PBXBuildFile; fileRef = 8A20FA6616FDADB400009657 /* archive_write_set_options.c */; };
 		8A20FAEC16FDADB400009657 /* filter_fork_posix.c in Sources */ = {isa = PBXBuildFile; fileRef = 8A20FA6A16FDADB400009657 /* filter_fork_posix.c */; };
 		8A20FAED16FDADB400009657 /* filter_fork_windows.c in Sources */ = {isa = PBXBuildFile; fileRef = 8A20FA6B16FDADB400009657 /* filter_fork_windows.c */; };
-		8A20FAFB16FDB1DC00009657 /* libmacfuse_i64.2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 8AC13D4B16ECA67D00EBCF0F /* libmacfuse_i64.2.dylib */; };
+		8A20FAFB16FDB1DC00009657 /* libosxfuse.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 8AC13D4B16ECA67D00EBCF0F /* libosxfuse.dylib */; };
 		8A20FAFD16FDB1E400009657 /* libxml2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 8A20FAFC16FDB1E300009657 /* libxml2.dylib */; };
 		8A20FB0416FDB39600009657 /* archivemount.c in Sources */ = {isa = PBXBuildFile; fileRef = 8A20FB0116FDB37600009657 /* archivemount.c */; };
 		8A20FB0716FDB44100009657 /* libarchive_em.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8A20F9E516FDAD2700009657 /* libarchive_em.a */; };
@@ -278,7 +276,7 @@
 		8A20FE8316FDBBAF00009657 /* lzo_str.c in Sources */ = {isa = PBXBuildFile; fileRef = 8A20FE3A16FDBBAF00009657 /* lzo_str.c */; };
 		8A20FE8416FDBBAF00009657 /* lzo_util.c in Sources */ = {isa = PBXBuildFile; fileRef = 8A20FE3C16FDBBAF00009657 /* lzo_util.c */; };
 		8A3FE87116F5AABC009BF55F /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8A3FE87016F5AABC009BF55F /* Cocoa.framework */; };
-		8AC13D4C16ECA67D00EBCF0F /* libmacfuse_i64.2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 8AC13D4B16ECA67D00EBCF0F /* libmacfuse_i64.2.dylib */; };
+		8AC13D4C16ECA67D00EBCF0F /* libosxfuse.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 8AC13D4B16ECA67D00EBCF0F /* libosxfuse.dylib */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -761,7 +759,7 @@
 		8A3FE86D16F5AABC009BF55F /* EasyMount.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = EasyMount.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		8A3FE87016F5AABC009BF55F /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		8A4E38B616EA4A8900FB40C5 /* fuseisod */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = fuseisod; sourceTree = BUILT_PRODUCTS_DIR; };
-		8AC13D4B16ECA67D00EBCF0F /* libmacfuse_i64.2.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libmacfuse_i64.2.dylib; path = /usr/local/lib/libmacfuse_i64.2.dylib; sourceTree = "<absolute>"; };
+		8AC13D4B16ECA67D00EBCF0F /* libosxfuse.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libosxfuse.dylib; path = /usr/local/lib/libosxfuse.dylib; sourceTree = "<absolute>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -780,7 +778,7 @@
 				8A20FB0B16FDB47B00009657 /* libiconv.dylib in Frameworks */,
 				8A20FAFD16FDB1E400009657 /* libxml2.dylib in Frameworks */,
 				8A20FB0816FDB45800009657 /* libz.dylib in Frameworks */,
-				8A20FAFB16FDB1DC00009657 /* libmacfuse_i64.2.dylib in Frameworks */,
+				8A20FAFB16FDB1DC00009657 /* libosxfuse.dylib in Frameworks */,
 				8A2001CF16FDCD1900009657 /* liblzma_em.a in Frameworks */,
 				8A2001CE16FDCD1700009657 /* liblzo_em.a in Frameworks */,
 				8A20FB0716FDB44100009657 /* libarchive_em.a in Frameworks */,
@@ -815,7 +813,7 @@
 			files = (
 				8A1F885816EB2A6A007FB912 /* libiconv.dylib in Frameworks */,
 				8A1F885216EB2A02007FB912 /* libz.dylib in Frameworks */,
-				8AC13D4C16ECA67D00EBCF0F /* libmacfuse_i64.2.dylib in Frameworks */,
+				8AC13D4C16ECA67D00EBCF0F /* libosxfuse.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -830,7 +828,7 @@
 				8A1F885716EB2A6A007FB912 /* libiconv.dylib */,
 				8A20FAFC16FDB1E300009657 /* libxml2.dylib */,
 				8A1F885116EB2A02007FB912 /* libz.dylib */,
-				8AC13D4B16ECA67D00EBCF0F /* libmacfuse_i64.2.dylib */,
+				8AC13D4B16ECA67D00EBCF0F /* libosxfuse.dylib */,
 			);
 			name = Dependencies;
 			sourceTree = "<group>";
@@ -1834,12 +1832,10 @@
 				8A20015716FDCACF00009657 /* crc32_fast.c in Sources */,
 				8A20015916FDCACF00009657 /* crc32_table.c in Sources */,
 				8A20015C16FDCACF00009657 /* crc32_tablegen.c in Sources */,
-				8A20015D16FDCACF00009657 /* crc32_x86.S in Sources */,
 				8A20015E16FDCACF00009657 /* crc64_fast.c in Sources */,
 				8A20015F16FDCACF00009657 /* crc64_small.c in Sources */,
 				8A20016016FDCACF00009657 /* crc64_table.c in Sources */,
 				8A20016316FDCACF00009657 /* crc64_tablegen.c in Sources */,
-				8A20016416FDCACF00009657 /* crc64_x86.S in Sources */,
 				8A20016616FDCACF00009657 /* sha256.c in Sources */,
 				8A20016716FDCACF00009657 /* alone_decoder.c in Sources */,
 				8A20016916FDCACF00009657 /* alone_encoder.c in Sources */,
