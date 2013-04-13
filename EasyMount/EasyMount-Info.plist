@@ -41,6 +41,7 @@
 				<string>img</string>
 				<string>iso</string>
 				<string>mdf</string>
+				<string>nrg</string>
 			</array>
 			<key>Daemon</key>
 			<string>fuseisod</string>
