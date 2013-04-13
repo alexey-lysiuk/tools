@@ -22,57 +22,39 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #import <Cocoa/Cocoa.h>
 
 
-@interface ApplicationDelegate : NSResponder
+@interface MountItem : NSObject 
 {
 @private
-	NSMutableDictionary* extensionToDaemonMap;
+	NSString* filePath;
+	NSString* mountPath;
+	NSString* volumeName;
+
 }
 
-- (id)init;
+@property(readonly) NSString* filePath;
+@property(readonly) NSString* mountPath;
+@property(readonly) NSString* volumeName;
 
-- (BOOL)application:(NSApplication*)theApplication openFile:(NSString*)filename;
 
 - (BOOL)mountFile:(NSString*)filename;
+
++ (NSDictionary*)extensionToDaemonMap;
 
 @end
 
 
-@implementation ApplicationDelegate
+@implementation MountItem
 
-- (id)init
-{
-	extensionToDaemonMap = [[NSMutableDictionary alloc] init];
+@synthesize filePath;
+@synthesize mountPath;
+@synthesize volumeName;
 
-	NSBundle* bundle = [NSBundle mainBundle];
-	NSArray* documentTypes = [[bundle infoDictionary] objectForKey:@"CFBundleDocumentTypes"];
-
-	for (NSUInteger i = 0, ei = [documentTypes count]; i < ei; ++i)
-	{
-		NSDictionary* documentItem = [documentTypes objectAtIndex:i];
-
-		NSArray* extensions = [documentItem objectForKey:@"CFBundleTypeExtensions"];
-		NSString* daemonName = [documentItem objectForKey:@"Daemon"];
-
-		for (NSUInteger j = 0, ej = [extensions count]; j < ej; ++j)
-		{
-			[extensionToDaemonMap setObject:daemonName forKey:[extensions objectAtIndex:j]];
-		}
-	}
-
-	return self;
-}
-
-- (BOOL)application:(NSApplication*)theApplication openFile:(NSString*)filename
-{
-	(void)theApplication;
-
-	return [self mountFile:filename];
-}
 
 - (BOOL)mountFile:(NSString*)filename
 {
-	NSString* daemonPath = [extensionToDaemonMap objectForKey:[filename pathExtension]];
+	filePath = filename;
 
+	NSString* daemonPath = [[MountItem extensionToDaemonMap] objectForKey:[filePath pathExtension]];
 	if (nil == daemonPath)
 	{
 		return NO;
@@ -80,28 +62,28 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 	NSFileManager* fileManager = [NSFileManager defaultManager];
 
-	NSString* volumeName = [[filename lastPathComponent] stringByDeletingPathExtension];
-	NSString* mountPoint = [NSString stringWithFormat:@"/Volumes/%@", volumeName];
+	volumeName = [[filePath lastPathComponent] stringByDeletingPathExtension];
+	mountPath  = [NSString stringWithFormat:@"/Volumes/%@", volumeName];
 
-	NSString*  nextMountPoint = mountPoint;
-	NSUInteger nextIndex = 0;
+	NSString*  nextMountPath = mountPath;
+	NSUInteger nextIndex     = 0;
 
-	while ([fileManager fileExistsAtPath:nextMountPoint])
+	while ([fileManager fileExistsAtPath:nextMountPath])
 	{
-		nextMountPoint = [mountPoint stringByAppendingFormat:@" %u", ++nextIndex];
+		nextMountPath = [mountPath stringByAppendingFormat:@" %u", ++nextIndex];
 	}
 
 	if (nextIndex > 0)
 	{
 		volumeName = [volumeName stringByAppendingFormat:@" %u", nextIndex];
-		mountPoint = nextMountPoint;
+		mountPath = nextMountPath;
 	}
 
 	NSString* volumeIcon   = @"/System/Library/Extensions/IOStorageFamily.kext/Contents/Resources/External.icns";
 	NSString* mountOptions = [NSString stringWithFormat:@"-olocal,allow_other,ro,volicon=%@,volname=%@", volumeIcon, volumeName];
-	NSArray*  arguments    = [NSArray arrayWithObjects:filename, mountPoint, mountOptions, nil];
+	NSArray*  arguments    = [NSArray arrayWithObjects:filePath, mountPath, mountOptions, nil];
 
-	[fileManager createDirectoryAtPath:mountPoint withIntermediateDirectories:NO attributes:nil error:nil];
+	[fileManager createDirectoryAtPath:mountPath withIntermediateDirectories:NO attributes:nil error:nil];
 
 	// TODO: check error
 
@@ -110,16 +92,90 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 		[NSTask launchedTaskWithLaunchPath:daemonPath arguments:arguments];
 
 		// TODO: open folder in finder
-		//[[NSWorkspace sharedWorkspace] openFile:mountPoint];
+		//[[NSWorkspace sharedWorkspace] openFile:mountPath];
 	}
 	@catch (NSException *exception)
 	{
 		(void)exception;
 
 		// TODO: check error
+
+		return NO;
 	}
 
-	return TRUE;
+	return YES;
+}
+
+
++ (NSDictionary*)extensionToDaemonMap
+{
+	static NSMutableDictionary* result = nil;
+
+	if (nil == result)
+	{
+		result = [NSMutableDictionary new];
+
+		NSBundle* bundle = [NSBundle mainBundle];
+		NSArray* documentTypes = [[bundle infoDictionary] objectForKey:@"CFBundleDocumentTypes"];
+
+		for (NSUInteger i = 0, ei = [documentTypes count]; i < ei; ++i)
+		{
+			NSDictionary* documentItem = [documentTypes objectAtIndex:i];
+
+			NSArray* extensions = [documentItem objectForKey:@"CFBundleTypeExtensions"];
+			NSString* daemonName = [documentItem objectForKey:@"Daemon"];
+
+			for (NSUInteger j = 0, ej = [extensions count]; j < ej; ++j)
+			{
+				[result setObject:daemonName forKey:[extensions objectAtIndex:j]];
+			}
+		}
+	}
+
+	return result;
+}
+
+@end
+
+
+// -----------------------------------------------------------------------------
+
+
+@interface ApplicationDelegate : NSResponder
+{
+@private
+	NSMutableArray* mountedItems;
+}
+
+- (id)init;
+
+- (BOOL)application:(NSApplication*)theApplication openFile:(NSString*)filename;
+
+@end
+
+
+@implementation ApplicationDelegate
+
+- (id)init
+{
+	mountedItems = [NSMutableArray new];
+
+	return self;
+}
+
+- (BOOL)application:(NSApplication*)theApplication openFile:(NSString*)filename
+{
+	(void)theApplication;
+
+	MountItem* mountItem = [MountItem new];
+	BOOL result = [mountItem mountFile:filename];
+
+	if (result)
+	{
+		[mountedItems addObject:mountItem];
+	}
+
+	return result;
 }
 
 @end
@@ -127,27 +183,29 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 int main(void)
 {
-	[NSAutoreleasePool new];
-	[NSApplication sharedApplication];
+	@autoreleasepool
+	{
+		[NSApplication sharedApplication];
 
-	id applicationDelegate = [[ApplicationDelegate new] autorelease];
-	[NSApp setDelegate:applicationDelegate];
+		id applicationDelegate = [ApplicationDelegate new];
+		[NSApp setDelegate:applicationDelegate];
 
-	[NSApp setActivationPolicy:NSApplicationActivationPolicyRegular];
-	id menubar = [[NSMenu new] autorelease];
-	id appMenuItem = [[NSMenuItem new] autorelease];
-	[menubar addItem:appMenuItem];
-	[NSApp setMainMenu:menubar];
-	id appMenu = [[NSMenu new] autorelease];
-	id appName = [[NSProcessInfo processInfo] processName];
-	id quitTitle = [@"Quit " stringByAppendingString:appName];
-	id quitMenuItem = [[[NSMenuItem alloc] initWithTitle:quitTitle
-												  action:@selector(terminate:) keyEquivalent:@"q"] autorelease];
-	[appMenu addItem:quitMenuItem];
-	[appMenuItem setSubmenu:appMenu];
+		[NSApp setActivationPolicy:NSApplicationActivationPolicyRegular];
+		id menubar = [NSMenu new];
+		id appMenuItem = [NSMenuItem new];
+		[menubar addItem:appMenuItem];
+		[NSApp setMainMenu:menubar];
+		id appMenu = [NSMenu new];
+		id appName = [[NSProcessInfo processInfo] processName];
+		id quitTitle = [@"Quit " stringByAppendingString:appName];
+		id quitMenuItem = [[NSMenuItem alloc] initWithTitle:quitTitle
+													 action:@selector(terminate:) keyEquivalent:@"q"];
+		[appMenu addItem:quitMenuItem];
+		[appMenuItem setSubmenu:appMenu];
 
-	[NSApp activateIgnoringOtherApps:YES];
-	[NSApp run];
+		[NSApp activateIgnoringOtherApps:YES];
+		[NSApp run];
+	}
 
 	return 0;
 }
