@@ -11,12 +11,15 @@
 
 @interface ApplicationDelegate : NSResponder
 {
+@private
 	NSMutableDictionary* extensionToDaemonMap;
 }
 
 - (id)init;
 
 - (BOOL)application:(NSApplication*)theApplication openFile:(NSString*)filename;
+
+- (BOOL)mountFile:(NSString*)filename;
 
 @end
 
@@ -50,6 +53,11 @@
 {
 	(void)theApplication;
 
+	return [self mountFile:filename];
+}
+
+- (BOOL)mountFile:(NSString*)filename
+{
 	NSString* daemonPath = [extensionToDaemonMap objectForKey:[filename pathExtension]];
 
 	if (nil == daemonPath)
@@ -57,23 +65,39 @@
 		return NO;
 	}
 
-	NSString* volumeName   = [[filename lastPathComponent] stringByDeletingPathExtension];
-	NSString* mountPoint   = [NSString stringWithFormat:@"/Volumes/%s", [volumeName UTF8String]];
-	NSString* mountOptions = [NSString stringWithFormat:@"-oallow_other,ro,volname=%s", [volumeName UTF8String]];
+	NSFileManager* fileManager = [NSFileManager defaultManager];
 
-	// TODO: mount options
-	// -olocal
-	// -ovolicon=/System/Library/CoreServices/CoreTypes.bundle/Contents/Resources/CDAudioVolumeIcon.icns
+	NSString* volumeName = [[filename lastPathComponent] stringByDeletingPathExtension];
+	NSString* mountPoint = [NSString stringWithFormat:@"/Volumes/%@", volumeName];
 
-	NSArray* arguments = [NSArray arrayWithObjects:filename, mountPoint, mountOptions, nil];
+	NSString*  nextMountPoint = mountPoint;
+	NSUInteger nextIndex = 0;
 
-	[[NSFileManager defaultManager] createDirectoryAtPath:mountPoint withIntermediateDirectories:NO attributes:nil error:nil];
+	while ([fileManager fileExistsAtPath:nextMountPoint])
+	{
+		nextMountPoint = [mountPoint stringByAppendingFormat:@" %u", ++nextIndex];
+	}
+
+	if (nextIndex > 0)
+	{
+		volumeName = [volumeName stringByAppendingFormat:@" %u", nextIndex];
+		mountPoint = nextMountPoint;
+	}
+
+	NSString* volumeIcon   = @"/System/Library/Extensions/IOStorageFamily.kext/Contents/Resources/External.icns";
+	NSString* mountOptions = [NSString stringWithFormat:@"-olocal,allow_other,ro,volicon=%@,volname=%@", volumeIcon, volumeName];
+	NSArray*  arguments    = [NSArray arrayWithObjects:filename, mountPoint, mountOptions, nil];
+
+	[fileManager createDirectoryAtPath:mountPoint withIntermediateDirectories:NO attributes:nil error:nil];
 
 	// TODO: check error
 
 	@try
 	{
 		[NSTask launchedTaskWithLaunchPath:daemonPath arguments:arguments];
+
+		// TODO: open folder in finder
+		//[[NSWorkspace sharedWorkspace] openFile:mountPoint];
 	}
 	@catch (NSException *exception)
 	{
