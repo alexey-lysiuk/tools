@@ -55,7 +55,7 @@ inline void g_hash_table_insert(inode_table& table, const char* const key, isofs
 
 inline isofs_inode* g_hash_table_lookup(const inode_table& table, const char* const key)
 {
-	const auto result = table.find(key);
+	const inode_table::const_iterator result = table.find(key);
 
 	return table.end() == result
 		? NULL
@@ -80,6 +80,12 @@ inline unsigned int isonum_733(const T& value)
 #endif // WORDS_BIGENDIAN
 }
 
+//template <typename T>
+//inline char* zero_length_hack(T& compound_type)
+//{
+//	//asm("int $3");
+//	return reinterpret_cast<char*>(&compound_type + sizeof(compound_type));
+//}
 
 static isofs_context context;
 
@@ -236,7 +242,7 @@ int isofs_real_preinit(char* imagefile, int fd)
     {
         fprintf(stderr, "ERROR: Primary volume descriptor not found.\n");
         exit(EIO);
-    };
+    }
     
     context.susp = 0;
     context.susp_skip = 0;
@@ -450,7 +456,7 @@ static int isofs_check_rr(struct iso_directory_record *root_record)
     {
         //delete[] buf;
         return 0;
-    };
+    }
 
     iso_directory_record* record = reinterpret_cast<iso_directory_record*>(buf);
     const size_t record_length = isonum_711(record->length);
@@ -500,7 +506,7 @@ static int isofs_check_rr(struct iso_directory_record *root_record)
                 // got it!
                 //free(buf);
                 return 1;
-            };
+            }
         } else {
             // not SP record
             //free(buf);
@@ -517,14 +523,14 @@ static int isofs_check_rr(struct iso_directory_record *root_record)
     // should not happen
     //free(buf);
     return 0;
-};
+}
 
 static isofs_inode *isofs_lookup(const char *path)
 {
     if ('\0' == path[0])
 	{
         return NULL;
-    };
+    }
 
     isofs_inode* inode = g_hash_table_lookup(lookup_table, path);
 
@@ -532,7 +538,7 @@ static isofs_inode *isofs_lookup(const char *path)
 	{
 		VerbosePrint("isofs_lookup(): %s found\n", path);
         return inode;
-    };
+    }
 
     if ( NULL != g_hash_table_lookup(negative_lookup_table, path) )
 	{
@@ -575,7 +581,7 @@ static isofs_inode *isofs_lookup(const char *path)
 					fprintf(stderr, "lookup: error %d from readdir: %s\n", rc, strerror(-rc));
 
 					return NULL;
-				};
+				}
 			}
 		}
 
@@ -591,7 +597,7 @@ static isofs_inode *isofs_lookup(const char *path)
     }
 
     return inode;
-};
+}
 
 static int isofs_read_raw_block(int block, char *buf)
 {
@@ -600,12 +606,12 @@ static int isofs_read_raw_block(int block, char *buf)
         int err = errno;
         perror("isofs_read_raw_block: can`l lock fd_mutex");
         return -err;
-    };
+    }
     if(lseek(context.fd, off, SEEK_SET) == -1) {
         perror("isofs_read_raw_block: can`t lseek()");
         pthread_mutex_unlock(& fd_mutex);
         return -EIO;
-    };
+    }
     size_t len = read(context.fd, buf, context.data_size);
     if(len != context.data_size) {
         fprintf(stderr, "isofs_read_raw_block: can`t read full block, read only %d bytes from offset %d, %d required; errno %d, message %s\n", 
@@ -614,11 +620,11 @@ static int isofs_read_raw_block(int block, char *buf)
         memset(buf + len, 0, context.data_size - len);
         // pthread_mutex_unlock(& fd_mutex);
         // return -EIO;
-    };
+    }
     pthread_mutex_unlock(& fd_mutex);
     // printf("block %d, offset %d, read %d\n", block, (int) off, len);
     return len;
-};
+}
 
 static time_t isofs_date(char *stamp, int stamp_len) {
     struct tm tm;
@@ -639,15 +645,15 @@ static time_t isofs_date(char *stamp, int stamp_len) {
     } else {
         fprintf(stderr, "isofs_date: unsupported date format, stamp_len %d\n", stamp_len);
         return 0;
-    };
+    }
 
     if(tm.tm_gmtoff) {
 //         fprintf(stderr, "direntry2stat: non-zero timezone offset: %d\n", tm.tm_gmtoff);
-    };
+    }
     time_t time = mktime(& tm);
     
     return time;
-};
+}
 
 static int isofs_direntry2stat(struct stat *st, isofs_inode *inode) {
     struct iso_directory_record *record = inode->record;
@@ -663,7 +669,7 @@ static int isofs_direntry2stat(struct stat *st, isofs_inode *inode) {
         st->st_size = inode->real_size;
     } else { // no zisofs compression
         st->st_size = isonum_733(record->size);
-    };
+    }
     
     st->st_blocks = st->st_size / context.data_size; // should not be to meaningful even for zisofs compression
     st->st_blksize = context.data_size;
@@ -680,8 +686,8 @@ static int isofs_direntry2stat(struct stat *st, isofs_inode *inode) {
                 S_IXUSR | S_IXGRP | S_IXOTH; // dir, readabale and browsable by everyone
         } else {
             st->st_mode = S_IFREG | S_IRUSR | S_IRGRP | S_IROTH; // regular, read by everyone
-        };
-    };
+        }
+    }
     
     if(inode->TF) { // rrip TF entry found and in effect
         st->st_atime = inode->st.st_atime;
@@ -690,26 +696,26 @@ static int isofs_direntry2stat(struct stat *st, isofs_inode *inode) {
     } else {
         if(!inode->ctime) {
             inode->ctime = isofs_date(record->date, 7);
-        };
+        }
         
         st->st_atime = inode->ctime;
         st->st_ctime = inode->ctime;
         st->st_mtime = inode->ctime;
-    };
+    }
     
     return 0;
-};
+}
 
 static char *isofs_fix_entry(char *entry, size_t len) {
     if(!context.joliet_level) { // iso9660 names
         char *sep2 = index(entry, ';'); // find SEPARATOR2
         if(sep2) { // remove remaining part
             *sep2 = '\0';
-        };
+        }
         char *sep1 = rindex(entry, '.'); // find SEPARATOR1
         if(sep1 && sep1[1] == '\0') { // check if SEPARATOR1 is a last symbol in string
             *sep1 = '\0'; // remove it
-        };
+        }
         
         // this part is borrowed from linux kernel code 
         // convert remaining ';' and '/' characters to dots
@@ -720,10 +726,10 @@ static char *isofs_fix_entry(char *entry, size_t len) {
                 *p = '.';
             } else if(*p >= 'A' && *p <= 'Z') {
                 *p |= 0x20;
-            };
+            }
             
             p++;
-        };
+        }
         
         return entry;
     } else {
@@ -732,7 +738,7 @@ static char *isofs_fix_entry(char *entry, size_t len) {
         if(cd < 0) {
             perror("iconv");
             return NULL;
-        };
+        }
         
         char *inbuf = entry;
         size_t inbytesleft = len;
@@ -741,7 +747,7 @@ static char *isofs_fix_entry(char *entry, size_t len) {
         if(!outbuf) {
             perror("Can`t malloc: ");
             return NULL;
-        };
+        }
         char *outentry = outbuf;
         size_t outbytesleft = NAME_MAX;
         
@@ -756,42 +762,42 @@ static char *isofs_fix_entry(char *entry, size_t len) {
                 free(entry);
                 free(outentry);
                 return NULL;
-            };
+            }
             // try to recover
-        };
+        }
         
 //         printf("outlen %d, outbytesleft %d, rc %d, outbuf %s\n", outlen, outbytesleft, rc, outentry);
         
         // borrowed from linux kernel isofs joliet code
         if(outlen > 2 && outentry[outlen - 2] == ';' && outentry[outlen - 1] == '1') {
             outentry[outlen - 2] = '\0';
-        };
+        }
         if(outlen >= 2 && outentry[outlen - 1] == '.') {
             outentry[outlen - 1] = '\0';
-        };
+        }
         
         free(entry);
         iconv_close(cd);
         
         return outentry;
-    };
-};
+    }
+}
 
 static void isofs_free_inode(isofs_inode *inode) {
     if(inode->SL && inode->sl) {
         free(inode->sl);
-    };
+    }
     if(inode->NM && inode->nm) {
         free(inode->nm);
-    };
+    }
     if(inode->zf_blockptr) {
         free(inode->zf_blockptr);
-    };
+    }
     if(inode->record) {
         free(inode->record);
-    };
+    }
     free(inode);
-};
+}
 
 // borrowed from zisofs-tools
 static const unsigned char zisofs_magic[8] = {
@@ -803,19 +809,19 @@ static int isofs_parse_zisofs_header(isofs_inode *inode) {
     if(!buf) {
         perror("Can`t malloc: ");
         return -ENOMEM;
-    };
+    }
     
     int block_num = isonum_733(inode->record->extent);
     int len = isofs_read_raw_block(block_num, buf);
     if(len < 0) {
         free(buf);
         return len;
-    };
+    }
     if(len < inode->zf_header_size) {
         fprintf(stderr, "isofs_parse_zisofs_header: too small block len %d\n", len);
         free(buf);
         return -EIO;
-    };
+    }
     
     zf_file_header *zf_header = (zf_file_header *) buf;
     
@@ -823,7 +829,7 @@ static int isofs_parse_zisofs_header(isofs_inode *inode) {
         // invalid compressed file header
         free(buf);
         return 1;
-    };
+    }
     
     size_t block_size = 1 << inode->zf_block_shift;
     
@@ -835,8 +841,8 @@ static int isofs_parse_zisofs_header(isofs_inode *inode) {
         if(!inode->zf_blockptr) {
             perror("Can`t malloc: ");
             return -ENOMEM;
-        };
-    };
+        }
+    }
     
     // copy offset table into memory buffer, maintaining iso9660 block boundaries
     
@@ -864,11 +870,11 @@ static int isofs_parse_zisofs_header(isofs_inode *inode) {
         if(len < 0) {
             free(buf);
             return len;
-        };
+        }
         
 /*        printf("isofs_parse_sa: block_num: %d, len: %d\n", 
             block_num, len);*/
-    };
+    }
     
 /*    printf("isofs_parse_zisofs_header: real size %d, header size %d, nblocks %d, block size %d\n", 
         inode->real_size, inode->zf_header_size,
@@ -876,13 +882,13 @@ static int isofs_parse_zisofs_header(isofs_inode *inode) {
     int i;
     for(i = 0; i <= inode->zf_nblocks; i++) {
         printf("zf block table entry %d have value %d\n", i, inode->zf_blockptr[i]);
-    };*/
+    }*/
     
     // all information for compressed file we have already in ZF entry
     // so just signal what this is really compressed file
     free(buf);
     return 0;
-};
+}
 
 static int isofs_parse_sa(isofs_inode *inode, char *sa, size_t sa_len) {
     int cont_block = 0;
@@ -913,7 +919,7 @@ static int isofs_parse_sa(isofs_inode *inode, char *sa, size_t sa_len) {
                 } else {
                     context.susp = 1;
                     context.susp_skip = sue->u.SP.skip;
-                };
+                }
 //                 printf("parse_sa: SP entry, skip %d\n", sue->u.SP.skip);
                 break;
             case SIG('C', 'E'): // susp 5.1
@@ -946,8 +952,8 @@ static int isofs_parse_sa(isofs_inode *inode, char *sa, size_t sa_len) {
                     } else {
 /*                        printf("parse_sa: CE entry, extent %d, offset %d, size %d\n", 
                             cont_block, cont_offset, cont_size);*/
-                    };
-                };
+                    }
+                }
                 break;
             case SIG('E', 'R'): // susp 5.5
                 if(sue_version != 1) {
@@ -964,22 +970,27 @@ static int isofs_parse_sa(isofs_inode *inode, char *sa, size_t sa_len) {
                         fprintf(stderr, 
                             "parse_sa: incorrect ER entry: sue_len %d, sue_version %d, len_id %d, len_des %d, len_src %d, ext_ver %d\n", 
                             sue_len, sue_version, len_id, len_des, len_src, ext_ver);
-                    } else {
-                        char id[256];
-                        char des[256];
-                        char src[256];
-                        
-                        strncpy(id, sue->u.ER.data, len_id);
+                    }
+					else
+					{
+						const char* const data = reinterpret_cast<const char*>(&sue->u.ER) + sizeof(sue->u.ER);
+
+						char id[256];
+                        strncpy(id, data, len_id);
                         id[len_id] = '\0';
-                        strncpy(des, sue->u.ER.data + len_id, len_des);
+
+						char des[256];
+                        strncpy(des, data + len_id, len_des);
                         des[len_des] = '\0';
-                        strncpy(src, sue->u.ER.data + len_id + len_des, len_src);
+
+						char src[256];
+                        strncpy(src, data + len_id + len_des, len_src);
                         src[len_src] = '\0';
                         
 /*                        printf("parse_sa: ER entry:\n\t id: %s\n\tdes: %s\n\tsrc: %s\n\tver: %d\n", 
                             id, des, src, ext_ver);*/
-                    };
-                };
+                    }
+                }
                 break;
             case SIG('R', 'R'):
                 {
@@ -987,7 +998,7 @@ static int isofs_parse_sa(isofs_inode *inode, char *sa, size_t sa_len) {
                     isonum_711(sue->u.RR.flags);
 /*                    printf("parse_sa: RR entry, sue_version %d, sue_len %d, flags %d\n", 
                         sue_version, sue_len, rr_flags);*/
-                };
+                }
                 break;
             case SIG('P', 'X'): // rrip 4.1.1
                 // according to rrip 4.1.1, length of PX record should be exactly 44
@@ -1012,7 +1023,7 @@ static int isofs_parse_sa(isofs_inode *inode, char *sa, size_t sa_len) {
                     inode->st.st_gid = gid;
                     inode->PX = 1;
                     /// TODO check if entry length == 44 and set st_ino field from 'file serial number'?
-                };
+                }
                 break;
             case SIG('S', 'L'): // rrip 4.1.3
                 if(sue_version != 1) {
@@ -1058,7 +1069,7 @@ static int isofs_parse_sa(isofs_inode *inode, char *sa, size_t sa_len) {
                                 // break;
                                 
                                 /// TODO find _working_ rrip specification
-                            };
+                            }
                             
                             int c_len = 0;
                             char c_separator = 0;
@@ -1068,14 +1079,14 @@ static int isofs_parse_sa(isofs_inode *inode, char *sa, size_t sa_len) {
                             } else {
                                 c_len += 1; // place for '/' separator
                                 c_separator = '/';
-                            };
+                            }
                             if(sl_c_flags & (1 << 1)) { // CURRENT component
                                 c_len += 1; // place for '.' character
                             } else if(sl_c_flags & (1 << 2)) { // PARENT component
                                 c_len += 2; // place for ".." characters
                             } else {
                                 c_len += sl_c_len;
-                            };
+                            }
                             
                             if(c_len + inode->sl_len + 1 > PATH_MAX) {
                                 fprintf(stderr, 
@@ -1083,20 +1094,20 @@ static int isofs_parse_sa(isofs_inode *inode, char *sa, size_t sa_len) {
                                     sue_len, sue_version, sl_flags, sl_c_flags, sl_c_len, c_len);
                                 c_errors++;
                                 break;
-                            };
+                            }
                             
                             if(!inode->sl) {
                                 inode->sl = (char *) malloc(PATH_MAX);
                                 if(!inode->sl) {
                                     perror("Can`t malloc: ");
                                     return -ENOMEM;
-                                };
-                            };
+                                }
+                            }
                             
                             if(c_separator) {
                                 inode->sl[inode->sl_len] = c_separator;
                                 inode->sl_len += 1;
-                            };
+                            }
                             
                             if(sl_c_flags & (1 << 1)) { // CURRENT component
                                 inode->sl[inode->sl_len] = '.';
@@ -1118,13 +1129,16 @@ static int isofs_parse_sa(isofs_inode *inode, char *sa, size_t sa_len) {
                                 inode->sl[inode->sl_len] = '\0';
 /*                                printf("parse_sa: SL ROOT component, sl_c_flags %d, sl_c_len %d, sl_len %d, sl %s\n", 
                                     sl_c_len, inode->sl_len, inode->sl);*/
-                            } else {
-                                strncpy(inode->sl + inode->sl_len, comp->text, sl_c_len);
+                            } else
+							{
+								const char* const text = reinterpret_cast<const char*>(comp) + sizeof(*comp);
+								
+                                strncpy(inode->sl + inode->sl_len, text, sl_c_len);
                                 inode->sl_len += sl_c_len;
                                 inode->sl[inode->sl_len] = '\0';
 /*                                printf("parse_sa: SL component, sl_c_flags %d, sl_c_len %d, sl_len %d, sl %s\n", 
                                     sl_c_flags, sl_c_len, inode->sl_len, inode->sl);*/
-                            };
+                            }
                             
                             // according to rrip, we must stop if CONTINUE flag isn`t set
                             // according to linux kernel isofs code and images produced witj mkisofs
@@ -1138,14 +1152,14 @@ static int isofs_parse_sa(isofs_inode *inode, char *sa, size_t sa_len) {
                             //     printf("parse_sa: SL final component, sl_c_len %d, sl_c_flags %d, sl_len %d, sl %s\n", 
                             //         sl_c_len, sl_c_flags, inode->sl_len, inode->sl);
                             //     break;
-                            // };
-                        };
+                            // }
+                        }
                         
                         if(c_errors) {
 //                             printf("parse_sa: errors found while processing SL components, cleaning\n");
                             if(inode->sl) {
                                 free(inode->sl);
-                            };
+                            }
                             inode->sl_len = 0;
                             inode->SL = 0;
                         } else if(!(sl_flags & 1) && inode->sl) {
@@ -1156,7 +1170,7 @@ static int isofs_parse_sa(isofs_inode *inode, char *sa, size_t sa_len) {
                             fprintf(stderr, "parse_sa: final SL entry found, but no SL components, cleaning\n");
                             if(inode->sl) {
                                 free(inode->sl);
-                            };
+                            }
                             inode->sl_len = 0;
                             inode->SL = 0;
                         } else if(inode->sl) {
@@ -1164,9 +1178,9 @@ static int isofs_parse_sa(isofs_inode *inode, char *sa, size_t sa_len) {
                                 sue_len, sue_version, inode->sl_len, inode->sl);*/
                         } else {
                             fprintf(stderr, "parse_sa: empty SL entry?\n");
-                        };
-                    };
-                };
+                        }
+                    }
+                }
                 break;
             case SIG('N', 'M'): // rrip 4.1.4
                 if(sue_version != 1) {
@@ -1197,10 +1211,12 @@ static int isofs_parse_sa(isofs_inode *inode, char *sa, size_t sa_len) {
                                 if(!inode->nm) {
                                     perror("Can`t malloc: ");
                                     return -ENOMEM;
-                                };
-                            };
-                            
-                            strncpy(inode->nm + inode->nm_len, sue->u.NM.name, sue_len - 5);
+                                }
+                            }
+
+							const char* const name = reinterpret_cast<const char*>(&sue->u.NM) + sizeof(sue->u.NM);
+
+                            strncpy(inode->nm + inode->nm_len, name, sue_len - 5);
                             inode->nm_len += sue_len - 5;
                             inode->nm[inode->nm_len] = '\0';
                             
@@ -1211,10 +1227,10 @@ static int isofs_parse_sa(isofs_inode *inode, char *sa, size_t sa_len) {
                             } else {
 /*                                printf("parse_sa: NM entry (part), flags %d, len %d, name %s\n", 
                                     nm_flags, sue_len - 5, inode->nm);*/
-                            };
-                        };
-                    };
-                };
+                            }
+                        }
+                    }
+                }
                 break;
             case SIG('C', 'L'): // rrip 4.1.5.1
                 if(sue_version != 1 || sue_len != 12) {
@@ -1234,12 +1250,12 @@ static int isofs_parse_sa(isofs_inode *inode, char *sa, size_t sa_len) {
                     if(!buf) {
                         perror("Can`t malloc: ");
                         return -ENOMEM;
-                    };
+                    }
                     int rc = isofs_read_raw_block(inode->cl_block, buf);
                     if(rc < 0) {
                         free(buf);
                         return rc;
-                    };
+                    }
                     
                     struct iso_directory_record *record = (struct iso_directory_record *) buf;
                     size_t record_length = isonum_711(record->length);
@@ -1252,19 +1268,19 @@ static int isofs_parse_sa(isofs_inode *inode, char *sa, size_t sa_len) {
                         fprintf(stderr, "parse_sa: CL entry: directory record length too small: %d\n", record_length);
                         free(buf);
                         return -EIO;
-                    };
+                    }
                     if(name_len != 1) {
                         fprintf(stderr, "parse_sa: file name length too big for . record: %d\n", name_len);
                         free(buf);
                         return -EIO;
-                    };
+                    }
                     if(sa_len < 0) {
                         // probably something wrong with name_len
                         fprintf(stderr, "parse_sa: CL record: wrong name_len in directory entry: %d, record_length %d\n", 
                             name_len, record_length);
                         free(buf);
                         return -EIO;
-                    };
+                    }
                     
                     // ignoring anything from original record
                     struct iso_directory_record *cl_record = 
@@ -1272,13 +1288,13 @@ static int isofs_parse_sa(isofs_inode *inode, char *sa, size_t sa_len) {
                     if(!cl_record) {
                         perror("Can`t malloc: ");
                         return -ENOMEM;
-                    };
+                    }
                     memcpy(cl_record, record, sizeof(struct iso_directory_record));
                     
                     // drop existing record
                     if(inode->record) {
                         free(inode->record);
-                    };
+                    }
                     
                     // replace record with new one
                     inode->record = cl_record;
@@ -1292,10 +1308,10 @@ static int isofs_parse_sa(isofs_inode *inode, char *sa, size_t sa_len) {
                     if(rc) {
                         free(buf);
                         return rc;
-                    };
+                    }
                     
                     free(buf);
-                };
+                }
                 break;
             case SIG('P', 'L'): // rrip 4.1.5.2
                 if(sue_version != 1 || sue_len != 12) {
@@ -1310,7 +1326,7 @@ static int isofs_parse_sa(isofs_inode *inode, char *sa, size_t sa_len) {
                     // probably we don`t need process PL record with FUSE
                     inode->PL = 1;
                     inode->pl_block = pl_block;
-                };
+                }
                 break;
             case SIG('R', 'E'): // rrip 4.1.5.3
                 if(sue_version != 1 || sue_len != 4) {
@@ -1321,7 +1337,7 @@ static int isofs_parse_sa(isofs_inode *inode, char *sa, size_t sa_len) {
                 } else {
 //                     printf("parse_sa: RE entry\n");
                     inode->RE = 1;
-                };
+                }
                 break;
             case SIG('T', 'F'): // rrip 4.1.6
                 if(sue_version != 1) {
@@ -1338,7 +1354,7 @@ static int isofs_parse_sa(isofs_inode *inode, char *sa, size_t sa_len) {
                     } else {
                         // iso9660:9.1.5 format
                         stamp_length = 7;
-                    };
+                    }
                     
                     time_t ctime = 0;
                     time_t mtime = 0;
@@ -1349,20 +1365,20 @@ static int isofs_parse_sa(isofs_inode *inode, char *sa, size_t sa_len) {
                     if(tf_flags & TF_CREATE) {
                         ctime = isofs_date(((char *) sue) + 5 + stamp_length * stamp_no, stamp_length);
                         stamp_no++;
-                    };
+                    }
                     if(tf_flags & TF_MODIFY) {
                         mtime = isofs_date(((char *) sue) + 5 + stamp_length * stamp_no, stamp_length);
                         stamp_no++;
-                    };
+                    }
                     if(tf_flags & TF_ACCESS) {
                         atime = isofs_date(((char *) sue) + 5 + stamp_length * stamp_no, stamp_length);
                         stamp_no++;
-                    };
+                    }
                     // ctime should be stored in ATTRIBUTES stamp according to rrip 4.1.6
                     if(tf_flags & TF_ATTRIBUTES) {
                         ctime = isofs_date(((char *) sue) + 5 + stamp_length * stamp_no, stamp_length);
                         stamp_no++;
-                    };
+                    }
                     // other fields have no meaning for us
                     
 /*                    printf("parse_sa: TF entry, sue_version %d, sue_len %d, ctime %d, mtime %d, atime %d\n", 
@@ -1371,7 +1387,7 @@ static int isofs_parse_sa(isofs_inode *inode, char *sa, size_t sa_len) {
                     inode->st.st_mtime = mtime;
                     inode->st.st_atime = atime;
                     inode->TF = 1;
-                };
+                }
                 break;
             case SIG('S', 'F'): // rrip 4.1.7
                 if(sue_version != 1 || sue_len != 21) {
@@ -1383,7 +1399,7 @@ static int isofs_parse_sa(isofs_inode *inode, char *sa, size_t sa_len) {
                     /// TODO does anyone support SF entries? linux isofs code does not..
                     fprintf(stderr, 
                         "parse_sa: SF entries (sparse files) are unsupported in this version, sorry..\n");
-                };
+                }
                 break;
             case SIG('Z', 'F'): // non-standard linux extension (zisofs)
                 if(sue_version != 1 || sue_len != 16) {
@@ -1410,12 +1426,12 @@ static int isofs_parse_sa(isofs_inode *inode, char *sa, size_t sa_len) {
                         fprintf(stderr, "parse_sa: ZF entry found, but file is not really compressed\n");
                     } else { // some error occur
                         return rc;
-                    };
+                    }
                 } else {
                     fprintf(stderr, 
                         "parse_sa: unknown ZF compression algorithm %c%c, sorry..\n", 
                         sue->u.ZF.algorithm[0], sue->u.ZF.algorithm[1]);
-                };
+                }
                 break;
             default:
                 known_sue = 0;
@@ -1423,7 +1439,7 @@ static int isofs_parse_sa(isofs_inode *inode, char *sa, size_t sa_len) {
                     sue->signature[0], sue->signature[1], 
                     sue_sig, sue_version, sue_len);
                 break;
-        };
+        }
         
         if(sue_len >= 4 && known_sue) {
             remaining -= sue_len;
@@ -1433,8 +1449,8 @@ static int isofs_parse_sa(isofs_inode *inode, char *sa, size_t sa_len) {
             return -EIO;
         } else { // probably there are no more susp entries
             return 0;
-        };
-    };
+        }
+    }
     
     // process continuation area if found
     if(cont_block) {
@@ -1442,54 +1458,54 @@ static int isofs_parse_sa(isofs_inode *inode, char *sa, size_t sa_len) {
         if(!buf) {
             perror("Can`t malloc: ");
             return -ENOMEM;
-        };
+        }
         int rc = isofs_read_raw_block(cont_block, buf);
         if(rc < 0) {
             free(buf);
             return rc;
-        };
+        }
 /*        printf("parse_sa: deep into CE, extent %d, offset %d, size %d\n", 
             cont_block, cont_offset, cont_size);*/
         rc = isofs_parse_sa(inode, buf + cont_offset, cont_size);
         if(rc) {
             free(buf);
             return rc;
-        };
+        }
         
         free(buf);
-    };
+    }
     
     return 0;
-};
+}
 
 int isofs_real_opendir(const char *path) {
     isofs_inode *inode = isofs_lookup(path);
     if(!inode) {
         fprintf(stderr, "opendir: know nothing about %s\n", path);
         return -ENOENT;
-    };
+    }
     if(!ISO_FLAGS_DIR(inode->record->flags)) {
         fprintf(stderr, "opendir: %s not a dir\n", path);
         return -ENOTDIR;
-    };
+    }
     return 0;
-};
+}
 
 int isofs_real_readdir(const char *path, void *filler_buf, isofs_dir_fill_t filler) {
     if(path[0] == '\0') {
         fprintf(stderr, "readdir: attempt to read empty path name\n");
         return -EINVAL;
-    };
+    }
     isofs_inode *current_inode = isofs_lookup(path);
     if(!current_inode) {
         fprintf(stderr, "readdir: know nothing about %s\n", path);
         return -ENOENT;
-    };
+    }
     struct iso_directory_record *current = current_inode->record;
     if(!ISO_FLAGS_DIR(current->flags)) {
         fprintf(stderr, "readdir: %s not a dir\n", path);
         return -ENOTDIR;
-    };
+    }
     
     size_t current_size = isonum_733(current->size);
     
@@ -1498,7 +1514,7 @@ int isofs_real_readdir(const char *path, void *filler_buf, isofs_dir_fill_t fill
     if(!buf) {
         perror("Can`t malloc: ");
         return -ENOMEM;
-    };
+    }
     int rc;
     // printf("path %s, current_size %d, block %d\n", path, current_size, block);
     
@@ -1511,19 +1527,19 @@ int isofs_real_readdir(const char *path, void *filler_buf, isofs_dir_fill_t fill
         rc = isofs_read_raw_block(block, buf);
         if(rc < 0) {
             return rc;
-        };
+        }
         if(rc != context.data_size) {
             // can`t be allowed
             fprintf(stderr, "readdir: can`t read whole block, read only %d bytes, block %d\n", rc, block);
             free(buf);
             return -EIO;
-        };
+        }
         block_count++;
         
         if(boff > 0) {
             total_size += (context.data_size - boff);
             boff = 0;
-        };
+        }
         
         while(boff + sizeof(struct iso_directory_record) <= context.data_size && 
             total_size <= current_size - sizeof(struct iso_directory_record)) {
@@ -1541,7 +1557,7 @@ int isofs_real_readdir(const char *path, void *filler_buf, isofs_dir_fill_t fill
                 total_size += (context.data_size - boff);
                 boff = 0;
                 break;
-            };
+            }
             if(record_length < sizeof(struct iso_directory_record)) {
                 if(count > 2) { // check if . and .. is already read
                     // possible end of directory
@@ -1556,33 +1572,37 @@ int isofs_real_readdir(const char *path, void *filler_buf, isofs_dir_fill_t fill
                     fprintf(stderr, "readdir: directory record length too small: %d\n", record_length);
                     free(buf);
                     return -EIO;
-                };
-            };
+                }
+            }
             if(name_len > NAME_MAX - 1) {
                 fprintf(stderr, "readdir: file name length too big: %d\n", name_len);
                 free(buf);
                 return -EIO;
-            };
+            }
             if(sa_len < 0) {
                 // probably something wrong with name_len
                 fprintf(stderr, "readdir: wrong name_len in directory entry: %d, record_length %d\n", 
                     name_len, record_length);
                 free(buf);
                 return -EIO;
-            };
-            if(count > 2 && name_len == 1 && record->name[0] == 0) {
+            }
+
+			const char* const record_name = reinterpret_cast<const char*>(record) + sizeof(*record);
+			
+            if (count > 2 && name_len == 1 && 0 == record_name[0])
+			{
                 // looks like this is normal situation to meet another directory because
                 // there is no clear way to find directory end
 //                 fprintf(stderr, "readdir: next directory found while processing another directory! boff %d, total_size %d, current_size %d, block %d, count %d\n", 
 //                     (int) boff, total_size, current_size, block, count);
                 goto out;
-            };
+            }
             
             isofs_inode *inode = (isofs_inode *) malloc(sizeof(isofs_inode));
             if(!inode) {
                 perror("Can`t malloc: ");
                 return -ENOMEM;
-            };
+            }
             memset(inode, 0, sizeof(isofs_inode));
             inode->st_ino = context.last_ino;
             context.last_ino++;
@@ -1592,7 +1612,7 @@ int isofs_real_readdir(const char *path, void *filler_buf, isofs_dir_fill_t fill
             if(!n_rec) {
                 perror("Can`t malloc: ");
                 return -ENOMEM;
-            };
+            }
             memcpy(n_rec, record, sizeof(struct iso_directory_record));
             inode->record = n_rec;
             
@@ -1606,14 +1626,14 @@ int isofs_real_readdir(const char *path, void *filler_buf, isofs_dir_fill_t fill
                     free(buf);
                     isofs_free_inode(inode);
                     return rc;
-                };
-            };
+                }
+            }
             
             char *entry = (char *) malloc(NAME_MAX);
             if(!entry) {
                 perror("Can`t malloc: ");
                 return -ENOMEM;
-            };
+            }
             if(count == 1) { // . entry ('\0' on disk)
                 strcpy(entry, ".");
             } else if(count == 2) { // .. entry ('\1' on disk)
@@ -1626,7 +1646,7 @@ int isofs_real_readdir(const char *path, void *filler_buf, isofs_dir_fill_t fill
                 } else { // regular ISO9660 filename
 //                     printf("readdir: no NM entry found, name len %d\n", name_len);
                     // because there can be '\0' characters because using of UCS-2 encoding we need to use memcpy
-                    memcpy(entry, (char *) record->name, name_len);
+                    memcpy(entry, record_name, name_len);
                     entry[name_len] = '\0';
                     
                     // fixup entry -- lowercase, strip leading ';', etc..
@@ -1636,9 +1656,9 @@ int isofs_real_readdir(const char *path, void *filler_buf, isofs_dir_fill_t fill
                         isofs_free_inode(inode);
                         free(buf);
                         return -EIO;
-                    };
-                };
-            };
+                    }
+                }
+            }
             
             // fprintf(stderr, "%d -- %s\n\n", count, entry); 
             
@@ -1653,38 +1673,38 @@ int isofs_real_readdir(const char *path, void *filler_buf, isofs_dir_fill_t fill
                     free(buf);
                     free(entry);
                     return -rc;
-                };
-            };
+                }
+            }
             
             char absolute_entry[PATH_MAX];
             strcpy(absolute_entry, path);
             if(path[1] != '\0') { // not root dir
                 strcat(absolute_entry, "/");
-            };
+            }
             strcat(absolute_entry, entry);
             if(g_hash_table_lookup(lookup_table, absolute_entry)) {
                 // already in lookup cache
                 isofs_free_inode(inode);
             } else {
                 g_hash_table_insert(lookup_table, absolute_entry, inode);
-            };
+            }
             
             free(entry);
             
             boff += record_length;
             total_size += record_length;
             count++;
-        };
+        }
         
         // read next block
         
         block++;
-    };
+    }
 out:
     
     free(buf);
     return 0;
-};
+}
 
 int isofs_real_getattr(const char *path, struct stat *stbuf) {
     isofs_inode *inode = isofs_lookup(path);
@@ -1695,46 +1715,46 @@ int isofs_real_getattr(const char *path, struct stat *stbuf) {
         return -ENOENT;
     } else {
         // printf("getattr: found %s, size %d\n", path, isonum_733(inode->record->size));
-    };
+    }
     memset(stbuf, 0, sizeof(struct stat));
     isofs_direntry2stat(stbuf, inode);
 /*    if(ISO_FLAGS_DIR(inode->record->flags)) {
         printf("%s %i %i\n", path, (int) stbuf->st_size, stbuf->st_mode);
-    };*/
+    }*/
     return 0;
-};
+}
 
 int isofs_real_readlink(const char *path, char *target, size_t size) {
     isofs_inode *inode = isofs_lookup(path);
     if(!inode) {
         fprintf(stderr, "readlink: know nothing about %s\n", path);
         return -ENOENT;
-    };
+    }
     if(!inode->PX || !inode->SL || !S_ISLNK(inode->st.st_mode)) {
         fprintf(stderr, "readlink: %s not a link\n", path);
         return -EINVAL;
-    };
+    }
     strncpy(target, inode->sl, size - 1);
     target[size - 1] = '\0';
     return 0;
-};
+}
 
 int isofs_real_open(const char *path) {
     isofs_inode *inode = isofs_lookup(path);
     if(!inode) {
         fprintf(stderr, "open: know nothing about %s\n", path);
         return -ENOENT;
-    };
+    }
     if(ISO_FLAGS_DIR(inode->record->flags)) {
         fprintf(stderr, "open: %s not a file\n", path);
         return -EINVAL;
-    };
+    }
     if(ISO_FLAGS_HIDDEN(inode->record->flags)) {
         fprintf(stderr, "open: %s is a hidden file\n", path);
         // return -EPERM;
-    };
+    }
     return 0;
-};
+}
 
 static int isofs_real_read_zf(isofs_inode *inode, char *out_buf, size_t size, off_t offset) {
     int zf_block_size = 1 << inode->zf_block_shift;
@@ -1744,7 +1764,7 @@ static int isofs_real_read_zf(isofs_inode *inode, char *out_buf, size_t size, of
     // --  Ryan Thomas 2007-06-13
     if( (offset + size ) % zf_block_size == 0 ) {
         zf_end--;
-    };
+    }
     int shift = offset % zf_block_size;
     
 //     printf("zf_start %d, zf_end %d, size %d, offset %d, shift %d\n", 
@@ -1753,24 +1773,24 @@ static int isofs_real_read_zf(isofs_inode *inode, char *out_buf, size_t size, of
     // protection against some ununderstandable errors
     if(zf_start >= inode->zf_nblocks) {
         zf_start = inode->zf_nblocks - 1;
-    };
+    }
     if(zf_end >= inode->zf_nblocks) {
         zf_end = inode->zf_nblocks - 1;
-    };
+    }
     if(zf_end < 0 || zf_start < 0) {
         return 0;
-    };
+    }
     
     unsigned char *cbuf = (unsigned char *) malloc(zf_block_size * 2);
     if(!cbuf) {
         perror("Can`t malloc: ");
         return -ENOMEM;
-    };
+    }
     unsigned char *ubuf = (unsigned char *) malloc(zf_block_size);
     if(!ubuf) {
         perror("Can`t malloc: ");
         return -ENOMEM;
-    };
+    }
     
     size_t total_size = 0;
     size_t size_left = size;
@@ -1807,14 +1827,14 @@ static int isofs_real_read_zf(isofs_inode *inode, char *out_buf, size_t size, of
                 free(cbuf);
                 free(ubuf);
                 return -err;
-            };
+            }
             if(lseek(context.fd, image_off, SEEK_SET) == -1) {
                 perror("isofs_real_read_zf: can`t lseek()");
                 pthread_mutex_unlock(& fd_mutex);
                 free(cbuf);
                 free(ubuf);
                 return -EIO;
-            };
+            }
             size_t len = read(context.fd, cbuf, block_size);
             if(len != block_size) {
                 fprintf(stderr, "isofs_real_read_zf: can`t read full block, errno %d, message %s\n", 
@@ -1823,7 +1843,7 @@ static int isofs_real_read_zf(isofs_inode *inode, char *out_buf, size_t size, of
                 free(cbuf);
                 free(ubuf);
                 return -EIO;
-            };
+            }
             pthread_mutex_unlock(& fd_mutex);
             
             // compressed block is read from disk, now uncompress() it
@@ -1835,7 +1855,7 @@ static int isofs_real_read_zf(isofs_inode *inode, char *out_buf, size_t size, of
                 free(ubuf);
                 fprintf(stderr, "isofs_real_read_zf: uncompress() error %i: %s\n", rc, strerror(rc));
                 return -rc;
-            };
+            }
             
             // ubuf contain uncompressed data, usize contain uncompressed block size
             
@@ -1844,11 +1864,11 @@ static int isofs_real_read_zf(isofs_inode *inode, char *out_buf, size_t size, of
             
             total_size += payload_size;
             size_left -= payload_size;
-        };
+        }
         
         // shift is only meaningful for first block
         shift = 0;
-    };
+    }
     
     free(cbuf);
     free(ubuf);
@@ -1856,40 +1876,40 @@ static int isofs_real_read_zf(isofs_inode *inode, char *out_buf, size_t size, of
 //     printf("total size %d\n", total_size);
     
     return total_size;
-};
+}
 
 int isofs_real_read(const char *path, char *out_buf, size_t size, off_t offset) {
     isofs_inode *inode = isofs_lookup(path);
     if(!inode) {
         fprintf(stderr, "read: know nothing about %s\n", path);
         return -ENOENT;
-    };
+    }
     struct iso_directory_record *record = inode->record;
     if(ISO_FLAGS_DIR(record->flags)) {
         fprintf(stderr, "read: %s not a file\n", path);
         return -EINVAL;
-    };
+    }
     if(ISO_FLAGS_HIDDEN(record->flags)) {
         fprintf(stderr, "read: %s is a hidden file\n", path);
         // return -EPERM;
-    };
+    }
     
     if(inode->ZF) { // this file is compressed, handle it specially
         return isofs_real_read_zf(inode, out_buf, size, offset);
-    };
+    }
     
     size_t fsize = isonum_733(record->size);
     if(offset + size > fsize) {
         size = fsize - offset;
-    };
+    }
     if(size < 1) {
         return 0;
-    };
+    }
     
     int start_block = isonum_733(record->extent);
     if(start_block == 0) { // empty file
         return 0;
-    };
+    }
     
     int start = offset / context.data_size;
     int end = (offset + size) / context.data_size;
@@ -1902,7 +1922,7 @@ int isofs_real_read(const char *path, char *out_buf, size_t size, off_t offset) 
     if(!buf) {
         perror("Can`t malloc: ");
         return -ENOMEM;
-    };
+    }
     
     int i;
     size_t total_size = 0;
@@ -1914,12 +1934,12 @@ int isofs_real_read(const char *path, char *out_buf, size_t size, off_t offset) 
         if(len < 0) {
             free(buf);
             return len;
-        };
+        }
 //         printf("read: block %d, len %d, size_left %d\n", block, len, size_left);
         
         if(len > size_left) {
             len = size_left;
-        };
+        }
         
         total_size += len;
         
@@ -1929,11 +1949,11 @@ int isofs_real_read(const char *path, char *out_buf, size_t size, off_t offset) 
         shift = 0;
         size_left -= len;
         block++;
-    };
+    }
     
     free(buf);
     return total_size;
-};
+}
 
 int isofs_real_statfs(struct statvfs* stbuf)
 {
@@ -1946,4 +1966,4 @@ int isofs_real_statfs(struct statvfs* stbuf)
     stbuf->f_ffree = 0;
     stbuf->f_namemax = NAME_MAX - 1; // ? not sure..
     return 0;
-};
+}

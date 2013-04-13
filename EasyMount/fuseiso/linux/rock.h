@@ -29,7 +29,9 @@ struct SU_ER{
   unsigned char len_des;
   unsigned char len_src;
   unsigned char ext_ver;
+#ifndef __cplusplus
   char data[0];
+#endif // !__cplusplus
 } __attribute__((packed));
 
 struct RR_RR{
@@ -52,7 +54,9 @@ struct RR_PN{
 struct SL_component{
   unsigned char flags;
   unsigned char len;
+#ifndef __cplusplus
   char text[0];
+#endif // !__cplusplus
 } __attribute__((packed));
 
 struct RR_SL{
@@ -62,7 +66,9 @@ struct RR_SL{
 
 struct RR_NM{
   unsigned char flags;
+#ifndef __cplusplus
   char name[0];
+#endif // !__cplusplus
 } __attribute__((packed));
 
 struct RR_CL{
@@ -79,7 +85,9 @@ struct stamp{
 
 struct RR_TF{
   char flags;
+#ifndef __cplusplus
   struct stamp times[0];  /* Variable number of these beasts */
+#endif // !__cplusplus
 } __attribute__((packed));
 
 /* Linux-specific extension for transparent decompression */
