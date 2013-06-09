@@ -1,0 +1,263 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		8A9E5EDF17644E2600DB8C7E /* abgx360.c in Sources */ = {isa = PBXBuildFile; fileRef = 8A9E5ED317644E2600DB8C7E /* abgx360.c */; };
+		8A9E5EE017644E2600DB8C7E /* lzxd.c in Sources */ = {isa = PBXBuildFile; fileRef = 8A9E5ED617644E2600DB8C7E /* lzxd.c */; };
+		8A9E5EE117644E2600DB8C7E /* system.c in Sources */ = {isa = PBXBuildFile; fileRef = 8A9E5ED817644E2600DB8C7E /* system.c */; };
+		8A9E5EE217644E2600DB8C7E /* rijndael-alg-fst.c in Sources */ = {isa = PBXBuildFile; fileRef = 8A9E5EDA17644E2600DB8C7E /* rijndael-alg-fst.c */; };
+		8A9E5EE317644E2600DB8C7E /* sha1.c in Sources */ = {isa = PBXBuildFile; fileRef = 8A9E5EDC17644E2600DB8C7E /* sha1.c */; };
+		8A9E5EE517644F3800DB8C7E /* libcurl.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 8A9E5EE417644F3800DB8C7E /* libcurl.dylib */; };
+		8A9E5EE717644F3D00DB8C7E /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 8A9E5EE617644F3D00DB8C7E /* libz.dylib */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		8A9E5EC717644DF200DB8C7E /* abgx360 */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = abgx360; sourceTree = BUILT_PRODUCTS_DIR; };
+		8A9E5ED317644E2600DB8C7E /* abgx360.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = abgx360.c; sourceTree = "<group>"; };
+		8A9E5ED517644E2600DB8C7E /* lzx.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lzx.h; sourceTree = "<group>"; };
+		8A9E5ED617644E2600DB8C7E /* lzxd.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = lzxd.c; sourceTree = "<group>"; };
+		8A9E5ED717644E2600DB8C7E /* mspack.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = mspack.h; sourceTree = "<group>"; };
+		8A9E5ED817644E2600DB8C7E /* system.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = system.c; sourceTree = "<group>"; };
+		8A9E5ED917644E2600DB8C7E /* system.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = system.h; sourceTree = "<group>"; };
+		8A9E5EDA17644E2600DB8C7E /* rijndael-alg-fst.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = "rijndael-alg-fst.c"; sourceTree = "<group>"; };
+		8A9E5EDB17644E2600DB8C7E /* rijndael-alg-fst.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "rijndael-alg-fst.h"; sourceTree = "<group>"; };
+		8A9E5EDC17644E2600DB8C7E /* sha1.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = sha1.c; sourceTree = "<group>"; };
+		8A9E5EDD17644E2600DB8C7E /* sha1.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sha1.h; sourceTree = "<group>"; };
+		8A9E5EDE17644E2600DB8C7E /* spti.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = spti.h; sourceTree = "<group>"; };
+		8A9E5EE417644F3800DB8C7E /* libcurl.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libcurl.dylib; path = /usr/lib/libcurl.dylib; sourceTree = "<absolute>"; };
+		8A9E5EE617644F3D00DB8C7E /* libz.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libz.dylib; path = /usr/lib/libz.dylib; sourceTree = "<absolute>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		8A9E5EC417644DF200DB8C7E /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				8A9E5EE717644F3D00DB8C7E /* libz.dylib in Frameworks */,
+				8A9E5EE517644F3800DB8C7E /* libcurl.dylib in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		8A9E5EBE17644DF200DB8C7E = {
+			isa = PBXGroup;
+			children = (
+				8A9E5EE917644F5E00DB8C7E /* Sources */,
+				8A9E5EE817644F4500DB8C7E /* Dependencies */,
+				8A9E5EC817644DF200DB8C7E /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		8A9E5EC817644DF200DB8C7E /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				8A9E5EC717644DF200DB8C7E /* abgx360 */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		8A9E5EC917644DF200DB8C7E /* abgx360 */ = {
+			isa = PBXGroup;
+			children = (
+				8A9E5ED417644E2600DB8C7E /* mspack */,
+				8A9E5ED317644E2600DB8C7E /* abgx360.c */,
+				8A9E5EDA17644E2600DB8C7E /* rijndael-alg-fst.c */,
+				8A9E5EDB17644E2600DB8C7E /* rijndael-alg-fst.h */,
+				8A9E5EDC17644E2600DB8C7E /* sha1.c */,
+				8A9E5EDD17644E2600DB8C7E /* sha1.h */,
+				8A9E5EDE17644E2600DB8C7E /* spti.h */,
+			);
+			path = abgx360;
+			sourceTree = "<group>";
+		};
+		8A9E5ED417644E2600DB8C7E /* mspack */ = {
+			isa = PBXGroup;
+			children = (
+				8A9E5ED517644E2600DB8C7E /* lzx.h */,
+				8A9E5ED617644E2600DB8C7E /* lzxd.c */,
+				8A9E5ED717644E2600DB8C7E /* mspack.h */,
+				8A9E5ED817644E2600DB8C7E /* system.c */,
+				8A9E5ED917644E2600DB8C7E /* system.h */,
+			);
+			path = mspack;
+			sourceTree = "<group>";
+		};
+		8A9E5EE817644F4500DB8C7E /* Dependencies */ = {
+			isa = PBXGroup;
+			children = (
+				8A9E5EE417644F3800DB8C7E /* libcurl.dylib */,
+				8A9E5EE617644F3D00DB8C7E /* libz.dylib */,
+			);
+			name = Dependencies;
+			sourceTree = "<group>";
+		};
+		8A9E5EE917644F5E00DB8C7E /* Sources */ = {
+			isa = PBXGroup;
+			children = (
+				8A9E5EC917644DF200DB8C7E /* abgx360 */,
+			);
+			name = Sources;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		8A9E5EC617644DF200DB8C7E /* abgx360 */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 8A9E5ED017644DF200DB8C7E /* Build configuration list for PBXNativeTarget "abgx360" */;
+			buildPhases = (
+				8A9E5EC317644DF200DB8C7E /* Sources */,
+				8A9E5EC417644DF200DB8C7E /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = abgx360;
+			productName = abgx360;
+			productReference = 8A9E5EC717644DF200DB8C7E /* abgx360 */;
+			productType = "com.apple.product-type.tool";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		8A9E5EBF17644DF200DB8C7E /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0460;
+				ORGANIZATIONNAME = abgx360;
+			};
+			buildConfigurationList = 8A9E5EC217644DF200DB8C7E /* Build configuration list for PBXProject "abgx360" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = 8A9E5EBE17644DF200DB8C7E;
+			productRefGroup = 8A9E5EC817644DF200DB8C7E /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				8A9E5EC617644DF200DB8C7E /* abgx360 */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		8A9E5EC317644DF200DB8C7E /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				8A9E5EDF17644E2600DB8C7E /* abgx360.c in Sources */,
+				8A9E5EE017644E2600DB8C7E /* lzxd.c in Sources */,
+				8A9E5EE117644E2600DB8C7E /* system.c in Sources */,
+				8A9E5EE217644E2600DB8C7E /* rijndael-alg-fst.c in Sources */,
+				8A9E5EE317644E2600DB8C7E /* sha1.c in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		8A9E5ECE17644DF200DB8C7E /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				ONLY_ACTIVE_ARCH = YES;
+			};
+			name = Debug;
+		};
+		8A9E5ECF17644DF200DB8C7E /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+			};
+			name = Release;
+		};
+		8A9E5ED117644DF200DB8C7E /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		8A9E5ED217644DF200DB8C7E /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		8A9E5EC217644DF200DB8C7E /* Build configuration list for PBXProject "abgx360" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				8A9E5ECE17644DF200DB8C7E /* Debug */,
+				8A9E5ECF17644DF200DB8C7E /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		8A9E5ED017644DF200DB8C7E /* Build configuration list for PBXNativeTarget "abgx360" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				8A9E5ED117644DF200DB8C7E /* Debug */,
+				8A9E5ED217644DF200DB8C7E /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 8A9E5EBF17644DF200DB8C7E /* Project object */;
+}
