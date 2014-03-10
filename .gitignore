@@ -6,3 +6,4 @@ DerivedData/
 *.mode1v3
 *.pbxuser
 build/
+*.xccheckout
