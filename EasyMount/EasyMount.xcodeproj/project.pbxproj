@@ -2009,6 +2009,10 @@
 					libarchive,
 					archivemount,
 				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					/usr/local/lib,
+				);
 				PRODUCT_NAME = archivemountd;
 			};
 			name = Debug;
@@ -2024,6 +2028,10 @@
 					/usr/local/include/osxfuse/fuse,
 					libarchive,
 					archivemount,
+				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					/usr/local/lib,
 				);
 				PRODUCT_NAME = archivemountd;
 			};
