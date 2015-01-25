@@ -92,8 +92,8 @@
 		8A2001CB16FDCACF00009657 /* x86.c in Sources */ = {isa = PBXBuildFile; fileRef = 8A20012F16FDCACF00009657 /* x86.c */; };
 		8A2001CE16FDCD1700009657 /* liblzo_em.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8A20FB1016FDBA0400009657 /* liblzo_em.a */; };
 		8A2001CF16FDCD1900009657 /* liblzma_em.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8A20FE8916FDC98000009657 /* liblzma_em.a */; };
-		8A2001DC16FDD24A00009657 /* fuseisod in CopyFiles */ = {isa = PBXBuildFile; fileRef = 8A4E38B616EA4A8900FB40C5 /* fuseisod */; };
-		8A2001DD16FDD24B00009657 /* archivemountd in CopyFiles */ = {isa = PBXBuildFile; fileRef = 8A20FAF216FDB19500009657 /* archivemountd */; };
+		8A2001DC16FDD24A00009657 /* fuseisod in Copy Executables */ = {isa = PBXBuildFile; fileRef = 8A4E38B616EA4A8900FB40C5 /* fuseisod */; };
+		8A2001DD16FDD24B00009657 /* archivemountd in Copy Executables */ = {isa = PBXBuildFile; fileRef = 8A20FAF216FDB19500009657 /* archivemountd */; };
 		8A20F9D216FDABCC00009657 /* EasyMount.m in Sources */ = {isa = PBXBuildFile; fileRef = 8A20F9D016FDABCC00009657 /* EasyMount.m */; };
 		8A20F9DF16FDACE100009657 /* fuseiso.c in Sources */ = {isa = PBXBuildFile; fileRef = 8A20F9DC16FDACE100009657 /* fuseiso.c */; };
 		8A20F9E016FDACE100009657 /* isofs.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8A20F9DD16FDACE100009657 /* isofs.cpp */; };
@@ -318,15 +318,16 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
-		8A2001DB16FDD23C00009657 /* CopyFiles */ = {
+		8A2001DB16FDD23C00009657 /* Copy Executables */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = "";
 			dstSubfolderSpec = 6;
 			files = (
-				8A2001DC16FDD24A00009657 /* fuseisod in CopyFiles */,
-				8A2001DD16FDD24B00009657 /* archivemountd in CopyFiles */,
+				8A2001DC16FDD24A00009657 /* fuseisod in Copy Executables */,
+				8A2001DD16FDD24B00009657 /* archivemountd in Copy Executables */,
 			);
+			name = "Copy Executables";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXCopyFilesBuildPhase section */
@@ -760,6 +761,7 @@
 		8A3FE87016F5AABC009BF55F /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		8A4E38B616EA4A8900FB40C5 /* fuseisod */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = fuseisod; sourceTree = BUILT_PRODUCTS_DIR; };
 		8AC13D4B16ECA67D00EBCF0F /* libosxfuse.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libosxfuse.dylib; path = /usr/local/lib/libosxfuse.dylib; sourceTree = "<absolute>"; };
+		8AFA054B1A74E60200A8645A /* External.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; name = External.icns; path = ../../../../../System/Library/Extensions/IOStorageFamily.kext/Contents/Resources/External.icns; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -1098,6 +1100,7 @@
 		8A20F9CE16FDABC100009657 /* EasyMount */ = {
 			isa = PBXGroup;
 			children = (
+				8AFA054B1A74E60200A8645A /* External.icns */,
 				8A20F9D016FDABCC00009657 /* EasyMount.m */,
 				8A20F9CF16FDABCC00009657 /* EasyMount-Info.plist */,
 			);
@@ -1531,7 +1534,8 @@
 			buildPhases = (
 				8A3FE86916F5AABC009BF55F /* Sources */,
 				8A3FE86A16F5AABC009BF55F /* Frameworks */,
-				8A2001DB16FDD23C00009657 /* CopyFiles */,
+				8A2001DB16FDD23C00009657 /* Copy Executables */,
+				8AFA054E1A74E76F00A8645A /* Make Icon Link */,
 			);
 			buildRules = (
 			);
@@ -1620,6 +1624,20 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "\nif [ ! -e /usr/local/include/osxfuse ]; then\n    echo \"ERROR: OSXFUSE 2.5.x or later is not installed!\"\n    exit 1\nfi\n";
+		};
+		8AFA054E1A74E76F00A8645A /* Make Icon Link */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Make Icon Link";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "RESOURCES_DIR=${CONFIGURATION_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}\n\nif [ ! -e \"${RESOURCES_DIR}\" ]; then\n\tmkdir -p \"${RESOURCES_DIR}\"\nfi\n\nICON_PATH=${RESOURCES_DIR}/EasyMount.icns\n\nif [ ! -e \"${ICON_PATH}\" ]; then\n\tln -s /System/Library/Extensions/IOStorageFamily.kext/Contents/Resources/External.icns \"${ICON_PATH}\"\nfi\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
