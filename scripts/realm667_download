@@ -1,0 +1,22 @@
+#!/bin/sh
+
+echo
+echo "Press Enter if really want to download files from realm667.com"
+echo "Press Ctrl+C if not..."
+read dummy
+
+echo "Downloading, see realm667.log for output..."
+
+wget --content-disposition --output-file=realm667.log http://realm667.com/index.php/en/component/docman/\?task=doc_download\&gid={1..1000}
+
+for f in *; do
+	length=${#f}
+	mid=$((length/2))
+
+	left=${f:0:mid}
+	right=${f:mid:length-1}
+	
+	if [ "${left}" == "${right}" ]; then
+		mv "${f}" "${left}"
+	fi
+done
