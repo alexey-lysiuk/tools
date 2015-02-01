@@ -1,0 +1,10 @@
+#!/bin/sh
+
+cd /Volumes/ramdisk
+
+git clone https://github.com/alexey-lysiuk/gzdoom.git
+cd gzdoom
+
+git remote add rheit https://github.com/rheit/zdoom.git
+git remote add coelckers https://github.com/coelckers/gzdoom.git
+git fetch --all

@@ -1,0 +1,33 @@
+#!/bin/sh
+
+cd /Volumes/ramdisk
+
+if [ ! -e gz_build ]; then
+	mkdir gz_build
+fi
+
+cd gz_build
+
+THIRDPARTY_DIR=/Volumes/Storage/Documents/Doom/_thirdparty/
+FMOD_DIR=${THIRDPARTY_DIR}fmodex4.44.45/
+GLEW_DIR=${THIRDPARTY_DIR}glew-1.11.0/
+
+SRC_DIR=../gzdoom
+
+if [ ! -e ${SRC_DIR} ]; then
+	SRC_DIR=/Volumes/Storage/Work/gz_temp
+fi
+
+/Applications/CMake.app/Contents/bin/cmake -Wno-dev -GXcode  \
+	-DFMOD_INCLUDE_DIR=${FMOD_DIR}inc                        \
+	-DFMOD_LIBRARY=${FMOD_DIR}lib/libfmodex.dylib            \
+	-DGLEW_INCLUDE_DIR=${GLEW_DIR}include                    \
+	-DGLEW_LIBRARY=${GLEW_DIR}lib/libGLEW.a                  \
+	-DCMAKE_OSX_DEPLOYMENT_TARGET="10.4"                     \
+	${SRC_DIR}
+
+if [ -e ZDoom.xcodeproj ]; then
+	open ZDoom.xcodeproj
+elif [ -e GZDoom.xcodeproj ]; then
+	open GZDoom.xcodeproj
+fi
