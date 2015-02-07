@@ -1,0 +1,8 @@
+#!/bin/sh
+
+cd /Volumes/ramdisk
+
+git clone https://github.com/alexey-lysiuk/Realm667-AAA
+cd Realm667-AAA
+
+git clone https://github.com/alexey-lysiuk/Realm667-AAA-Cache cache
