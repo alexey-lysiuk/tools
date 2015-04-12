@@ -1,0 +1,27 @@
+#!/bin/sh
+
+if [ $# -ne 1 ]; then
+	echo "Usage: $0 <rootdir>"
+	exit 1
+fi
+
+if [ ! -d "$1" ]; then
+	echo "Root directory $1 does not exist"
+	exit 1
+fi
+
+TRASHES=$1/.Trashes
+rm -rf "${TRASHES}"
+touch "${TRASHES}"
+
+NOINDEX=$1/.metadata_never_index
+if [ ! -e "${NOINDEX}" ]; then
+	touch "${NOINDEX}"
+fi
+
+rm -rf "$1/.Spotlight-V100"
+
+FSEVENT=$1/.fseventsd
+rm -rf "${FSEVENT}"
+mkdir "${FSEVENT}"
+touch "${FSEVENT}/no_log"
