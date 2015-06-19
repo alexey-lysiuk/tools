@@ -1,0 +1,11 @@
+#!/bin/sh
+
+cd /Volumes/ramdisk
+
+git clone https://github.com/alexey-lysiuk/doomretro.git
+cd doomretro
+
+git remote add bradharding https://github.com/bradharding/doomretro.git
+git fetch --all
+
+open xcode/doomretroapp.xcodeproj
