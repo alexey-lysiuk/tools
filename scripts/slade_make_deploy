@@ -1,0 +1,18 @@
+#!/bin/sh
+
+cd /Volumes/ramdisk
+
+if [ -e SLADE ]; then
+	echo Error: SLADE directory is already exist!
+	exit 1
+fi
+
+git clone https://github.com/alexey-lysiuk/SLADE.git
+cd SLADE
+
+xcodebuild -target make_deploy -configuration Release
+mv .deploy_image/Slade.dmg ..
+
+cd build/Release
+zip -9r Slade.dSYM.zip Slade.app.dSYM
+mv Slade.dSYM.zip ../../..
