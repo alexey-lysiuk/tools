@@ -10,14 +10,14 @@ fi
 git clone https://github.com/alexey-lysiuk/gzdoom.git
 cd gzdoom
 
-mkdir misc/freedoom
-cp ~/Library/Application\ Support/GZDoom/freedoom*.wad misc/freedoom
+#mkdir misc/freedoom
+#cp ~/Library/Application\ Support/GZDoom/freedoom*.wad misc/freedoom
 
 PACKAGE_NAME=GZDoom-`git describe`
 
 xcodebuild -target make_deploy_cocoa -configuration MaxOptim
 mv .deploy_image/${PACKAGE_NAME}.dmg ..
-mv .deploy_image/Free${PACKAGE_NAME}.dmg ..
+#mv .deploy_image/Free${PACKAGE_NAME}.dmg ..
 
 SYMBOLS_ARCHIVE_NAME=${PACKAGE_NAME}.dSYM.zip
 
