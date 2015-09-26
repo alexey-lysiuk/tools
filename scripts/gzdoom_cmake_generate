@@ -8,9 +8,19 @@ fi
 
 cd gz_build
 
-THIRDPARTY_DIR=/Volumes/Storage/Documents/Doom/_thirdparty/
-FMOD_DIR=${THIRDPARTY_DIR}fmodex4.44.45/
-GLEW_DIR=${THIRDPARTY_DIR}glew-1.11.0/
+TP_DIR=/Volumes/Storage/Work/GZDoom/thirdparty/
+GLEW_DIR=${TP_DIR}GLEW/
+FMOD_DIR=${TP_DIR}FMOD/
+OPENAL_DIR=${TP_DIR}openal-soft/
+MPG123_DIR=${TP_DIR}mpg123/
+FSYNTH_DIR=${TP_DIR}fluidsynth/
+FSYNTH_LIB_PREFIX=${FSYNTH_DIR}lib/lib
+FSYNTH_LIBS=${FSYNTH_LIB_PREFIX}fluidsynth.a\;${FSYNTH_LIB_PREFIX}glib-2.0.a\;${FSYNTH_LIB_PREFIX}intl.a
+SNDFILE_DIR=${TP_DIR}sndfile/
+SNDFILE_LIB_PREFIX=${SNDFILE_DIR}lib/lib
+SNDFILE_LIBS=${SNDFILE_LIB_PREFIX}sndfile.a\;${SNDFILE_LIB_PREFIX}FLAC.a\;${SNDFILE_LIB_PREFIX}ogg.a\;${SNDFILE_LIB_PREFIX}vorbis.a\;${SNDFILE_LIB_PREFIX}vorbisenc.a
+SDL2_DIR=${TP_DIR}SDL2/
+FRAMEWORKS=-framework\ AudioUnit\ -framework\ AudioToolbox\ -framework\ CoreAudio\ -framework\ ForceFeedback
 
 SRC_DIR=../gzdoom
 
@@ -19,11 +29,23 @@ if [ ! -e ${SRC_DIR} ]; then
 fi
 
 /Applications/CMake.app/Contents/bin/cmake -Wno-dev -GXcode  \
-	-DFMOD_INCLUDE_DIR=${FMOD_DIR}inc                        \
-	-DFMOD_LIBRARY=${FMOD_DIR}lib/libfmodex.dylib            \
+	-DOSX_COCOA_BACKEND=YES                                  \
+	-DCMAKE_OSX_DEPLOYMENT_TARGET="10.4"                     \
+	-DCMAKE_EXE_LINKER_FLAGS="${FRAMEWORKS}"                 \
 	-DGLEW_INCLUDE_DIR=${GLEW_DIR}include                    \
 	-DGLEW_LIBRARY=${GLEW_DIR}lib/libGLEW.a                  \
-	-DCMAKE_OSX_DEPLOYMENT_TARGET="10.4"                     \
+	-DFMOD_INCLUDE_DIR=${FMOD_DIR}inc                        \
+	-DFMOD_LIBRARY=${FMOD_DIR}lib/libfmodex.dylib            \
+	-DOPENAL_INCLUDE_DIR=${OPENAL_DIR}include                \
+	-DOPENAL_LIBRARY=${OPENAL_DIR}lib/libopenal.a            \
+	-DMPG123_INCLUDE_DIR=${MPG123_DIR}include                \
+	-DMPG123_LIBRARIES=${MPG123_DIR}lib/libmpg123.a          \
+	-DFLUIDSYNTH_INCLUDE_DIR=${FLUIDSYNTH_DIR}include        \
+	-DFLUIDSYNTH_LIBRARIES=${FSYNTH_LIBS}                    \
+	-DSNDFILE_INCLUDE_DIR=${SNDFILE_DIR}include              \
+	-DSNDFILE_LIBRARY=${SNDFILE_LIBS}                        \
+	-DSDL2_INCLUDE_DIR=${SDL2_DIR}include                    \
+	-DSDL2_LIBRARY=${SDL2_DIR}lib/libSDL2.a                  \
 	${SRC_DIR}
 
 if [ -e ZDoom.xcodeproj ]; then
