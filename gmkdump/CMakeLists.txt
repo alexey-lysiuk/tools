@@ -9,6 +9,12 @@ if (NOT ZLIB_FOUND)
     add_subdirectory(${ZLIB_INCLUDE_DIR})
 endif (NOT ZLIB_FOUND)
 
+if (MSVC)
+    add_definitions(-D_CRT_SECURE_NO_DEPRECATE)
+    add_definitions(-D_CRT_NONSTDC_NO_DEPRECATE)
+    add_definitions(-Dsnprintf=_snprintf)
+endif (MSVC)
+
 include_directories(${ZLIB_INCLUDE_DIR} decompiler)
 
 add_executable(gmkdump
