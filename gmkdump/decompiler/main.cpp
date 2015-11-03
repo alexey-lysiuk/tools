@@ -19,14 +19,15 @@
 
 #include <stdint.h>
 #include <stdio.h>
+#include <errno.h>
 
-#if _MSC_VER
+#ifdef _MSC_VER
 #include <direct.h>
 #define PATH_MAX 1024
+#define mkdir(NAME, DUMMY) mkdir(NAME)
 #else // !_MSC_VER
 #include <limits.h>
 #include <sys/stat.h>
-#include <sys/types.h>
 #endif // _MSC_VER
 
 #include "exe.hpp"
@@ -41,7 +42,7 @@
 
 #define MakeDirectory(NAME)                                 \
 	{                                                       \
-		const int result = mkdir(NAME);                     \
+		const int result = mkdir(NAME, 0777);               \
 		if (0 != result && -1 == result && EEXIST != errno) \
 		{                                                   \
 			puts("Failed to create directory " NAME);       \

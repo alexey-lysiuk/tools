@@ -60,7 +60,7 @@ void GmkStream::Copy(GmkStream* src) {
 bool GmkStream::Load(const std::string& filename) {
 	std::ifstream handle;
 
-	handle.open(filename,std::ios::in | std::ios::binary);
+	handle.open(filename.c_str(), std::ios::in | std::ios::binary);
 	if (!handle.is_open())
 		return false;
 
@@ -83,7 +83,7 @@ bool GmkStream::Load(const std::string& filename) {
 bool GmkStream::Save(const std::string& filename, int mode) {
 	std::ofstream handle;
 
-	handle.open(filename,std::ios::out | ((mode == FMODE_BINARY) ? std::ios::binary : 0));
+	handle.open(filename.c_str(), std::ios::out | ((mode == FMODE_BINARY) ? std::ios::binary : 0));
 	if (!handle.is_open())
 		return false;
 
@@ -250,7 +250,7 @@ unsigned char* GmkStream::DeflateStream(unsigned char* buffer, size_t iLen, size
 
 unsigned char* GmkStream::InflateStream(unsigned char* buffer, size_t iLen, size_t* oLen) {
 	z_stream stream;
-	int len = iLen, offset, retval;
+	size_t len = iLen, offset, retval;
 	char* out = new char[iLen];
 	memset(&stream,0,sizeof(stream));
 
@@ -262,12 +262,12 @@ unsigned char* GmkStream::InflateStream(unsigned char* buffer, size_t iLen, size
 	inflateInit(&stream);
 	retval = inflate(&stream,1);
 	while(stream.avail_in && !retval) {
-		offset = (int)stream.next_out - (int)out;
+		offset = (size_t)stream.next_out - (size_t)out;
 		len += 0x800;
 		stream.avail_out += 0x800;
 		out = (char*)realloc(out,len);
 
-		stream.next_out = (Bytef*)((int)out + offset);
+		stream.next_out = (Bytef*)((size_t)out + offset);
 		retval = inflate(&stream,1);
 	}
 
@@ -1196,7 +1196,7 @@ bool Gmk::ReadAction(GmkStream* handle, ObjectAction* action) {
 	for(int i = 0; i < ac; i++)
 		action->argumentValue[i] = handle->ReadString();
 
-	action->not = handle->ReadBool();
+	action->negate = handle->ReadBool();
 
 	return true;
 }
@@ -1940,7 +1940,7 @@ bool Gmk::WriteAction(GmkStream* handle, ObjectAction* action) {
 	for(int i = 0; i < 8; i++)
 		handle->WriteString(action->argumentValue[i]);
 
-	handle->WriteBool(action->not);
+	handle->WriteBool(action->negate);
 
 	return true;
 }

@@ -160,7 +160,7 @@ typedef struct _Room {
 typedef struct _ObjectAction {
 	std::string			functionName, functionCode, argumentValue[8];
 	int					libId, actId, kind, type, argumentsUsed, argumentKind[8], appliesToObject;
-	bool				isRelative, appliesToSomething, question, mayBeRelative, not;
+	bool				isRelative, appliesToSomething, question, mayBeRelative, negate;
 } ObjectAction;
 
 typedef struct _ObjectEvent {
@@ -363,7 +363,7 @@ public:
 		gmkSaveHandle = new GmkStream;
 	}
 
-	Gmk::~Gmk() {
+	~Gmk() {
 		// Clean up the obvious
 		delete gmkHandle;
 		delete gmkSaveHandle;

@@ -4,7 +4,9 @@
  */
 
 #include <iostream>
+#ifdef _MSC_VER
 #include <Windows.h>
+#endif // _MSC_VER
 #include "exe.hpp"
 #include "gm81.hpp"
 #include "gm80.hpp"
@@ -242,6 +244,7 @@ bool GmExe::Load(const std::string& filename, Gmk* gmk, unsigned int ver) {
 }
 
 GmkStream* GmExe::GetIconData() {
+#ifdef _MSC_VER
 	/* Note: This function was made possibly by Mike, major props to him. */
 	GmkStream* iconStream = new GmkStream();
 	
@@ -284,6 +287,9 @@ GmkStream* GmExe::GetIconData() {
 	delete headerData;
 
 	return iconStream;
+#else // !_MSC_VER
+	return NULL;
+#endif // _MSC_VER
 }
 
 bool GmExe::ReadSettings() {
@@ -839,7 +845,7 @@ void GmExe::ReadAction(GmkStream* stream, ObjectAction* action) {
 	for(size_t i = 0; i < 8; i++)
 		action->argumentValue[i] = stream->ReadString();
 
-	action->not = stream->ReadBool();
+	action->negate = stream->ReadBool();
 }
 
 bool GmExe::ReadTimelines() {
