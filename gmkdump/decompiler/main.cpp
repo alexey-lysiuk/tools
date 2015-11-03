@@ -1,52 +1,188 @@
 /*
- *	main.cpp
- *	GameMaker 8.0+ Decompiler
+ * Resource dumper for YoYo Games' GameMaker executables
+ * Copyright (C) 2011  Zach Reedy
+ * Copyright (C) 2015  Alexey Lysiuk
+ * 
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <iostream>
-#include <Windows.h>
-//#include "gui.hpp"
+#include <stdint.h>
+#include <stdio.h>
+
+#if _MSC_VER
+#include <direct.h>
+#define PATH_MAX 1024
+#else // !_MSC_VER
+#include <limits.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#endif // _MSC_VER
+
 #include "exe.hpp"
-//#include "gex.hpp"
 
-int main(int argc, char* argv[]) {
-	// Load EXE
-	Gmk* gmkHandle = new Gmk;
-	GmExe* gmExe = new GmExe;
-
-	gmkHandle->SetDefaults();
-
-	if (!gmExe->Load(argv[1],gmkHandle,0))
-		return 0;
-
-	// Save GMK
-	std::cout << "Writing GMK..." << std::endl;
-
-	if (!gmkHandle->Save(std::string(argv[1]) + ((gmExe->GetExeVersion() == 810) ? ".gm81" : ".gmk"),gmExe->GetExeVersion())) {
-		std::cout << "Failed to save GMK!" << std::endl;
-		return 0;
+#define WriteFile(DATA, SIZE)                             \
+	if (1 != fwrite((DATA), (SIZE), 1, file))             \
+	{                                                     \
+		printf("Failed to write to file %s\n", fileName); \
+		fclose(file);                                     \
+		return false;                                     \
 	}
 
-	std::cout << "Great success!" << std::endl;
+#define MakeDirectory(NAME)                                 \
+	{                                                       \
+		const int result = mkdir(NAME);                     \
+		if (0 != result && -1 == result && EEXIST != errno) \
+		{                                                   \
+			puts("Failed to create directory " NAME);       \
+			return false;                                   \
+		}                                                   \
+	}
 
-	delete gmExe;
-	delete gmkHandle;
+namespace
+{
 
-	return 0;
+bool SaveImage(const char* const fileName, const SubImage* const image)
+{
+#pragma pack(1)
+	struct TGAHeader
+	{
+		uint8_t id_len;
+		uint8_t has_cm;
+		uint8_t img_type;
+		int16_t cm_first;
+		int16_t cm_length;
+		uint8_t cm_size;
+
+		int16_t x_origin;
+		int16_t y_origin;
+		int16_t width;
+		int16_t height;
+		uint8_t bpp;
+		uint8_t img_desc;
+	};
+#pragma pack()
+
+	FILE* const file = fopen(fileName, "wb");
+	if (NULL == file)
+	{
+		return false;
+	}
+
+	TGAHeader header = {};
+	header.img_type = 2; // uncompressed true-color image
+	header.width = image->width;
+	header.height = image->height;
+	header.bpp = 32;
+
+	WriteFile(&header, sizeof header);
+
+	const char* buffer = (const char*)image->data->GetBuffer();
+	const size_t rowSize = image->width * 4;
+
+	for (int y = image->height - 1; y >= 0; --y)
+	{
+		WriteFile(&buffer[y * rowSize], rowSize);
+	}
+
+	return 0 == fclose(file);
 }
 
-/*INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int) {
-	Gui* gui = new Gui();
+bool SaveSprites(const Gmk& gmkHandle)
+{
+	MakeDirectory("sprites");
 
-	if (!gui->CreateGui(hInstance)) {
-		MessageBox(NULL,"Failed to create window!","Error",MB_ICONERROR | MB_OK);
-		return 0;
+	for (size_t s = 0, spriteCount = gmkHandle.sprites.size(); s < spriteCount; ++s)
+	{
+		const Sprite* const sprite = gmkHandle.sprites[s];
+		if (NULL == sprite)
+		{
+			continue;
+		}
+
+		for (size_t i = 0, imageCount = sprite->images.size(); i < imageCount; ++i)
+		{
+			const SubImage* const subImage = sprite->images[i];
+			if (NULL == subImage)
+			{
+				continue;
+			}
+
+			char fileName[PATH_MAX];
+			snprintf(fileName, sizeof fileName, "sprites/%s#%i.tga", sprite->name.c_str(), i);
+			printf("Saving %s...\n", fileName);
+
+			if (!SaveImage(fileName, subImage))
+			{
+				return false;
+			}
+		}
 	}
 
-	while(gui->HandleGui())
-		Sleep(1);
+	return true;
+}
 
-	delete gui;
+bool SaveSounds(const Gmk& gmkHandle)
+{
+	MakeDirectory("sounds");
 
-	return 0;
-}*/
+	for (size_t i = 0, count = gmkHandle.sounds.size(); i < count; ++i)
+	{
+		const Sound* const sound = gmkHandle.sounds[i];
+		if (NULL == sound)
+		{
+			continue;
+		}
+
+		char fileName[PATH_MAX];
+		snprintf(fileName, sizeof fileName, "sounds/%s", sound->fileName.c_str());
+		printf("Saving %s...\n", fileName);
+
+		if (!sound->data->Save(fileName, FMODE_BINARY))
+		{
+			return false;
+		}
+	}
+
+	return true;
+}
+
+bool SaveResources(const Gmk& gmkHandle)
+{
+	return SaveSounds(gmkHandle) 
+		&& SaveSprites(gmkHandle);
+}
+
+} // unnamed namespace
+
+
+int main(int argc, char* argv[])
+{
+	if (2 != argc)
+	{
+		printf("Usage: %s file.exe\n", argv[0]);
+		return EXIT_SUCCESS;
+	}
+
+	GmExe gmExe;
+	Gmk gmkHandle;
+	gmkHandle.SetDefaults();
+
+	if (!gmExe.Load(argv[1], &gmkHandle, 0))
+	{
+		printf("Failed to load file %s, exiting\n", argv[1]);
+		return EXIT_FAILURE;
+	}
+
+	return SaveResources(gmkHandle) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
