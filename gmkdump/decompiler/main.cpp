@@ -53,8 +53,18 @@
 namespace
 {
 
-bool SaveImage(const char* const fileName, const SubImage* const image)
+template <typename ImageType>
+bool SaveImage(const char* const fileName, const ImageType* const image)
 {
+	const int width = image->width;
+	const int height = image->height;
+
+	if (0 >= width || 0 >= height)
+	{
+		// Valid case, at least for backgrounds
+		return true;
+	}
+
 #pragma pack(1)
 	struct TGAHeader
 	{
@@ -82,21 +92,46 @@ bool SaveImage(const char* const fileName, const SubImage* const image)
 
 	TGAHeader header = {};
 	header.img_type = 2; // uncompressed true-color image
-	header.width = image->width;
-	header.height = image->height;
+	header.width = width;
+	header.height = height;
 	header.bpp = 32;
 
 	WriteFile(&header, sizeof header);
 
 	const char* buffer = (const char*)image->data->GetBuffer();
-	const size_t rowSize = image->width * 4;
+	const size_t rowSize = width * 4;
 
-	for (int y = image->height - 1; y >= 0; --y)
+	for (int y = height - 1; y >= 0; --y)
 	{
 		WriteFile(&buffer[y * rowSize], rowSize);
 	}
 
 	return 0 == fclose(file);
+}
+
+bool SaveBackgrounds(const Gmk& gmkHandle)
+{
+	MakeDirectory("backgrounds");
+
+	for (size_t b = 0, backCount = gmkHandle.backgrounds.size(); b < backCount; ++b)
+	{
+		const Background* const background = gmkHandle.backgrounds[b];
+		if (NULL == background)
+		{
+			continue;
+		}
+
+		char fileName[PATH_MAX];
+		snprintf(fileName, sizeof fileName, "backgrounds/%s.tga", background->name.c_str());
+		printf("Saving %s...\n", fileName);
+
+		if (!SaveImage(fileName, background))
+		{
+			return false;
+		}
+	}
+
+	return true;
 }
 
 bool SaveSprites(const Gmk& gmkHandle)
@@ -160,8 +195,9 @@ bool SaveSounds(const Gmk& gmkHandle)
 
 bool SaveResources(const Gmk& gmkHandle)
 {
-	return SaveSounds(gmkHandle) 
-		&& SaveSprites(gmkHandle);
+	return SaveBackgrounds(gmkHandle)
+		&& SaveSprites(gmkHandle)
+		&& SaveSounds(gmkHandle);
 }
 
 } // unnamed namespace
