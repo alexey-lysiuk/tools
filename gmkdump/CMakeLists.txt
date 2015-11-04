@@ -16,13 +16,7 @@ if (MSVC)
 endif (MSVC)
 
 include_directories(${ZLIB_INCLUDE_DIR} decompiler)
+file(GLOB SOURCE_FILES decompiler/*.cpp decompiler/*.hpp)
 
-add_executable(gmkdump
-    decompiler/exe.cpp
-    decompiler/gm80.cpp
-    decompiler/gm81.cpp
-    decompiler/gmk.cpp
-    decompiler/main.cpp
-    decompiler/obfuscation.cpp)
-
+add_executable(gmkdump ${SOURCE_FILES})
 target_link_libraries(gmkdump z)
