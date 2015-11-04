@@ -55,14 +55,14 @@
 		return false;                                  \
 	}
 
-#define MakeDirectory(NAME)                                 \
-	{                                                       \
-		const int result = mkdir(NAME, 0777);               \
-		if (0 != result && -1 == result && EEXIST != errno) \
-		{                                                   \
-			puts("Failed to create directory " NAME);       \
-			return false;                                   \
-		}                                                   \
+#define MakeDirectory(NAME)                                  \
+	{                                                        \
+		const int result = mkdir((NAME), 0777);              \
+		if (0 != result && -1 == result && EEXIST != errno)  \
+		{                                                    \
+			printf("Failed to create directory %s", (NAME)); \
+			return false;                                    \
+		}                                                    \
 	}
 
 namespace
@@ -204,23 +204,24 @@ bool SaveSprites(const Gmk& gmkHandle)
 	return true;
 }
 
-bool SaveSounds(const Gmk& gmkHandle)
+template <typename DataType>
+bool SaveResources(const std::vector<DataType*>& resources, const char* const resourceType)
 {
-	MakeDirectory("sounds");
+	MakeDirectory(resourceType);
 
-	for (size_t i = 0, count = gmkHandle.sounds.size(); i < count; ++i)
+	for (size_t i = 0, count = resources.size(); i < count; ++i)
 	{
-		const Sound* const sound = gmkHandle.sounds[i];
-		if (NULL == sound)
+		const DataType* const resource = resources[i];
+		if (NULL == resource)
 		{
 			continue;
 		}
 
 		char fileName[PATH_MAX];
-		snprintf(fileName, sizeof fileName, "sounds/%s", sound->fileName.c_str());
+		snprintf(fileName, sizeof fileName, "%s/%s", resourceType, resource->fileName.c_str());
 		printf("Saving %s...\n", fileName);
 
-		if (!sound->data->Save(fileName, FMODE_BINARY))
+		if (!resource->data->Save(fileName, FMODE_BINARY))
 		{
 			return false;
 		}
@@ -232,9 +233,10 @@ bool SaveSounds(const Gmk& gmkHandle)
 bool SaveResources(const Gmk& gmkHandle)
 {
 	return SaveScripts(gmkHandle)
+		&& SaveResources(gmkHandle.includes, "includes")
 		&& SaveBackgrounds(gmkHandle)
 		&& SaveSprites(gmkHandle)
-		&& SaveSounds(gmkHandle);
+		&& SaveResources(gmkHandle.sounds, "sounds");
 }
 
 } // unnamed namespace
