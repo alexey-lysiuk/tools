@@ -25,4 +25,4 @@ add_executable(gmkdump
     decompiler/main.cpp
     decompiler/obfuscation.cpp)
 
-target_link_libraries(gmkdump zlib)
+target_link_libraries(gmkdump z)
