@@ -32,12 +32,27 @@
 
 #include "exe.hpp"
 
+#define OpenFile()                                    \
+	FILE* const file = fopen(fileName, "wb");         \
+	if (NULL == file)                                 \
+	{                                                 \
+		printf("Failed to open file %s\n", fileName); \
+		return false;                                 \
+	}
+
 #define WriteFile(DATA, SIZE)                             \
 	if (1 != fwrite((DATA), (SIZE), 1, file))             \
 	{                                                     \
 		printf("Failed to write to file %s\n", fileName); \
 		fclose(file);                                     \
 		return false;                                     \
+	}
+
+#define CloseFile()                                    \
+	if (0 != fclose(file))                             \
+	{                                                  \
+		printf("Failed to close file %s\n", fileName); \
+		return false;                                  \
 	}
 
 #define MakeDirectory(NAME)                                 \
@@ -52,6 +67,30 @@
 
 namespace
 {
+
+bool SaveScripts(const Gmk& gmkHandle)
+{
+	MakeDirectory("scripts");
+
+	for (size_t i = 0, count = gmkHandle.scripts.size(); i < count; ++i)
+	{
+		const Script* const script = gmkHandle.scripts[i];
+		if (NULL == script)
+		{
+			continue;
+		}
+
+		char fileName[PATH_MAX];
+		snprintf(fileName, sizeof fileName, "scripts/%s.txt", script->name.c_str());
+		printf("Saving %s...\n", fileName);
+
+		OpenFile();
+		WriteFile(script->value.c_str(), script->value.size());
+		CloseFile();
+	}
+
+	return true;
+}
 
 template <typename ImageType>
 bool SaveImage(const char* const fileName, const ImageType* const image)
@@ -84,18 +123,13 @@ bool SaveImage(const char* const fileName, const ImageType* const image)
 	};
 #pragma pack()
 
-	FILE* const file = fopen(fileName, "wb");
-	if (NULL == file)
-	{
-		return false;
-	}
-
 	TGAHeader header = {};
 	header.img_type = 2; // uncompressed true-color image
 	header.width = width;
 	header.height = height;
 	header.bpp = 32;
 
+	OpenFile();
 	WriteFile(&header, sizeof header);
 
 	const char* buffer = (const char*)image->data->GetBuffer();
@@ -106,7 +140,9 @@ bool SaveImage(const char* const fileName, const ImageType* const image)
 		WriteFile(&buffer[y * rowSize], rowSize);
 	}
 
-	return 0 == fclose(file);
+	CloseFile();
+
+	return true;
 }
 
 bool SaveBackgrounds(const Gmk& gmkHandle)
@@ -195,7 +231,8 @@ bool SaveSounds(const Gmk& gmkHandle)
 
 bool SaveResources(const Gmk& gmkHandle)
 {
-	return SaveBackgrounds(gmkHandle)
+	return SaveScripts(gmkHandle)
+		&& SaveBackgrounds(gmkHandle)
 		&& SaveSprites(gmkHandle)
 		&& SaveSounds(gmkHandle);
 }
