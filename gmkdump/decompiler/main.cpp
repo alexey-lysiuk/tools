@@ -141,6 +141,9 @@ bool SaveImage(const char* const fileName, const ImageType* const image)
 		WriteFile(&buffer[y * rowSize], rowSize);
 	}
 
+	const char FOOTER[26] = "\0\0\0\0\0\0\0\0TRUEVISION-XFILE.";
+	WriteFile(FOOTER, sizeof FOOTER);
+
 	CloseFile();
 
 	return true;
