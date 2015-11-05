@@ -17,6 +17,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <cstdio>
+#include <cstring>
 #include <iostream>
 #include "gm81.hpp"
 
@@ -65,8 +67,12 @@ unsigned int Gm81::ReadVersion(GmkStream* exeHandle) {
 		pos += 3;
 
 	// Used inline asm to prevent signed/unsigned issues with shifting
+#ifdef _MSC_VER
 	_asm sar dword ptr [pos],  2
-	
+#else // !_MSC_VER
+	asm("sarl $0x2, %0" : : "m" (pos));
+#endif // _MSC_VER
+
 	return ver ^ pos;
 }
 

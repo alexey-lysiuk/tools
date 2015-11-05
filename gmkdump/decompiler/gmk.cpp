@@ -17,6 +17,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <cstdlib>
+#include <cstring>
 #include <iostream>
 #include <fstream>
 #include "zlib.h"
@@ -97,7 +99,14 @@ bool GmkStream::Load(const std::string& filename) {
 bool GmkStream::Save(const std::string& filename, int mode) {
 	std::ofstream handle;
 
-	handle.open(filename.c_str(), std::ios::out | ((mode == FMODE_BINARY) ? std::ios::binary : 0));
+	std::ios_base::openmode openmode = std::ios::out;
+
+	if (FMODE_BINARY == mode)
+	{
+		openmode |= std::ios::binary;
+	}
+
+	handle.open(filename.c_str(), openmode);
 	if (!handle.is_open())
 		return false;
 
@@ -507,7 +516,7 @@ bool Gmk::Save(const std::string& filename, unsigned int ver) {
 	// Game ID and pseudo GUID
 	gmkSaveHandle->WriteDword(gameId);
 	for(int i = 0; i < 4; i++)
-		gmkSaveHandle->WriteDword(2147483648 - (gameId * 16) - i * 8);
+		gmkSaveHandle->WriteDword(0x80000000u - (gameId * 16) - i * 8);
 
 	// Write settings
 	Log("Writing settings...",false);
