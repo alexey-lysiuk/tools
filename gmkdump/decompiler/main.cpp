@@ -199,7 +199,7 @@ bool SaveSprites(const Gmk& gmkHandle)
 			}
 
 			char fileName[PATH_MAX];
-			snprintf(fileName, sizeof fileName, "sprites/%s#%i.tga", sprite->name.c_str(), i);
+			snprintf(fileName, sizeof fileName, "sprites/%s#%lu.tga", sprite->name.c_str(), i);
 			printf("Saving %s...\n", fileName);
 
 			if (!SaveImage(fileName, subImage))

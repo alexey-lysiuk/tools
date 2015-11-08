@@ -83,7 +83,7 @@ private:
 	bool ReadGameInformation();
 
 public:
-	GmExe() : exeHandle(new GmkStream()), version(0), exeFilename("") { }
+	GmExe() : version(0), exeHandle(new GmkStream()) { }
 	~GmExe() { delete exeHandle; }
 
 	// Interface functions

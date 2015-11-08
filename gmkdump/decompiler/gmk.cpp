@@ -24,6 +24,10 @@
 #include "zlib.h"
 #include "gmk.hpp"
 
+#if defined _MSC_VER && _MSC_VER < 1900
+#	define snprintf _snprintf
+#endif // _MSC_VER < 1900
+
 // Support
 void GmkStream::CheckStreamForWriting(size_t len) {
 	if (iPosition + len < iLength)
@@ -41,7 +45,9 @@ void GmkStream::CheckStreamForReading(size_t len) {
 			std::cin.get();
 		}
 
-		throw new GmkParserException("Unforseen end of stream while reading @ " + (iPosition + len));
+		char message[256];
+		snprintf(message, sizeof message, "Unforseen end of stream while reading @ %lu", iPosition + len);
+		throw new GmkParserException(message);
 	}
 }
 
@@ -1927,7 +1933,7 @@ bool Gmk::WriteFonts() {
 		if (gmkVer == 800)
 			fontHandle->WriteDword(fonts[i]->rangeBegin);
 		else if (gmkVer == 810)
-			fontHandle->WriteDword((fonts[i]->charset << 24) | (fonts[i]->aaLevel << 16) | fonts[i]->rangeBegin & 0x0000FFFF);
+			fontHandle->WriteDword((fonts[i]->charset << 24) | (fonts[i]->aaLevel << 16) | (fonts[i]->rangeBegin & 0x0000FFFF));
 
 		fontHandle->WriteDword(fonts[i]->rangeEnd);
 
