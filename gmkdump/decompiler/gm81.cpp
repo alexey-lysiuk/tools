@@ -22,6 +22,10 @@
 #include <iostream>
 #include "gm81.hpp"
 
+#if defined _MSC_VER && _MSC_VER < 1900
+#	define snprintf _snprintf
+#endif // _MSC_VER < 1900
+
 Gm81::Gm81() {
 	// Generate the CRC table
 	const unsigned long crcPolynomial = 0x04C11DB7;
@@ -100,11 +104,11 @@ bool Gm81::FindGameData(GmkStream* exeHandle) {
 bool Gm81::Decrypt(GmkStream* exeHandle) {
 	GmkStream* stream = new GmkStream;
 
-	char* tmpBuffer = new char[64];
-	char* buffer = new char[64];
+	char tmpBuffer[64];
+	char buffer[64];
 
 	// Convert hash key into UTF-16,  not sure if there's a better way
-	sprintf(tmpBuffer,"_MJD%d#RWK",exeHandle->ReadDword());
+	snprintf(tmpBuffer, sizeof tmpBuffer, "_MJD%d#RWK", exeHandle->ReadDword());
 	for(size_t i = 0; i < strlen(tmpBuffer); i++) {
 		buffer[i * 2] = tmpBuffer[i];
 		buffer[(i * 2) + 1] = 0;
@@ -145,10 +149,6 @@ bool Gm81::Decrypt(GmkStream* exeHandle) {
 	// Copy stream handle over
 	delete[] exeHandle->iBuffer;
 	*exeHandle = *stream;
-
-	// Clean up
-	delete[] buffer;
-	delete[] tmpBuffer;
 
 	return true;
 }
