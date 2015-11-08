@@ -17,20 +17,21 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <stdint.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <errno.h>
+#include <cstdlib>
+#include <cstdio>
+#include <cerrno>
 
 #ifdef _MSC_VER
 #	include <direct.h>
+#	include "msstdint.h"
 #	define PATH_MAX 1024
 #	define mkdir(NAME, DUMMY) mkdir(NAME)
 #	if _MSC_VER < 1900
 #		define snprintf _snprintf
 #	endif // _MSC_VER < 1900
 #else // !_MSC_VER
-#	include <limits.h>
+#	include <cstdint>
+#	include <climits>
 #	include <sys/stat.h>
 #endif // _MSC_VER
 
