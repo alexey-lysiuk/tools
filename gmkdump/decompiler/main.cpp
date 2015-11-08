@@ -23,12 +23,15 @@
 #include <errno.h>
 
 #ifdef _MSC_VER
-#include <direct.h>
-#define PATH_MAX 1024
-#define mkdir(NAME, DUMMY) mkdir(NAME)
+#	include <direct.h>
+#	define PATH_MAX 1024
+#	define mkdir(NAME, DUMMY) mkdir(NAME)
+#	if _MSC_VER < 1900
+#		define snprintf _snprintf
+#	endif // _MSC_VER < 1900
 #else // !_MSC_VER
-#include <limits.h>
-#include <sys/stat.h>
+#	include <limits.h>
+#	include <sys/stat.h>
 #endif // _MSC_VER
 
 #include "exe.hpp"
