@@ -373,6 +373,8 @@
 			<string>.cmake</string>
 		</dict>
 	</array>
+	<key>BBLMCommentLineDefault</key>
+	<string>#</string>
 	<key>Language Features</key>
 	<dict>
 		<key>Comment Pattern</key>
