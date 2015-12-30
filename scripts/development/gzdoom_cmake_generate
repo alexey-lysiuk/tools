@@ -50,8 +50,11 @@ fi
 	-DSDL2_LIBRARY=${SDL2_DIR}lib/libSDL2.a                  \
 	${SRC_DIR}
 
-if [ -e ZDoom.xcodeproj ]; then
-	open ZDoom.xcodeproj
-elif [ -e GZDoom.xcodeproj ]; then
-	open GZDoom.xcodeproj
-fi
+function open_xcode_project {
+	if grep -qi project\\s*\(\\s*$1\\s*\) ${SRC_DIR}/CMakeLists.txt; then
+		open $1.xcodeproj
+	fi
+}
+
+open_xcode_project ZDoom
+open_xcode_project GZDoom
