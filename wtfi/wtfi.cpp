@@ -5,6 +5,8 @@
 #include <windows.h>
 #include <tchar.h>
 
+#import <msxml6.dll>
+
 
 struct Resource
 {
@@ -41,7 +43,7 @@ private:
 
 static void PrintError(const TCHAR* const failedFunction, const TCHAR* const filename)
 {
-	_tprintf(_T("ERROR: %s() failed for file %s with error code 0x%08x\n"), failedFunction, filename, GetLastError());
+	_tprintf(_T("ERROR: %s() failed for file %s with code 0x%08x\n"), failedFunction, filename, GetLastError());
 }
 
 
@@ -117,28 +119,77 @@ static void LoadManifests(const TCHAR* const filename, ResourceList& resources)
 	}
 }
 
+static MSXML2::IXMLDOMNodePtr FindXMLNode(MSXML2::IXMLDOMNodePtr parent, const char* const name)
+{
+	if (NULL == parent)
+	{
+		return NULL;
+	}
+
+	MSXML2::IXMLDOMNodeListPtr nodeList = parent->childNodes;
+
+	for (long i = 0, count = nodeList->length; i < count; ++i)
+	{
+		MSXML2::IXMLDOMNodePtr childNode = nodeList->item[i];
+
+		if (NULL != childNode && 0 == strcmp(childNode->nodeName, name))
+		{
+			return childNode;
+		}
+	}
+
+	return NULL;
+}
+
 static bool GetFixedManifest(const TCHAR* const filename, const std::string& input, std::string& output)
 {
-	static const char* const COMPAT_BEGIN = "<compatibility";
-	static const char* const COMPAT_END = "</compatibility>";
+	MSXML2::IXMLDOMDocumentPtr dom;
 
-	const size_t beginPos = input.find(COMPAT_BEGIN);
-
-	if (std::string::npos == beginPos)
+	if (FAILED(dom.CreateInstance(__uuidof(MSXML2::DOMDocument60), NULL, CLSCTX_INPROC_SERVER))) 
 	{
-		_tprintf(_T("WARNING: File %s has no compatibility record in manifest\n"), filename);
+		PrintError(_T("IXMLDOMDocument::CreateInstance()"), filename);
 		return false;
 	}
 
-	const size_t endPos = input.find(COMPAT_END);
-
-	if (std::string::npos == endPos)
+	try
 	{
-		_tprintf(_T("WARNING: File %s has broken compatibility record in manifest\n"), filename);
+		dom->async = VARIANT_FALSE;
+		dom->validateOnParse = VARIANT_FALSE;
+		dom->resolveExternals = VARIANT_FALSE;
+
+		if (VARIANT_TRUE == dom->loadXML(input.c_str()))
+		{
+			MSXML2::IXMLDOMNodePtr assemblyNode = FindXMLNode(dom, "assembly");
+
+			if (NULL == assemblyNode)
+			{
+				_tprintf(_T("ERROR: Broken manifest in file %s \n"), filename);
+				return false;
+			}
+
+			MSXML2::IXMLDOMNodePtr compatNode = FindXMLNode(assemblyNode, "compatibility");
+
+			if (NULL == compatNode)
+			{
+				_tprintf(_T("WARNING: File %s has no compatibility record in manifest\n"), filename);
+				return false;
+			}
+
+			assemblyNode->removeChild(compatNode);
+			output = (LPCSTR)dom->xml;
+		}
+		else
+		{
+			_tprintf(_T("ERROR: Failed to parse manifest from file %s with message \"%s\"\n"), filename, (LPCSTR)dom->parseError->Getreason());
+			return false;
+		}
+	}
+	catch(_com_error errorObject)
+	{
+		_tprintf(_T("ERROR: Failed to parse manifest from file %s with code 0x%08x\n"), filename, errorObject.Error());
 		return false;
 	}
 
-	output = input.substr(0, beginPos) + input.substr(endPos + strlen(COMPAT_END));
 	return true;
 }
 
@@ -189,8 +240,16 @@ int _tmain(int argc, TCHAR** argv)
 		return 0;
 	}
 
+	if (FAILED(CoInitialize(NULL)))
+	{
+		_tprintf(_T("ERROR: CoInitialize() failed with code 0x%08x\n"), GetLastError());
+		return 1;
+	}
+
 	for (int i = 1; i < argc; ++i)
 	{
 		UpdateManifest(argv[i]);
 	}
+
+	CoUninitialize();
 }
