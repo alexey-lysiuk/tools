@@ -117,6 +117,31 @@ static void LoadManifests(const TCHAR* const filename, ResourceList& resources)
 	}
 }
 
+static bool GetFixedManifest(const TCHAR* const filename, const std::string& input, std::string& output)
+{
+	static const char* const COMPAT_BEGIN = "<compatibility";
+	static const char* const COMPAT_END = "</compatibility>";
+
+	const size_t beginPos = input.find(COMPAT_BEGIN);
+
+	if (std::string::npos == beginPos)
+	{
+		_tprintf(_T("WARNING: File %s has no compatibility record in manifest\n"), filename);
+		return false;
+	}
+
+	const size_t endPos = input.find(COMPAT_END);
+
+	if (std::string::npos == endPos)
+	{
+		_tprintf(_T("WARNING: File %s has broken compatibility record in manifest\n"), filename);
+		return false;
+	}
+
+	output = input.substr(0, beginPos) + input.substr(endPos + strlen(COMPAT_END));
+	return true;
+}
+
 static void UpdateManifest(const TCHAR* const filename)
 {
 	ResourceList resources;
@@ -124,27 +149,12 @@ static void UpdateManifest(const TCHAR* const filename)
 
 	for (ResourceList::const_iterator res = resources.begin(), last = resources.end(); res != last; ++res)
 	{
-		static const char* const COMPAT_BEGIN = "<compatibility";
-		static const char* const COMPAT_END = "</compatibility>";
-
-		const size_t beginPos = res->data.find(COMPAT_BEGIN);
-
-		if (std::string::npos == beginPos)
+		std::string manifest;
+		
+		if (!GetFixedManifest(filename, res->data, manifest))
 		{
-			_tprintf(_T("WARNING: File %s has no compatibility record in manifest\n"), filename);
 			continue;
 		}
-
-		const size_t endPos = res->data.find(COMPAT_END);
-
-		if (std::string::npos == endPos)
-		{
-			_tprintf(_T("WARNING: File %s has broken compatibility record in manifest\n"), filename);
-			continue;
-		}
-
-		std::string manifest = res->data.substr(0, beginPos);
-		manifest += res->data.substr(endPos + strlen(COMPAT_END));
 
 		const HANDLE handle = BeginUpdateResource(filename, FALSE);
 
