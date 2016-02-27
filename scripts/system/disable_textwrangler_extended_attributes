@@ -1,0 +1,2 @@
+#!/bin/sh
+defaults write com.barebones.textwrangler WriteExtendedAttributes -string "Never"
