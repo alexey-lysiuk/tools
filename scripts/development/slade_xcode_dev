@@ -6,10 +6,4 @@ cd /Volumes/ramdisk
 git clone https://github.com/alexey-lysiuk/slade-osx-build.git
 
 cd slade-osx-build
-git clone https://github.com/sirjuddington/SLADE.git
-
-cd SLADE
-git checkout -b 3.1.1 origin/3.1.1
-
-cd ..
 ./xcode.sh
