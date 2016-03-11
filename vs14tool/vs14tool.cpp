@@ -16,10 +16,97 @@
 		}                                                                         \
 	}
 
-static const TCHAR LICENSE_KEY_NAME[] = _T("Licenses\\4D8CFBCB-2F6A-4AD2-BABF-10E28F6F2C8F");
-
-void PrintBytes(const BYTE* const buffer, const DWORD size)
+namespace
 {
+
+void FatalExit(const int code)
+{
+	if (IsDebuggerPresent())
+	{
+		__debugbreak();
+	}
+
+	exit(code);
+}
+
+enum class DataType
+{
+	RAW,
+	DECRYPTED
+};
+
+typedef void (*ProcessFunction)(const TCHAR* keyName, const BYTE* buffer, DWORD size, DataType type);
+
+const TCHAR LICENSE_KEY_NAME[] = _T("Licenses\\4D8CFBCB-2F6A-4AD2-BABF-10E28F6F2C8F");
+
+void ProcessLicenseData(ProcessFunction processFunction, const TCHAR* const keyName)
+{
+	HKEY regKey = nullptr;
+	REG_API_CALL(RegOpenKeyEx(HKEY_CLASSES_ROOT, keyName, 0, KEY_READ | KEY_WOW64_32KEY, &regKey));
+
+	DWORD encryptedDataSize = 0;
+	REG_API_CALL(RegQueryValueEx(regKey, nullptr, nullptr, nullptr, nullptr, &encryptedDataSize));
+
+	std::vector<BYTE> encryptedData(encryptedDataSize);
+	REG_API_CALL(RegQueryValueEx(regKey, nullptr, nullptr, nullptr, &encryptedData[0], &encryptedDataSize));
+
+	CRYPT_INTEGER_BLOB encryptedBlob = { encryptedDataSize, &encryptedData[0] };
+	CRYPT_INTEGER_BLOB decryptedBlob = { 0, nullptr };
+
+	if (CryptUnprotectData(&encryptedBlob, nullptr, nullptr, nullptr, nullptr, CRYPTPROTECT_UI_FORBIDDEN, &decryptedBlob))
+	{
+		processFunction(keyName, decryptedBlob.pbData, decryptedBlob.cbData, DataType::DECRYPTED);
+
+		LocalFree(decryptedBlob.pbData);
+	}
+	else
+	{
+		processFunction(keyName, &encryptedData[0], encryptedDataSize, DataType::RAW);
+	}
+
+	REG_API_CALL(RegCloseKey(regKey));
+}
+
+void ProcessLicenseData(ProcessFunction processFunction)
+{
+	ProcessLicenseData(processFunction, LICENSE_KEY_NAME);
+
+	HKEY regKey = nullptr;
+	REG_API_CALL(RegOpenKeyEx(HKEY_CLASSES_ROOT, LICENSE_KEY_NAME, 0, KEY_READ | KEY_WOW64_32KEY, &regKey));
+
+	for (DWORD subKeyIndex = 0; /* EMPTY */ ; ++subKeyIndex)
+	{
+		TCHAR subKeyName[256] = {};
+		DWORD subKeyNameSize = 256;
+
+		const LONG subKeyResult = RegEnumKeyEx(regKey, subKeyIndex, subKeyName, &subKeyNameSize, nullptr, nullptr, nullptr, nullptr);
+
+		if (ERROR_SUCCESS == subKeyResult)
+		{
+			TCHAR fullKeyName[256] = {};
+			_sntprintf_s(fullKeyName, _countof(fullKeyName), _TRUNCATE, _T("%s\\%s"), LICENSE_KEY_NAME, subKeyName);
+
+			ProcessLicenseData(processFunction, fullKeyName);
+		}
+		else if (ERROR_NO_MORE_ITEMS == subKeyResult)
+		{
+			break;
+		}
+		else
+		{
+			_tprintf(_T("ERROR: RegEnumKeyEx() failed with error %i\n"), subKeyResult);
+			FatalExit(subKeyResult);
+		}
+	}
+
+	REG_API_CALL(RegCloseKey(regKey));
+}
+
+
+void PrintBytes(const TCHAR* const keyName, const BYTE* const buffer, const DWORD size, const DataType type)
+{
+	_tprintf(_T("\n%s  %s\n\n"), keyName, (DataType::DECRYPTED == type ? _T("[DECRYPTED]") : _T("[RAW]")));
+
 	static const DWORD BYTES_PER_ROW = 16;
 
 	for (DWORD y = 0; y < size / BYTES_PER_ROW; ++y)
@@ -43,76 +130,53 @@ void PrintBytes(const BYTE* const buffer, const DWORD size)
 	}
 }
 
-void PrintLicenseData(const TCHAR* const keyName)
+void DumpBytes(const TCHAR* const keyName, const BYTE* const buffer, const DWORD size, const DataType type)
 {
-	HKEY regKey = nullptr;
-	REG_API_CALL(RegOpenKeyEx(HKEY_CLASSES_ROOT, keyName, 0, KEY_READ | KEY_WOW64_32KEY, &regKey));
+	const size_t fileNameSize = _tcslen(keyName) + 4; // for extention
 
-	DWORD encryptedDataSize = 0;
-	REG_API_CALL(RegQueryValueEx(regKey, nullptr, nullptr, nullptr, nullptr, &encryptedDataSize));
+	TCHAR* const fileName = static_cast<TCHAR*>(alloca((fileNameSize + 1) * sizeof(TCHAR)));
+	_tcscpy_s(fileName, fileNameSize + 1, keyName);
+	_tcscat_s(fileName, fileNameSize + 1, (DataType::DECRYPTED == type ? _T(".dec") : _T(".raw")));
 
-	std::vector<BYTE> encryptedData(encryptedDataSize);
-	REG_API_CALL(RegQueryValueEx(regKey, nullptr, nullptr, nullptr, &encryptedData[0], &encryptedDataSize));
-
-	CRYPT_INTEGER_BLOB encryptedBlob = { encryptedDataSize, &encryptedData[0] };
-	CRYPT_INTEGER_BLOB decryptedBlob = { 0, nullptr };
-
-	if (CryptUnprotectData(&encryptedBlob, nullptr, nullptr, nullptr, nullptr, CRYPTPROTECT_UI_FORBIDDEN, &decryptedBlob))
+	for (size_t i = 0; i < fileNameSize; ++i)
 	{
-		_tprintf(_T("\n%s  [DECRYPTED]\n\n"), keyName);
-		PrintBytes(decryptedBlob.pbData, decryptedBlob.cbData);
-	}
-	else
-	{
-		_tprintf(_T("\n%s  [RAW]\n\n"), keyName);
-		PrintBytes(&encryptedData[0], encryptedDataSize);
+		if ('\\' == fileName[i])
+		{
+			fileName[i] = '.';
+		}
 	}
 
-	REG_API_CALL(RegCloseKey(regKey));
+	const auto CallFailed = [fileName](const TCHAR* const function)
+	{
+		_tprintf(_T("ERROR: %s() failed for file \"%s\" with error %i\n"), function, fileName, errno);
+		FatalExit(errno);
+	};
 
-	LocalFree(decryptedBlob.pbData);
+	FILE* file = nullptr;
+	_tfopen_s(&file, fileName, _T("wb"));
+
+	if (nullptr == file)
+	{
+		CallFailed(_T("fopen"));
+	}
+
+	if (1 != fwrite(buffer, size, 1, file))
+	{
+		CallFailed(_T("fwrite"));
+	}
+
+	if (0 != fclose(file))
+	{
+		CallFailed(_T("fclose"));
+	}
 }
 
-void PrintLicenseData()
-{
-	PrintLicenseData(LICENSE_KEY_NAME);
-
-	HKEY regKey = nullptr;
-	REG_API_CALL(RegOpenKeyEx(HKEY_CLASSES_ROOT, LICENSE_KEY_NAME, 0, KEY_READ | KEY_WOW64_32KEY, &regKey));
-
-	for (DWORD subKeyIndex = 0; /* EMPTY */ ; ++subKeyIndex)
-	{
-		TCHAR subKeyName[256] = {};
-		DWORD subKeyNameSize = 256;
-
-		const LONG subKeyResult = RegEnumKeyEx(regKey, subKeyIndex, subKeyName, &subKeyNameSize, nullptr, nullptr, nullptr, nullptr);
-
-		if (ERROR_SUCCESS == subKeyResult)
-		{
-			TCHAR fullKeyName[256] = {};
-			_sntprintf_s(fullKeyName, _countof(fullKeyName), _TRUNCATE, _T("%s\\%s"), LICENSE_KEY_NAME, subKeyName);
-
-			PrintLicenseData(fullKeyName);
-		}
-		else if (ERROR_NO_MORE_ITEMS == subKeyResult)
-		{
-			break;
-		}
-		else
-		{
-			_tprintf(_T("ERROR: RegEnumKeyEx() failed with error %i\n"), subKeyResult);
-
-			if (IsDebuggerPresent()) __debugbreak(); 
-			exit(subKeyResult);
-		}
-	}
-
-	REG_API_CALL(RegCloseKey(regKey));
-}
+} // unnamed namespace
 
 int _tmain(int argc, TCHAR** argv)
 {
-	PrintLicenseData();
+	ProcessLicenseData(PrintBytes);
+	ProcessLicenseData(DumpBytes);
 }
 
 /*
