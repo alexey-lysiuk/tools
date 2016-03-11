@@ -1,6 +1,14 @@
-*.suo
+# Visual Studio
+Debug/
+Release/
 bin/
 obj/
+*.opendb
+*.sdf
+*.suo
+*.vcxproj.user
+
+# Xcode
 xcuserdata/
 DerivedData/
 *.mode1v3
