@@ -1,0 +1,46 @@
+#!/bin/sh
+
+CMAKE_EXE=`which cmake`
+
+if [ -z $CMAKE_EXE ]; then
+	CMAKE_EXE=/Applications/CMake.app/Contents/bin/cmake
+fi
+
+set -o errexit
+
+cd /Volumes/ramdisk
+mkdir libcxx
+cd libcxx
+
+curl -O http://llvm.org/releases/3.8.0/llvm-3.8.0.src.tar.xz
+curl -O http://llvm.org/releases/3.8.0/libcxx-3.8.0.src.tar.xz
+curl -O http://llvm.org/releases/3.8.0/libcxxabi-3.8.0.src.tar.xz
+
+tar xf llvm-3.8.0.src.tar.xz 
+tar xf libcxx-3.8.0.src.tar.xz 
+tar xf libcxxabi-3.8.0.src.tar.xz
+
+mkdir libcxx_build
+cd libcxx_build
+${CMAKE_EXE} \
+	-DLLVM_PATH=../llvm-3.8.0.src \
+	-DLIBCXX_CXX_ABI=libcxxabi \
+	-DLIBCXX_CXX_ABI_INCLUDE_PATHS=../libcxxabi-3.8.0.src/include \
+	-DLIBCXX_ENABLE_SHARED=NO \
+	-DCMAKE_OSX_ARCHITECTURES="i386;x86_64" \
+	-DCMAKE_OSX_DEPLOYMENT_TARGET=10.4 \
+	../libcxx-3.8.0.src
+make
+cd ..
+
+mkdir libcxxabi_build
+cd libcxxabi_build
+${CMAKE_EXE} \
+	-DLLVM_PATH=../llvm-3.8.0.src \
+	-DLIBCXXABI_LIBCXX_PATH=../libcxx-3.8.0.src \
+	-DLIBCXXABI_ENABLE_SHARED=NO \
+	-DLLVM_NO_OLD_LIBSTDCXX=YES \
+	-DCMAKE_OSX_ARCHITECTURES="i386;x86_64" \
+	-DCMAKE_OSX_DEPLOYMENT_TARGET=10.4 \
+	../libcxxabi-3.8.0.src
+make
