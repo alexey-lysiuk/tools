@@ -12,6 +12,8 @@ cd /Volumes/ramdisk
 mkdir libcxx
 cd libcxx
 
+# Download source code
+
 curl -O http://llvm.org/releases/3.8.0/llvm-3.8.0.src.tar.xz
 curl -O http://llvm.org/releases/3.8.0/libcxx-3.8.0.src.tar.xz
 curl -O http://llvm.org/releases/3.8.0/libcxxabi-3.8.0.src.tar.xz
@@ -19,6 +21,8 @@ curl -O http://llvm.org/releases/3.8.0/libcxxabi-3.8.0.src.tar.xz
 tar xf llvm-3.8.0.src.tar.xz 
 tar xf libcxx-3.8.0.src.tar.xz 
 tar xf libcxxabi-3.8.0.src.tar.xz
+
+# Configure and build libc++
 
 mkdir libcxx_build
 cd libcxx_build
@@ -33,6 +37,8 @@ ${CMAKE_EXE} \
 make
 cd ..
 
+# Configure and build libc++abi
+
 mkdir libcxxabi_build
 cd libcxxabi_build
 ${CMAKE_EXE} \
@@ -44,3 +50,14 @@ ${CMAKE_EXE} \
 	-DCMAKE_OSX_DEPLOYMENT_TARGET=10.4 \
 	../libcxxabi-3.8.0.src
 make
+cd ..
+
+# Create ready-to-use include and lib directories
+
+cp -R libcxx-3.8.0.src/include .
+cp -R libcxxabi-3.8.0.src/include .
+rm include/CMakeLists.txt
+
+mkdir lib
+cp libcxx_build/lib/libc++.a lib
+cp libcxxabi_build/lib/libc++abi.a lib
