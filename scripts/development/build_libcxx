@@ -57,6 +57,7 @@ cd ..
 cp -R libcxx-3.8.0.src/include .
 cp -R libcxxabi-3.8.0.src/include .
 rm include/CMakeLists.txt
+rm include/__config_site.in
 
 mkdir lib
 cp libcxx_build/lib/libc++.a lib
