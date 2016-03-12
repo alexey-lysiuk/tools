@@ -61,3 +61,30 @@ rm include/CMakeLists.txt
 mkdir lib
 cp libcxx_build/lib/libc++.a lib
 cp libcxxabi_build/lib/libc++abi.a lib
+
+# Fix undefined symbols __eprintf for architecture i386
+
+cd lib
+gcc -c -xc -o eprintf.o -arch i386 -O2 -mmacosx-version-min=10.4 - <<EOF
+
+#include <stdio.h>
+#include <stdlib.h>
+
+void __eprintf(const char *fmt, const char *expr, int line, const char *file)
+{
+	fprintf(stderr, fmt, expr, line, file);
+	fflush(stderr);
+
+	abort();
+}
+
+EOF
+
+lipo libc++abi.a -thin x86_64 -output libc++abi_x64.a
+lipo libc++abi.a -thin i386 -output libc++abi_i386.a
+ar -r libc++abi_i386.a eprintf.o
+rm libc++abi.a
+lipo libc++abi_i386.a libc++abi_x64.a -create -output libc++abi.a
+rm libc++abi_i386.a
+rm libc++abi_x64.a
+rm eprintf.o
