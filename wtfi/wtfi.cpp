@@ -239,22 +239,24 @@ void UpdateManifest(const TCHAR* const filename)
 
 int _tmain(int argc, TCHAR** argv)
 {
-	if (argc < 2)
+	if (SUCCEEDED(CoInitialize(NULL)))
 	{
-		_tprintf(_T("Usage: %s <file.exe> <...>\n"), argv[0]);
-		return 0;
-	}
+		if (argc < 2)
+		{
+			_tprintf(_T("Usage: %s <file.exe> <...>\n"), argv[0]);
+		}
+		else
+		{
+			for (int i = 1; i < argc; ++i)
+			{
+				UpdateManifest(argv[i]);
+			}
+		}
 
-	if (FAILED(CoInitialize(NULL)))
+		CoUninitialize();
+	}
+	else
 	{
 		_tprintf(_T("ERROR: CoInitialize() failed with code 0x%08x\n"), GetLastError());
-		return 1;
 	}
-
-	for (int i = 1; i < argc; ++i)
-	{
-		UpdateManifest(argv[i]);
-	}
-
-	CoUninitialize();
 }
