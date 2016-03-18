@@ -150,7 +150,7 @@ bool GetFixedManifest(const TCHAR* const filename, const std::string& input, std
 
 	if (FAILED(dom.CreateInstance(__uuidof(MSXML2::DOMDocument60), NULL, CLSCTX_INPROC_SERVER))) 
 	{
-		PrintError(_T("IXMLDOMDocument::CreateInstance()"), filename);
+		PrintError(_T("IXMLDOMDocument::CreateInstance"), filename);
 		return false;
 	}
 
