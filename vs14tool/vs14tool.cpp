@@ -1,7 +1,5 @@
 
-#include <cstdlib>
 #include <vector>
-
 #include <windows.h>
 #include <tchar.h>
 
@@ -29,6 +27,11 @@ void FatalExit(const int code)
 	exit(code);
 }
 
+void FatalExit()
+{
+	FatalExit(GetLastError());
+}
+
 enum class DataType
 {
 	RAW,
@@ -44,6 +47,8 @@ struct ProcessData
 	DataType type = DataType::RAW;
 };
 
+typedef std::vector<BYTE> ByteArray;
+
 typedef void (*ProcessFunction)(const ProcessData& data);
 
 const TCHAR LICENSE_KEY_NAME[] = _T("Licenses\\4D8CFBCB-2F6A-4AD2-BABF-10E28F6F2C8F");
@@ -56,7 +61,7 @@ void ProcessLicenseData(ProcessFunction processFunction, const TCHAR* const keyN
 	DWORD encryptedDataSize = 0;
 	REG_API_CALL(RegQueryValueEx(regKey, nullptr, nullptr, nullptr, nullptr, &encryptedDataSize));
 
-	std::vector<BYTE> encryptedData(encryptedDataSize);
+	ByteArray encryptedData(encryptedDataSize);
 	REG_API_CALL(RegQueryValueEx(regKey, nullptr, nullptr, nullptr, &encryptedData[0], &encryptedDataSize));
 
 	CRYPT_INTEGER_BLOB encryptedBlob = { encryptedDataSize, &encryptedData[0] };
@@ -194,23 +199,47 @@ void DumpBytes(const ProcessData& data)
 }
 
 
-void ProlongLicense(const ProcessData& data)
+ByteArray CopyLicense(const ProcessData& data)
 {
 	if (224 != data.size)
 	{
 		_tprintf(_T("ERROR: Wrong size of decrypted data for key \"%s\"\n"), data.keyName);
-		return;
+		FatalExit(-1);
 	}
 
 	if (   0xA6 != data.buffer[0]
 		|| 0x1B != data.buffer[1])
 	{
 		_tprintf(_T("ERROR: Wrong signature of decrypted data for key \"%s\"\n"), data.keyName);
-		return;
+		FatalExit(-1);
 	}
 
-	std::vector<BYTE> buffer(data.size);
-	memcpy_s(&buffer[0], data.size, data.buffer, data.size);
+	ByteArray result(data.size);
+	memcpy_s(&result[0], data.size, data.buffer, data.size);
+
+	return result;
+}
+
+void WriteLicense(const HKEY registryKey, ByteArray& buffer)
+{
+	CRYPT_INTEGER_BLOB decryptedBlob = { buffer.size(), &buffer[0] };
+	CRYPT_INTEGER_BLOB encryptedBlob = { 0, nullptr };
+
+	if (!CryptProtectData(&decryptedBlob, nullptr, nullptr, nullptr, nullptr, CRYPTPROTECT_UI_FORBIDDEN | CRYPTPROTECT_LOCAL_MACHINE, &encryptedBlob))
+	{
+		_tprintf(_T("ERROR: Failed to encrypt data with error %lu\n"), GetLastError());
+		FatalExit();
+	}
+
+	REG_API_CALL(RegSetValueEx(registryKey, nullptr, 0, REG_BINARY, encryptedBlob.pbData, encryptedBlob.cbData));
+
+	LocalFree(encryptedBlob.pbData);
+}
+
+
+void ProlongLicense(const ProcessData& data)
+{
+	ByteArray buffer = CopyLicense(data);
 
 	SYSTEMTIME systemTime = {};
 	GetSystemTime(&systemTime);
@@ -220,7 +249,7 @@ void ProlongLicense(const ProcessData& data)
 	if (!SystemTimeToFileTime(&systemTime, &fileTime))
 	{
 		_putts(_T("ERROR: Failed to convert system time to file time"));
-		return;
+		FatalExit();
 	}
 
 	ULARGE_INTEGER intTime = { fileTime.dwLowDateTime, fileTime.dwHighDateTime };
@@ -232,7 +261,7 @@ void ProlongLicense(const ProcessData& data)
 	if (!FileTimeToSystemTime(&fileTime, &systemTime))
 	{
 		_putts(_T("ERROR: Failed to convert file time to system time"));
-		return;
+		FatalExit();
 	}
 
 	WORD* year  = reinterpret_cast<WORD*>(&buffer[0xD0]);
@@ -246,19 +275,20 @@ void ProlongLicense(const ProcessData& data)
 	buffer[0xDD] = 1;
 	buffer[0xDD] = 1;
 
-	CRYPT_INTEGER_BLOB decryptedBlob = { data.size, &buffer[0] };
-	CRYPT_INTEGER_BLOB encryptedBlob = { 0, nullptr };
-
-	if (!CryptProtectData(&decryptedBlob, nullptr, nullptr, nullptr, nullptr, CRYPTPROTECT_UI_FORBIDDEN | CRYPTPROTECT_LOCAL_MACHINE, &encryptedBlob))
-	{
-		_tprintf(_T("ERROR: Failed to encrypt data with error %lu\n"), GetLastError());
-		return;
-	}
-
-	REG_API_CALL(RegSetValueEx(data.regKey, nullptr, 0, REG_BINARY, encryptedBlob.pbData, encryptedBlob.cbData));
-
-	LocalFree(encryptedBlob.pbData);
+	WriteLicense(data.regKey, buffer);
 }
+
+
+void RegisterProduct(const ProcessData& data)
+{
+	ByteArray buffer = CopyLicense(data);
+
+	memset(&buffer[0xD0], 0xFF, 6);
+	buffer[0xC0] = 12;
+
+	WriteLicense(data.regKey, buffer);
+}
+
 
 BOOL IsElevated()
 {
@@ -281,28 +311,36 @@ BOOL IsElevated()
 	return result;
 }
 
-void ProlongLicense()
+void UpdateLicence(ProcessFunction processFunction)
 {
 	if (!IsElevated())
 	{
 		_putts(_T("ERROR: You must have administrative rights to execute this command\n"));
-		return;
+		FatalExit(-1);
 	}
 
 	TCHAR communityKey[256] = {};
 	_sntprintf_s(communityKey, _countof(communityKey), _TRUNCATE, _T("%s\\07078"), LICENSE_KEY_NAME);
 
-	ProcessLicenseData(ProlongLicense, communityKey, KEY_WRITE);
+	ProcessLicenseData(processFunction, communityKey, KEY_WRITE);
 }
 
 } // unnamed namespace
 
 int _tmain(int argc, TCHAR** argv)
 {
-	if (argc > 1 && _tcscmp(argv[1], _T("--prolong")) == 0)
+	if (argc > 1)
 	{
-		ProlongLicense();
-		return EXIT_SUCCESS;
+		if (_tcscmp(argv[1], _T("--prolong")) == 0)
+		{
+			UpdateLicence(ProlongLicense);
+			return 0;
+		}
+		else if (_tcscmp(argv[1], _T("--register")) == 0)
+		{
+			UpdateLicence(RegisterProduct);
+			return 0;
+		}
 	}
 
 	ProcessLicenseData(PrintBytes);
