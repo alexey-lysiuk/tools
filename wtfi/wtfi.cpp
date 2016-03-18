@@ -184,7 +184,7 @@ bool GetFixedManifest(const TCHAR* const filename, const std::string& input, std
 		}
 		else
 		{
-			_tprintf(_T("ERROR: Failed to parse manifest from file %s with message \"%s\"\n"), filename, (LPCSTR)dom->parseError->Getreason());
+			_tprintf(_T("ERROR: Failed to parse manifest from file %s with message \"%s\"\n"), filename, dom->parseError->Getreason().GetBSTR());
 			return false;
 		}
 	}
