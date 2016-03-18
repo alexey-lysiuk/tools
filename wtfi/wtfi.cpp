@@ -235,6 +235,26 @@ void UpdateManifest(const TCHAR* const filename)
 	}
 }
 
+
+void EnterVisualMode()
+{
+	TCHAR filename[1024] = _T("gzdoom.exe");
+
+	OPENFILENAME ofn = {};
+	ofn.lStructSize = sizeof ofn;
+	ofn.lpstrFilter = _T("Executable Files (*.exe)\0*.exe\0All Files (*.*)\0*.*\0\0");
+	ofn.nFilterIndex = 1;
+	ofn.lpstrFile = filename;
+	ofn.nMaxFile = sizeof filename;
+	ofn.lpstrTitle = _T("Select executable file to patch manifest");
+	ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_HIDEREADONLY;
+
+	if (GetOpenFileName(&ofn))
+	{
+		UpdateManifest(ofn.lpstrFile);
+	}
+}
+
 } // unnamed namespace
 
 
@@ -244,7 +264,9 @@ int _tmain(int argc, TCHAR** argv)
 	{
 		if (argc < 2)
 		{
-			_tprintf(_T("Usage: %s <file.exe> <...>\n"), argv[0]);
+			_tprintf(_T("Usage: %s <file.exe> <...>\n\nEntering visual mode...\n"), argv[0]);
+
+			EnterVisualMode();
 		}
 		else
 		{
