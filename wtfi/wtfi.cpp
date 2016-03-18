@@ -8,6 +8,9 @@
 #import <msxml6.dll>
 
 
+namespace
+{
+
 struct Resource
 {
 	LPCTSTR     id;
@@ -47,7 +50,7 @@ static void PrintError(const TCHAR* const failedFunction, const TCHAR* const fil
 }
 
 
-static BOOL CALLBACK OnEnumResourceLanguage(HMODULE module, LPCTSTR, LPCTSTR id, LANGID language, LONG_PTR param)
+BOOL CALLBACK OnEnumResourceLanguage(HMODULE module, LPCTSTR, LPCTSTR id, LANGID language, LONG_PTR param)
 {
 	const Resource resource = { id, language };
 
@@ -57,12 +60,12 @@ static BOOL CALLBACK OnEnumResourceLanguage(HMODULE module, LPCTSTR, LPCTSTR id,
 	return TRUE;
 }
 
-static BOOL CALLBACK OnEnumResourceName(HMODULE module, LPCTSTR type, LPTSTR id, LONG_PTR param)
+BOOL CALLBACK OnEnumResourceName(HMODULE module, LPCTSTR type, LPTSTR id, LONG_PTR param)
 {
 	return EnumResourceLanguages(module, type, id, OnEnumResourceLanguage, param);
 }
 
-static void LoadManifests(const TCHAR* const filename, ResourceList& resources)
+void LoadManifests(const TCHAR* const filename, ResourceList& resources)
 {
 	LibraryModule module(filename);
 
@@ -119,7 +122,7 @@ static void LoadManifests(const TCHAR* const filename, ResourceList& resources)
 	}
 }
 
-static MSXML2::IXMLDOMNodePtr FindXMLNode(MSXML2::IXMLDOMNodePtr parent, const char* const name)
+MSXML2::IXMLDOMNodePtr FindXMLNode(MSXML2::IXMLDOMNodePtr parent, const char* const name)
 {
 	if (NULL == parent)
 	{
@@ -141,7 +144,7 @@ static MSXML2::IXMLDOMNodePtr FindXMLNode(MSXML2::IXMLDOMNodePtr parent, const c
 	return NULL;
 }
 
-static bool GetFixedManifest(const TCHAR* const filename, const std::string& input, std::string& output)
+bool GetFixedManifest(const TCHAR* const filename, const std::string& input, std::string& output)
 {
 	MSXML2::IXMLDOMDocumentPtr dom;
 
@@ -193,7 +196,7 @@ static bool GetFixedManifest(const TCHAR* const filename, const std::string& inp
 	return true;
 }
 
-static void UpdateManifest(const TCHAR* const filename)
+void UpdateManifest(const TCHAR* const filename)
 {
 	ResourceList resources;
 	LoadManifests(filename, resources);
@@ -230,6 +233,8 @@ static void UpdateManifest(const TCHAR* const filename)
 		_tprintf(_T("File %s was successfully updated\n"), filename);
 	}
 }
+
+} // unnamed namespace
 
 
 int _tmain(int argc, TCHAR** argv)
