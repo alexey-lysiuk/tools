@@ -4,6 +4,7 @@
 
 #include <windows.h>
 #include <tchar.h>
+#include <conio.h>
 
 #import <msxml6.dll>
 
@@ -259,4 +260,7 @@ int _tmain(int argc, TCHAR** argv)
 	{
 		_tprintf(_T("ERROR: CoInitialize() failed with code 0x%08x\n"), GetLastError());
 	}
+
+	_putts(_T("\nPress any key to continue...\n"));
+	_getch();
 }
