@@ -98,11 +98,6 @@ public:
 
 	ByteArray readBuffer();
 
-	Command nextCommand()
-	{
-		return read<Command>();
-	}
-
 	long pos() const;
 
 private:
@@ -197,46 +192,35 @@ void Level::open(const char* filename)
 		throw std::runtime_error("Invalid level file");
 	}
 
+	enum Command : uint8_t
+	{
+		End = 0,
+		Name = 1,
+		AtlasTexture = 2,
+		Sound = 15,
+		Player = 20,
+		ImageIDs = 30,
+		Strings = 31,
+		Timelime = 40,
+		Buffers = 41,
+		Texture = 102,
+	};
+
 	while (!fs.endOfFile())
 	{
-		const Command command = fs.nextCommand();
+		const uint8_t command = fs.readU8();
 
 		switch (command)
 		{
-		case Command::End:
-			return;
-
-		case Command::Name:
-			m_name = fs.readUTF();
-			break;
-
-		case Command::Sound:
-			loadSound(fs);
-			break;
-
-		case Command::ImageIDs:
-			loadImageIDs(fs);
-			break;
-
-		case Command::AtlasTexture:
-			loadAtlasTexture(fs);
-			break;
-
-		case Command::Strings:
-			loadStrings(fs);
-			break;
-
-		case Command::Timelime:
-			loadTimelime(fs);
-			break;
-
-		case Command::Buffers:
-			loadBuffers(fs);
-			break;
-
-		case Command::Texture:
-			loadTexture(fs);
-			break;
+		case Command::End:				return;
+		case Command::Name:				loadName(fs);			break;
+		case Command::Sound:			loadSound(fs);			break;
+		case Command::ImageIDs:			loadImageIDs(fs);		break;
+		case Command::AtlasTexture:		loadAtlasTexture(fs);	break;
+		case Command::Strings:			loadStrings(fs);		break;
+		case Command::Timelime:			loadTimelime(fs);		break;
+		case Command::Buffers:			loadBuffers(fs);		break;
+		case Command::Texture:			loadTexture(fs);		break;
 
 		default:
 			throw std::runtime_error("Invalid command in level data");
@@ -248,6 +232,11 @@ void Level::open(const char* filename)
 void Level::close()
 {
 	// TODO: clear containers
+}
+
+void Level::loadName(BinaryFile& fs)
+{
+	m_name = fs.readUTF();
 }
 
 void Level::loadSound(BinaryFile& fs)

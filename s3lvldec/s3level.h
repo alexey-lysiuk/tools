@@ -22,23 +22,10 @@
 
 namespace S3
 {
-	enum class Command : uint8_t
-	{
-		End = 0,
-		Name = 1,
-		AtlasTexture = 2,
-		Sound = 15,
-		ImageIDs = 30,
-		Strings = 31,
-		Timelime = 40,
-		Buffers = 41,
-		Texture = 102,
-	};
+	class BinaryFile;
 
 	typedef std::map<uint16_t, std::string> IDToNameMap;
 	typedef std::map<std::string, uint16_t> NameToIDMap;
-
-	class BinaryFile;
 
 	class Level
 	{
@@ -62,6 +49,7 @@ namespace S3
 		std::map<std::string, uint8_t> m_soundGroups;
 		std::map<uint8_t, float> m_soundGroupVolumes;
 
+		void loadName(BinaryFile& fs);
 		void loadSound(BinaryFile& fs);
 		void loadAtlasTexture(BinaryFile& fs);
 		void loadImageIDs(BinaryFile& fs);
