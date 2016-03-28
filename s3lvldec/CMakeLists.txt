@@ -7,6 +7,6 @@ if (MSVC)
     add_definitions(-D_CRT_NONSTDC_NO_DEPRECATE)
 endif (MSVC)
 
-file(GLOB SOURCE_FILES *.cpp)
+file(GLOB SOURCE_FILES *.cpp *.h)
 
 add_executable(s3lvldec ${SOURCE_FILES})
