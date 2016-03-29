@@ -19,13 +19,49 @@
 #include <cstdint>
 #include <string>
 #include <map>
+#include <vector>
 
 namespace S3
 {
 	class BinaryFile;
 
+	struct Position
+	{
+		int16_t x;
+		int16_t y;
+	};
+
+	struct PathFinderArc
+	{
+		uint8_t type;
+		uint8_t p1;
+		uint8_t p2;
+	};
+
+	typedef std::vector<float> FloatArray;
+	typedef std::vector<Position> PositionArray;
+	typedef std::vector<PathFinderArc> PathFinderArcArray;
+
 	typedef std::map<uint16_t, std::string> IDToNameMap;
 	typedef std::map<std::string, uint16_t> NameToIDMap;
+
+	struct Player
+	{
+		FloatArray m_positionsX;
+		FloatArray m_positionsY;
+		FloatArray m_scalesX;
+		FloatArray m_rotations;
+		FloatArray m_rPositionsX;
+		FloatArray m_rPositionsY;
+		FloatArray m_rRotations;
+
+		IDToNameMap m_labelsAt;
+		IDToNameMap m_labelsLeft;
+		IDToNameMap m_labelsRight;
+
+		PositionArray m_waypoints;
+		PathFinderArcArray m_arcs;
+	};
 
 	class Level
 	{
@@ -37,6 +73,8 @@ namespace S3
 
 	private:
 		std::string m_name;
+
+		Player m_player;
 
 		IDToNameMap m_strings;
 
@@ -51,6 +89,7 @@ namespace S3
 
 		void loadName(BinaryFile& fs);
 		void loadSound(BinaryFile& fs);
+		void loadPlayer(BinaryFile& fs);
 		void loadAtlasTexture(BinaryFile& fs);
 		void loadImageIDs(BinaryFile& fs);
 		void loadStrings(BinaryFile& fs);

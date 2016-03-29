@@ -211,6 +211,7 @@ void Level::open(const char* filename)
 		case Command::End:				return;
 		case Command::Name:				loadName(fs);			break;
 		case Command::Sound:			loadSound(fs);			break;
+		case Command::Player:			loadPlayer(fs);			break;
 		case Command::ImageIDs:			loadImageIDs(fs);		break;
 		case Command::AtlasTexture:		loadAtlasTexture(fs);	break;
 		case Command::Strings:			loadStrings(fs);		break;
@@ -243,6 +244,66 @@ void Level::loadSound(BinaryFile& fs)
 	const ByteArray buffer = fs.readBuffer();
 
 	// TODO: load sound
+}
+
+void Level::loadPlayer(BinaryFile& fs)
+{
+	// NOTE: loading plain data, without calculating interpolated values
+
+	uint16_t posCount = fs.readU16();
+
+	const auto readFloats = [&](FloatArray& container)
+	{
+		container.resize(posCount);
+
+		for (uint16_t i = 0; i < posCount; ++i)
+		{
+			container[i] = fs.readFloat();
+		}
+	};
+
+	readFloats(m_player.m_positionsX);
+	readFloats(m_player.m_positionsY);
+	readFloats(m_player.m_scalesX);
+	readFloats(m_player.m_rotations);
+
+	posCount = fs.readU16();
+
+	readFloats(m_player.m_rPositionsX);
+	readFloats(m_player.m_rPositionsY);
+	readFloats(m_player.m_rRotations);
+
+	const auto readLabels = [&fs](IDToNameMap& container)
+	{
+		for (uint16_t i = 0, count = fs.readU16(); i < count; ++i)
+		{
+			const uint16_t frame = fs.readU16();
+			container[frame] = fs.readUTF();
+		}
+	};
+
+	readLabels(m_player.m_labelsAt);
+	readLabels(m_player.m_labelsLeft);
+	readLabels(m_player.m_labelsRight);
+	
+	for (uint8_t i = 0, count = fs.readU8(); i < count; i++)
+	{
+		const int16_t x = fs.readS16();
+		const int16_t y = fs.readS16();
+		const Position node = { x, y };
+
+		m_player.m_waypoints.push_back(node);
+	}
+
+	for (uint8_t i = 0, count = fs.readU8(); i < count; i++)
+	{
+		const uint8_t type = fs.readU8();
+		const uint8_t p1 = fs.readU8();
+		const uint8_t p2 = fs.readU8();
+		const PathFinderArc arc = { type, p1, p2 };
+
+		m_player.m_arcs.push_back(arc);
+	}
 }
 
 void Level::loadAtlasTexture(BinaryFile& fs)
