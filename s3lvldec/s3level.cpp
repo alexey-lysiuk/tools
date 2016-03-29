@@ -26,6 +26,8 @@
 #error Only little endian platforms are supported
 #endif
 
+static_assert(4 == sizeof(float), "Single precision floating point type must be 4 bytes long");
+
 namespace S3
 {
 
@@ -79,26 +81,25 @@ public:
 		return result;
 	}
 
-	uint8_t readU8()
-	{
-		return read<uint8_t>();
-	}
+	uint8_t readU8() { return read<uint8_t>(); }
+	int8_t  readS8() { return read< int8_t>(); }
 
-	uint16_t readU16()
-	{
-		return read<uint16_t>();
-	}
+	uint16_t readU16() { return read<uint16_t>(); }
+	int16_t  readS16() { return read< int16_t>(); }
 
-	uint32_t readU32()
+	uint32_t readU32() { return read<uint32_t>(); }
+	int32_t  readS32() { return read< int32_t>(); }
+
+	float readFloat()
 	{
-		return read<uint32_t>();
+		return read<float>();
 	}
 
 	std::string readUTF();
 
 	ByteArray readBuffer();
 
-	long pos() const;
+	long pos() const { return ftell(m_file); }
 
 private:
 	FILE* m_file = nullptr;
@@ -162,11 +163,6 @@ ByteArray BinaryFile::readBuffer()
 	read(result);
 
 	return result;
-}
-
-long BinaryFile::pos() const
-{
-	return ftell(m_file);
 }
 
 
