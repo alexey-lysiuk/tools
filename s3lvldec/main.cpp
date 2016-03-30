@@ -24,22 +24,25 @@
 
 int main(int argc, char** argv)
 {
-	if (2 != argc)
+	if (argc < 2)
 	{
-		std::cout << "Usage: " << argv[0] << " <file.lvl>\n" << std::endl;
+		std::cout << "Usage: " << argv[0] << " <file.lvl> ...\n" << std::endl;
 		return EXIT_SUCCESS;
 	}
 
-	try
+	for (int i = 1; i < argc; ++i)
 	{
-		S3::Level level(argv[1]);
+		try
+		{
+			S3::Level level(argv[i]);
 
-		// TODO: dump content
-	}
-	catch (const std::exception& ex)
-	{
-		std::cout << "ERROR: " << ex.what() << std::endl;
-		return EXIT_FAILURE;
+			// TODO: dump content
+		}
+		catch (const std::exception& ex)
+		{
+			std::cout << "ERROR: " << ex.what() << std::endl;
+			return EXIT_FAILURE;
+		}
 	}
 
 	return EXIT_SUCCESS;
