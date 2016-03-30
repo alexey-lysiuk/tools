@@ -22,6 +22,13 @@
 #include <cstdio>
 #include <vector>
 
+#ifdef _MSC_VER
+#include <direct.h>
+inline int mkdir(const char* const name) { return _mkdir(name); }
+#else
+#include <direct.h>
+#endif
+
 #if !defined _M_IX86 && !defined _M_X64 && defined __BYTE_ORDER__ && __BYTE_ORDER__ != __ORDER_LITTLE_ENDIAN__
 #error Only little endian platforms are supported
 #endif
@@ -32,6 +39,50 @@ namespace S3
 {
 
 typedef std::vector<uint8_t> ByteArray;
+
+void SaveToFile(const std::string& filename, const ByteArray& buffer)
+{
+	std::vector<std::string> nameParts;
+	std::string currentNamePart;
+
+	for (char ch : filename)
+	{
+		if ('\\' == ch || '/' == ch)
+		{
+			if (currentNamePart.empty())
+			{
+				continue;
+			}
+
+			nameParts.push_back(currentNamePart);
+			currentNamePart.clear();
+		}
+		else
+		{
+			currentNamePart += ch;
+		}
+	}
+
+	std::string dirPath;
+
+	for (const std::string& namePart : nameParts)
+	{
+		_mkdir(namePart.c_str());
+		dirPath += namePart + '/';
+	}
+
+	FILE* const file = fopen(filename.c_str(), "wb");
+	if (nullptr == file)
+	{
+		throw std::runtime_error("Failed to open file");
+	}
+
+	if (   1 != fwrite(&buffer[0], buffer.size(), 1, file)
+		|| 0 != fclose(file))
+	{
+		throw std::runtime_error("Failed to write to file");
+	}
+}
 
 class BinaryFile
 {
