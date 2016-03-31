@@ -249,8 +249,11 @@ void Level::open(const char* filename)
 		End = 0,
 		Name = 1,
 		AtlasTexture = 2,
+		Image = 8,
 		Sound = 15,
+		SoundLoop = 18,
 		Player = 20,
+		PathData = 25,
 		ImageIDs = 30,
 		Strings = 31,
 		Timelime = 40,
@@ -266,10 +269,13 @@ void Level::open(const char* filename)
 		{
 		case Command::End:				return;
 		case Command::Name:				loadName(fs);			break;
-		case Command::Sound:			loadSound(fs);			break;
-		case Command::Player:			loadPlayer(fs);			break;
-		case Command::ImageIDs:			loadImageIDs(fs);		break;
 		case Command::AtlasTexture:		loadAtlasTexture(fs);	break;
+		case Command::Image:			loadImage(fs);			break;
+		case Command::Sound:			loadSound(fs);			break;
+		case Command::SoundLoop:		loadSoundLoop(fs);		break;
+		case Command::Player:			loadPlayer(fs);			break;
+		case Command::PathData:			loadPathData(fs);		break;
+		case Command::ImageIDs:			loadImageIDs(fs);		break;
 		case Command::Strings:			loadStrings(fs);		break;
 		case Command::Timelime:			loadTimelime(fs);		break;
 		case Command::Buffers:			loadBuffers(fs);		break;
@@ -292,14 +298,38 @@ void Level::loadName(BinaryFile& fs)
 	m_name = fs.readUTF();
 }
 
+void Level::loadAtlasTexture(BinaryFile& fs)
+{
+	const std::string textureName = fs.readUTF();
+	const bool hasAtlas = 0 != fs.readU8();
+
+	// TODO: support atlas texture
+
+	const ByteArray buffer = fs.readBuffer();
+	//SaveToFile(textureName + ".atf", buffer);
+}
+
+void Level::loadImage(BinaryFile& fs)
+{
+	const std::string name = fs.readUTF();
+	const ByteArray buffer = fs.readBuffer();
+	//SaveToFile(name + ".swf", buffer);
+}
+
 void Level::loadSound(BinaryFile& fs)
 {
 	const std::string name = m_name + '/' + fs.readUTF();
 	m_soundIDs[name] = fs.readU16();
 
 	const ByteArray buffer = fs.readBuffer();
+	//SaveToFile(name + ".mp3", buffer);
+}
 
-	// TODO: load sound
+void Level::loadSoundLoop(BinaryFile& fs)
+{
+	const std::string name = fs.readUTF();
+	const ByteArray buffer = fs.readBuffer();
+	//SaveToFile(name + ".bin", buffer);
 }
 
 void Level::loadPlayer(BinaryFile& fs)
@@ -362,19 +392,48 @@ void Level::loadPlayer(BinaryFile& fs)
 	}
 }
 
-void Level::loadAtlasTexture(BinaryFile& fs)
+void Level::loadPathData(BinaryFile& fs)
 {
-	const std::string textureName = fs.readUTF();
-	const bool hasAtlas = 0 != fs.readU8();
+	const uint16_t count = fs.readU16();
 
-	if (hasAtlas)
+	for (uint16_t i = 0; i < count; ++i)
 	{
-		const ByteArray buffer = fs.readBuffer();
-
-		// TODO: load ATF
+		const float x = fs.readFloat();
+		// TODO
 	}
 
-	// TODO: create texture
+	for (uint16_t i = 0; i < count; ++i)
+	{
+		const float y = fs.readFloat();
+		// TODO
+	}
+
+	for (uint16_t i = 0; i < count; ++i)
+	{
+		const float scaleX = fs.readFloat();
+		// TODO
+	}
+
+	for (uint16_t i = 0; i < count; ++i)
+	{
+		const float scaleY = fs.readFloat();
+		// TODO
+	}
+
+	for (uint16_t i = 0; i < count; ++i)
+	{
+		const float rotation = fs.readFloat();
+		// TODO
+	}
+
+	for (uint16_t i = 0, labelCount = fs.readU16(); i < labelCount; ++i)
+	{
+		const uint16_t index = fs.readU16();
+		const std::string label = fs.readUTF();
+		// TODO
+	}
+
+	// TODO: add PathData
 }
 
 void Level::loadImageIDs(BinaryFile& fs)

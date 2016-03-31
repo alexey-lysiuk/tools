@@ -88,9 +88,12 @@ namespace S3
 		std::map<uint8_t, float> m_soundGroupVolumes;
 
 		void loadName(BinaryFile& fs);
-		void loadSound(BinaryFile& fs);
-		void loadPlayer(BinaryFile& fs);
 		void loadAtlasTexture(BinaryFile& fs);
+		void loadImage(BinaryFile& fs);
+		void loadSound(BinaryFile& fs);
+		void loadSoundLoop(BinaryFile& fs);
+		void loadPlayer(BinaryFile& fs);
+		void loadPathData(BinaryFile& fs);
 		void loadImageIDs(BinaryFile& fs);
 		void loadStrings(BinaryFile& fs);
 		void loadTimelime(BinaryFile& fs);
