@@ -150,7 +150,7 @@ public:
 
 	ByteArray readBuffer();
 
-	long pos() const { return ftell(m_file); }
+	long pos() const;
 
 private:
 	FILE* m_file = nullptr;
@@ -214,6 +214,11 @@ ByteArray BinaryFile::readBuffer()
 	read(result);
 
 	return result;
+}
+
+long BinaryFile::pos() const
+{
+	return ftell(m_file);
 }
 
 
