@@ -38,6 +38,19 @@ namespace S3
 		uint8_t p2;
 	};
 
+	struct Rectangle
+	{
+		double x = 0;
+		double y = 0;
+		double width = 0;
+		double height = 0;
+
+		Rectangle(double x = 0, double y = 0, double width = 0, double height = 0)
+		: x(x), y(y), width(width), height(height)
+		{
+		}
+	};
+
 	typedef std::vector<float> FloatArray;
 	typedef std::vector<Position> PositionArray;
 	typedef std::vector<PathFinderArc> PathFinderArcArray;

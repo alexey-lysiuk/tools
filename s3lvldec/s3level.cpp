@@ -538,7 +538,83 @@ void Level::loadBuffers(BinaryFile& fs)
 void Level::loadTexture(BinaryFile& fs)
 {
 	const std::string textureName = fs.readUTF();
-	const ByteArray buffer = fs.readBuffer();
+	const uint32_t size = fs.readU32();
+
+	enum XYSize	{ XY_16, XY_32 };
+
+	const auto readRect = [&fs](const XYSize xySize = XY_16)
+	{
+		const int32_t x = XY_16 == xySize ? fs.readS16() : fs.readS32();
+		const int32_t y = XY_16 == xySize ? fs.readS16() : fs.readS32();
+		const int16_t width  = fs.readS16();
+		const int16_t height = fs.readS16();
+
+		return Rectangle(x, y, width, height);
+	};
+
+	enum SubCommand
+	{
+		End = 0,
+		SubTexture = 3,
+		MovieName = 4,
+		TextureAnim = 5,
+		MovieTexRect1 = 6,
+		MovieTexRect2 = 7
+	};
+
+	while (true)
+	{
+		switch (fs.readU8())
+		{
+		case End:
+			return;
+
+		case SubTexture:
+		{
+			const int16_t index = fs.readS16();
+			const Rectangle rect = readRect();
+			// TODO: create subtexture
+			break;
+		}
+
+		case MovieName:
+		{
+			const std::string movieName = fs.readUTF();
+			// TODO
+			break;
+		}
+
+		case TextureAnim:
+		{
+			for (uint16_t i = 0, count = fs.readU16(); i < count; ++i)
+			{
+				const uint16_t index = fs.readU16();
+				const std::string label = fs.readUTF();
+			}
+			// TODO: create TextureAnim
+			break;
+		}
+
+		case MovieTexRect1:
+		{
+			const Rectangle rect = readRect();
+			// TODO: create texture
+			break;
+		}
+
+		case MovieTexRect2:
+		{
+			const Rectangle rect1 = readRect();
+			const Rectangle rect2 = readRect(XY_32);
+			// TODO: create texture
+			break;
+		}
+
+		default:
+			throw std::runtime_error("Invalid texture data");
+			break;
+		}
+	}
 
 	// TODO: create texture
 }
