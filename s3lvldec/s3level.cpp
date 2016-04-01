@@ -20,6 +20,7 @@
 
 #include <cassert>
 #include <cstdio>
+#include <limits>
 #include <vector>
 
 #ifdef _MSC_VER
@@ -33,7 +34,7 @@ inline int mkdir(const char* const name) { return _mkdir(name); }
 #error Only little endian platforms are supported
 #endif
 
-static_assert(4 == sizeof(float), "Single precision floating point type must be 4 bytes long");
+static_assert(std::numeric_limits<float>::is_iec559, "IEEE 754 floating point format is required");
 
 namespace S3
 {
