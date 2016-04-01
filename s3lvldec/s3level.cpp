@@ -30,11 +30,70 @@ inline int mkdir(const char* const name) { return _mkdir(name); }
 #include <direct.h>
 #endif
 
-#if !defined _M_IX86 && !defined _M_X64 && defined __BYTE_ORDER__ && __BYTE_ORDER__ != __ORDER_LITTLE_ENDIAN__
-#error Only little endian platforms are supported
-#endif
-
 static_assert(std::numeric_limits<float>::is_iec559, "IEEE 754 floating point format is required");
+
+enum EndianType
+{
+	LE,
+	BE,
+
+#if defined _M_IX86 || defined _M_X64 || defined __BYTE_ORDER__ && __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
+	NE = LE,
+	NNE = BE
+#else // Big Endian
+	NE = BE,
+	NNE = LE
+#endif // Little Endian
+};
+
+namespace Endian
+{
+
+#define ENDIAN_NO_CONVERT(TYPE, ENDIAN) \
+	template <> TYPE convert<TYPE, ENDIAN>(TYPE value) { return value; }
+
+#define ENDIAN_STORAGE_CONVERT(TYPE, STORAGE, ENDIAN)                                     \
+	template <>                                                                           \
+	TYPE convert<TYPE, ENDIAN>(const TYPE value)                                          \
+	{                                                                                     \
+		const STORAGE* const unsignedPointer = reinterpret_cast<const STORAGE*>(&value);  \
+		const STORAGE unsignedValue = convert<STORAGE, ENDIAN>(*unsignedPointer);         \
+		return *reinterpret_cast<const TYPE*>(&unsignedValue);                            \
+	}
+
+	template <typename T, EndianType = LE>
+	T convert(T value);
+	
+	template <>
+	uint16_t convert<uint16_t, NNE>(const uint16_t value)
+	{
+		return (value >> 8) 
+			|  (value << 8);
+	}
+
+	template <>
+	uint32_t convert<uint32_t, NNE>(uint32_t value)
+	{
+		return (value >> 24) 
+			| ((value<<8) & 0x00FF0000)
+			| ((value>>8) & 0x0000FF00)
+			|  (value << 24);
+	}
+
+	ENDIAN_STORAGE_CONVERT(int16_t, uint16_t, NNE)
+	ENDIAN_STORAGE_CONVERT(int32_t, uint32_t, NNE)
+	ENDIAN_STORAGE_CONVERT(  float, uint32_t, NNE)
+
+	ENDIAN_NO_CONVERT(uint16_t, NE)
+	ENDIAN_NO_CONVERT( int16_t, NE)
+	ENDIAN_NO_CONVERT(uint32_t, NE)
+	ENDIAN_NO_CONVERT( int32_t, NE)
+	ENDIAN_NO_CONVERT(   float, NE)
+
+#undef ENDIAN_STORAGE_CONVERT
+#undef ENDIAN_NO_CONVERT
+
+}; // namespace Endian
 
 namespace S3
 {
@@ -139,19 +198,24 @@ public:
 	uint8_t readU8() { return read<uint8_t>(); }
 	int8_t  readS8() { return read< int8_t>(); }
 
-	uint16_t readU16() { return read<uint16_t>(); }
-	int16_t  readS16() { return read< int16_t>(); }
-
-	uint32_t readU32() { return read<uint32_t>(); }
-	int32_t  readS32() { return read< int32_t>(); }
-
-	float readFloat()
-	{
-		return read<float>();
+#define READ_FUNCTION(NAME, TYPE)                            \
+	template <EndianType endian = LE>                        \
+	TYPE read##NAME()                                        \
+	{                                                        \
+		return Endian::convert<TYPE, endian>(read<TYPE>());  \
 	}
+
+	READ_FUNCTION(  U16, uint16_t)
+	READ_FUNCTION(  S16,  int16_t)
+	READ_FUNCTION(  U32, uint32_t)
+	READ_FUNCTION(  S32,  int32_t)
+	READ_FUNCTION(Float,    float)
+
+#undef READ_FUNCTION
 
 	std::string readUTF();
 
+	template <EndianType endian = LE>
 	ByteArray readBuffer();
 
 	long pos() const;
@@ -201,7 +265,7 @@ void BinaryFile::read(void* const buffer, const size_t size)
 
 std::string BinaryFile::readUTF()
 {
-	const uint16_t length = read<uint16_t>();
+	const uint16_t length = readU16();
 	std::string result(length, '\0');
 
 	for (size_t i = 0; i < length; i++)
@@ -212,9 +276,10 @@ std::string BinaryFile::readUTF()
 	return result;
 }
 
+template <EndianType endian>
 ByteArray BinaryFile::readBuffer()
 {
-	ByteArray result(readU32());
+	ByteArray result(readU32<endian>());
 	read(result);
 
 	return result;
