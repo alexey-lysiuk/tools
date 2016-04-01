@@ -22,6 +22,7 @@
 #include <cstdio>
 #include <limits>
 
+#include "atf.h"
 #include "binaryfile.h"
 
 namespace S3
@@ -110,8 +111,10 @@ void Level::loadAtlasTexture(BinaryFile& fs)
 
 	// TODO: support atlas texture
 
-	const ByteArray buffer = fs.readBuffer();
-	//SaveToFile(textureName + ".atf", buffer);
+	const uint32_t size = fs.readU32();
+	const ATF texture(fs);
+
+	// TODO: add texture
 }
 
 void Level::loadImage(BinaryFile& fs)
