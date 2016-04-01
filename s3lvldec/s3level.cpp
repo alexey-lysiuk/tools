@@ -122,7 +122,10 @@ public:
 
 	void read(ByteArray& buffer)
 	{
-		read(&buffer[0], buffer.size());
+		if (!buffer.empty())
+		{
+			read(&buffer[0], buffer.size());
+		}
 	}
 
 	ByteArray read(size_t size)
