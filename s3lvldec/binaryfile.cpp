@@ -22,9 +22,9 @@
 
 #ifdef _MSC_VER
 #include <direct.h>
-inline int mkdir(const char* const name) { return _mkdir(name); }
 #else
-#include <direct.h>
+#include <sys/stat.h>
+inline int _mkdir(const char* const name) { return mkdir(name, 0755); }
 #endif
 
 static_assert(std::numeric_limits<float>::is_iec559, "IEEE 754 floating point format is required");
