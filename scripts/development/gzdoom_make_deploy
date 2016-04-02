@@ -12,6 +12,12 @@ fi
 git clone https://github.com/alexey-lysiuk/gzdoom.git
 cd gzdoom
 
+if [ "$1" == "--branch" ]; then
+	git checkout $2
+elif [ "$1" == "--tag" ]; then
+	git checkout tags/$2
+fi
+
 #mkdir misc/freedoom
 #cp ~/Library/Application\ Support/GZDoom/freedoom*.wad misc/freedoom
 
