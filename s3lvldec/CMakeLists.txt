@@ -10,4 +10,7 @@ endif (MSVC)
 
 file(GLOB SOURCE_FILES *.cpp *.h)
 
+add_subdirectory(lzma)
+
 add_executable(s3lvldec ${SOURCE_FILES})
+target_link_libraries(s3lvldec lzma)
