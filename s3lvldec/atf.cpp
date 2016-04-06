@@ -18,6 +18,13 @@
 
 #include "atf.h"
 
+#include <cstdlib>
+#include <cassert>
+#include <algorithm>
+
+#define NOMINMAX
+
+#include "lzma/LzmaDec.h"
 #include "binaryfile.h"
 
 namespace S3
@@ -58,6 +65,72 @@ ATF::ATF(BinaryFile& fs)
 
 	readAlphaCompressedLossy(fs);
 }
+
+namespace
+{
+
+void* AllocLZMA(void*, size_t size)
+{
+	return malloc(size);
+}
+
+void FreeLZMA(void*, void* address)
+{
+	if (nullptr != address)
+	{
+		free(address);
+	}
+}
+
+void DecompressLZMA(const ByteArray& input, ByteArray& output)
+{
+	assert(!input.empty());
+
+	CLzmaDec decoder;
+	LzmaDec_Construct(&decoder);
+
+	static ISzAlloc memoryFunctions = { &AllocLZMA, &FreeLZMA };
+
+	if (SZ_OK != LzmaDec_Allocate(&decoder, &input[0], LZMA_PROPS_SIZE, &memoryFunctions))
+	{
+		throw std::runtime_error("Failed to initialize LZMA decompressor");
+	}
+
+	LzmaDec_Init(&decoder);
+
+	static const size_t BUFFER_SIZE = 64 * 1024;
+	size_t inputPos = LZMA_PROPS_SIZE;
+	size_t outputPos = 0;
+
+	while (true)
+	{
+		output.resize(output.size() + BUFFER_SIZE);
+
+		size_t inputSize = std::min(BUFFER_SIZE, input.size() - inputPos);
+		size_t outputSize = std::min(BUFFER_SIZE, output.size() - outputPos);
+		ELzmaStatus status;
+
+		if (SZ_OK != LzmaDec_DecodeToBuf(&decoder, &output[outputPos], &outputSize, &input[inputPos], &inputSize, LZMA_FINISH_ANY, &status))
+		{
+			throw std::runtime_error("Failed to initialize LZMA decompressor");
+		}
+
+		inputPos += inputSize;
+		outputPos += outputSize;
+
+		if (   LZMA_STATUS_MAYBE_FINISHED_WITHOUT_MARK == status
+			|| LZMA_STATUS_NEEDS_MORE_INPUT == status)
+		{
+			break;
+		}
+	}
+
+	output.resize(outputPos);
+
+	LzmaDec_Free(&decoder, &memoryFunctions);
+}
+
+} // unnamed namespace
 
 void ATF::readAlphaCompressedLossy(BinaryFile& fs)
 {
@@ -124,6 +197,38 @@ void ATF::readAlphaCompressedLossy(BinaryFile& fs)
 		for (TextureData* const entry : entries)
 		{
 			entry->push_back(fs.readBuffer<BE>());
+		}
+	}
+
+	TextureData* const compressedEntries[] =
+	{
+		&m_dxt5Alpha,
+		&m_dxt5,
+		&m_pvrTCTop,
+		&m_pvrTCBottom,
+		&m_etc1Top,
+		&m_etc1Bottom,
+		&m_etc2RgbaAlphaTop,
+		&m_etc2RgbaAlphaBottom,
+		&m_etc2RgbaTop,
+		&m_etc2RgbaMode,
+		&m_etc2RgbaBottom,
+	};
+
+	for (TextureData* const entry : compressedEntries)
+	{
+		for (ByteArray& texture : *entry)
+		{
+			if (texture.empty())
+			{
+				continue;
+			}
+
+			// TODO: precalculate output size
+
+			ByteArray uncompressed;
+			DecompressLZMA(texture, uncompressed);
+			texture = uncompressed;
 		}
 	}
 }
