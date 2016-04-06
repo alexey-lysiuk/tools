@@ -16,6 +16,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#pragma once
+#ifndef S3LVLDEC_BINARYFILE_H_INCLUDED
+#define S3LVLDEC_BINARYFILE_H_INCLUDED
+
 #include <cstdint>
 #include <string>
 #include <vector>
@@ -182,3 +186,5 @@ void SaveToFile(const char* filename, const ByteArray& buffer);
 void SaveToFile(const std::string& filename, const ByteArray& buffer);
 
 } // namespace S3
+
+#endif // S3LVLDEC_BINARYFILE_H_INCLUDED

@@ -16,6 +16,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#pragma once
+#ifndef S3LVLDEC_ATF_H_INCLUDED
+#define S3LVLDEC_ATF_H_INCLUDED
+
 #include <cstdint>
 #include <vector>
 
@@ -69,3 +73,5 @@ private:
 };
 
 } // namespace S3
+
+#endif // S3LVLDEC_ATF_H_INCLUDED
