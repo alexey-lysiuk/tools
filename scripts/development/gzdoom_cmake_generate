@@ -29,7 +29,7 @@ if [ ! -e ${SRC_DIR} ]; then
 	SRC_DIR=/Volumes/Storage/Work/gz_temp
 fi
 
-CMAKE_CXX_FLAGS=-Wno-inconsistent-missing-override\ -D__FP__\ -D__FIXMATH__
+CMAKE_CXX_FLAGS=-Wno-inconsistent-missing-override
 
 /Applications/CMake.app/Contents/bin/cmake -Wno-dev -GXcode  \
 	-DOSX_COCOA_BACKEND=YES                                  \
