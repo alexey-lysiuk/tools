@@ -237,7 +237,7 @@
 		011E484E1604DF3700722F8D /* TestCDNameForCPUType.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TestCDNameForCPUType.m; sourceTree = "<group>"; };
 		013D1EFB13A5A0F100BF0A67 /* deprotect */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = deprotect; sourceTree = BUILT_PRODUCTS_DIR; };
 		013D1F0913A5A11100BF0A67 /* deprotect.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = deprotect.m; sourceTree = SOURCE_ROOT; };
-		013D1F0B13A5ADC300BF0A67 /* libcrypto.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libcrypto.dylib; path = usr/lib/libcrypto.dylib; sourceTree = SDKROOT; };
+		013D1F0B13A5ADC300BF0A67 /* libcrypto.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libcrypto.dylib; path = /usr/lib/libcrypto.dylib; sourceTree = SDKROOT; };
 		013D1F1113A5AE5A00BF0A67 /* libMachObjC.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libMachObjC.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		0165B8B11827137D00CC647F /* UnitTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = UnitTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		0165B8B21827137D00CC647F /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
@@ -1201,6 +1201,7 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "MachObjC-Prefix.pch";
+				HEADER_SEARCH_PATHS = "${SRCROOT}";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
@@ -1212,6 +1213,7 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "MachObjC-Prefix.pch";
+				HEADER_SEARCH_PATHS = "${SRCROOT}";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;
@@ -1418,6 +1420,7 @@
 				CLANG_ENABLE_OBJC_ARC = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "class-dump-Prefix.pch";
+				HEADER_SEARCH_PATHS = "${SRCROOT}";
 				OTHER_LDFLAGS = (
 					"-all_load",
 					"-ObjC",
@@ -1432,6 +1435,7 @@
 				CLANG_ENABLE_OBJC_ARC = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "class-dump-Prefix.pch";
+				HEADER_SEARCH_PATHS = "${SRCROOT}";
 				OTHER_LDFLAGS = (
 					"-all_load",
 					"-ObjC",
