@@ -73,8 +73,8 @@ for %%f in (%GIT_FILES%) do (
     copy %SRCDIR%\%MINGW%\%%f %DSTDIR%\%%f
 )
 
-copy %SRCDIR%\%MINGW%\ssl\certs\ca-bundle.crt %DSTDIR%\libexec\ssl\certs\ca-bundle.crt
-copy %SRCDIR%\%MINGW%\ssl\certs\ca-bundle.trust.crt %DSTDIR%\libexec\ssl\certs\ca-bundle.trust.crt
+copy %SRCDIR%\%MINGW%\ssl\certs\ca-bundle.crt %DSTDIR%\ssl\certs\ca-bundle.crt
+copy %SRCDIR%\%MINGW%\ssl\certs\ca-bundle.trust.crt %DSTDIR%\ssl\certs\ca-bundle.trust.crt
 
 echo Testing...
 %DSTDIR%\bin\git.exe --version
