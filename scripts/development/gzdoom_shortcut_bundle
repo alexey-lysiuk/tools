@@ -1,0 +1,39 @@
+#!/bin/sh
+
+# Configuration
+
+# Path to GZDoom application bundle
+GZDOOM_PATH=/Volumes/GZDoom-OSX-0.5.1b/GZDoom.app
+
+# Path to mod
+MOD_PATH=/Volumes/ramdisk/
+
+# Name of shortcut application bundle
+SHORTCUT_NAME=Brutal\ Doom\ -\ Hell\ on\ Earth\ Starter\ Pack.app
+
+# List of mod files
+MOD_FILES=(\
+    brutalv20b.pk3 \
+    hellonearthstarterpack.wad \
+)
+
+set -o errexit
+
+GZDOOM_CONTENT_PATH=${GZDOOM_PATH}/Contents/
+SHORTCUT_CONTENT_PATH=${SHORTCUT_NAME}/Contents/
+
+mkdir -p "${SHORTCUT_CONTENT_PATH}MacOS"
+mkdir -p "${SHORTCUT_CONTENT_PATH}Resources"
+ln -s "${GZDOOM_CONTENT_PATH}Info.plist" "${SHORTCUT_CONTENT_PATH}"
+ln -s "${GZDOOM_CONTENT_PATH}/Resources/doom.icns" "${SHORTCUT_CONTENT_PATH}/Resources/"
+
+COMMAND_LINE=${GZDOOM_PATH}/Contents/MacOS/GZDoom\ -iwad\ doom2
+
+for FILENAME in ${MOD_FILES[@]}; do
+    COMMAND_LINE=${COMMAND_LINE}\ -file\ ${MOD_PATH}${FILENAME}
+done
+
+EXECUTABLE_PATH=${SHORTCUT_CONTENT_PATH}MacOS/GZDoom
+
+echo "#!/bin/sh\n${COMMAND_LINE}" > "${EXECUTABLE_PATH}"
+chmod a+x "${EXECUTABLE_PATH}"
