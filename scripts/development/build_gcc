@@ -1,0 +1,41 @@
+#!/bin/sh
+
+set -o errexit
+
+GCC_VERSION=gcc-6.1.0
+
+cd /Volumes/gcc-build
+
+function get_source {
+	URL=$1
+	FILENAME=${URL##*/}
+	
+	curl -O ${URL}
+	tar xvf ${FILENAME}
+	rm ${FILENAME}
+
+	if [[ ${FILENAME} != gcc* ]]; then
+		mv ${FILENAME%%.tar*} ${GCC_VERSION}/${FILENAME%%-*}
+	fi
+}
+
+get_source ftp://ftp.gnu.org/gnu/gcc/${GCC_VERSION}/${GCC_VERSION}.tar.bz2
+get_source ftp://ftp.gnu.org/gnu/gmp/gmp-6.1.0.tar.bz2
+get_source ftp://ftp.gnu.org/gnu/mpfr/mpfr-3.1.4.tar.bz2
+get_source ftp://ftp.gnu.org/gnu/mpc/mpc-1.0.3.tar.gz
+get_source http://isl.gforge.inria.fr/isl-0.16.1.tar.bz2
+
+mkdir ${GCC_VERSION}-build
+cd ${GCC_VERSION}-build
+
+declare -x SYSTEM_HEADER_DIR=`xcrun --show-sdk-path`/usr/include
+
+../${GCC_VERSION}/configure \
+	--prefix=/usr/local/${GCC_VERSION} \
+	--disable-nls \
+	--disable-multilib \
+	--disable-libsanitizer \
+	--enable-languages=c,c++,objc,obj-c++,lto \
+	--with-dwarf2 \
+	--with-native-system-header-dir=${SYSTEM_HEADER_DIR}
+make
