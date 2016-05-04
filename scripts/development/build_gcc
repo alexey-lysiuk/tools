@@ -1,10 +1,36 @@
 #!/bin/sh
 
-set -o errexit
+# ----------------------------------------------------------------------------------------
 
+# Configuration
+
+# Version
 GCC_VERSION=gcc-6.1.0
 
-cd /Volumes/gcc-build
+# Prefix
+# Must be empty directory or directory tree (optionally with a volume mounted into it):
+#  $ hdiutil create -size 2g -type SPARSE -fs HFS+ -volname ${GCC_VERSION} ${GCC_VERSION}
+#  $ sudo hdiutil attach -mountpoint /usr/local ${GCC_VERSION}.sparseimage
+# The directory must be writable!
+PREFIX=/usr/local/${GCC_VERSION}
+
+# Build directory
+# Must be HFS file system, do not use FAT32 or exFAT
+#  $ hdiutil create -size 40g -type SPARSE -fs HFS+ -volname gcc-build ${GCC_VERSION}-build
+#  $ hdiutil attach ${GCC_VERSION}-build.sparseimage
+BUILD_PATH=/Volumes/gcc-build/
+
+# Target SDK
+SDK_NAME=MacOSX${MINIMAL_VERSION}u.sdk
+
+# Target minimal version
+MINIMAL_VERSION=${MINIMAL_VERSION}
+
+# ----------------------------------------------------------------------------------------
+
+set -o errexit
+
+cd ${BUILD_PATH}
 
 function get_source {
 	URL=$1
@@ -25,17 +51,56 @@ get_source ftp://ftp.gnu.org/gnu/mpfr/mpfr-3.1.4.tar.bz2
 get_source ftp://ftp.gnu.org/gnu/mpc/mpc-1.0.3.tar.gz
 get_source http://isl.gforge.inria.fr/isl-0.16.1.tar.bz2
 
+HOST_SDK_DIR=`xcrun --show-sdk-path`
+HOST_INCLUDE_DIR=${HOST_SDK_DIR}/usr/include
+
+# Patch libsanitizer to fix an issue with include file
+
+LIBSAN_FILE_TO_FIX=sanitizer_malloc_mac.inc
+LIBSAN_PATH_TO_FIX=${GCC_VERSION}/libsanitizer/sanitizer_common/
+sed 's/<CoreFoundation\/CFBase.h>/"CFAvailability.h"/g' ${LIBSAN_PATH_TO_FIX}${LIBSAN_FILE_TO_FIX} > ${LIBSAN_FILE_TO_FIX}
+rm ${LIBSAN_PATH_TO_FIX}${LIBSAN_FILE_TO_FIX}
+cp ${LIBSAN_FILE_TO_FIX} ${LIBSAN_PATH_TO_FIX}
+cp ${HOST_SDK_DIR}/System/Library/Frameworks/CoreFoundation.framework/Headers/CFAvailability.h ${LIBSAN_PATH_TO_FIX}
+
+# Build host compiler
+
 mkdir ${GCC_VERSION}-build
 cd ${GCC_VERSION}-build
 
-declare -x SYSTEM_HEADER_DIR=`xcrun --show-sdk-path`/usr/include
-
 ../${GCC_VERSION}/configure \
-	--prefix=/usr/local/${GCC_VERSION} \
+	--prefix=${PREFIX} \
 	--disable-nls \
 	--disable-multilib \
-	--disable-libsanitizer \
 	--enable-languages=c,c++,objc,obj-c++,lto \
 	--with-dwarf2 \
-	--with-native-system-header-dir=${SYSTEM_HEADER_DIR}
-make
+	--with-native-system-header-dir=${HOST_INCLUDE_DIR}
+make install
+
+# Build target compiler
+
+# cd ..
+
+# TODO: download SDK
+
+# SDK_PATH=${BUILD_PATH}${SDK_NAME}
+# 
+# mkdir ${GCC_VERSION}-i386-build
+# cd ${GCC_VERSION}-i386-build
+# 
+# CC=/usr/local/${GCC_VERSION}/bin/gcc CXX=/usr/local/${GCC_VERSION}/bin/g++ ../${GCC_VERSION}/configure \
+# 	--prefix=/usr/local/${GCC_VERSION}-i386 \
+# 	--disable-nls \
+# 	--disable-multilib \
+# 	--enable-languages=c,c++,objc,obj-c++,lto \
+# 	--with-dwarf2 \
+# 	--with-sysroot=${SDK_PATH} \
+# 	--target=i386-apple-darwin8.11.0 \
+# 	BOOT_CFLAGS="-isysroot ${SDK_PATH} -mmacosx-version-min=${MINIMAL_VERSION} -g -O2" \
+# 	CFLAGS="-isysroot ${SDK_PATH} -mmacosx-version-min=${MINIMAL_VERSION} -g -O2" \
+# 	CXXFLAGS="-isysroot ${SDK_PATH} -mmacosx-version-min=${MINIMAL_VERSION} -g -O2" \
+# 	LDFLAGS="-isysroot ${SDK_PATH} -mmacosx-version-min=${MINIMAL_VERSION}" \
+# 	CFLAGS_FOR_TARGET="-isysroot ${SDK_PATH} -mmacosx-version-min=${MINIMAL_VERSION} -g -O2" \
+# 	CXXFLAGS_FOR_TARGET="-isysroot ${SDK_PATH} -mmacosx-version-min=${MINIMAL_VERSION} -g -O2" \
+# 	LDFLAGS_FOR_TARGET="-isysroot ${SDK_PATH} -mmacosx-version-min=${MINIMAL_VERSION}"
+# 
