@@ -21,10 +21,10 @@ PREFIX=/usr/local/${GCC_VERSION}
 BUILD_PATH=/Volumes/gcc-build/
 
 # Target SDK
-SDK_NAME=MacOSX${MINIMAL_VERSION}u.sdk
+SDK_NAME=MacOSX10.4u.sdk
 
 # Target minimal version
-MINIMAL_VERSION=${MINIMAL_VERSION}
+MINIMAL_VERSION=10.4
 
 # ----------------------------------------------------------------------------------------
 
@@ -84,6 +84,8 @@ make install
 # TODO: download SDK
 
 # SDK_PATH=${BUILD_PATH}${SDK_NAME}
+# CFLAGS=-mmacosx-version-min=${MINIMAL_VERSION}\ -g\ -O2
+# LDFLAGS=-mmacosx-version-min=${MINIMAL_VERSION}\ --sysroot\ ${SDK_PATH}
 # 
 # mkdir ${GCC_VERSION}-i386-build
 # cd ${GCC_VERSION}-i386-build
@@ -95,12 +97,11 @@ make install
 # 	--enable-languages=c,c++,objc,obj-c++,lto \
 # 	--with-dwarf2 \
 # 	--with-sysroot=${SDK_PATH} \
-# 	--target=i386-apple-darwin8.11.0 \
-# 	BOOT_CFLAGS="-isysroot ${SDK_PATH} -mmacosx-version-min=${MINIMAL_VERSION} -g -O2" \
-# 	CFLAGS="-isysroot ${SDK_PATH} -mmacosx-version-min=${MINIMAL_VERSION} -g -O2" \
-# 	CXXFLAGS="-isysroot ${SDK_PATH} -mmacosx-version-min=${MINIMAL_VERSION} -g -O2" \
-# 	LDFLAGS="-isysroot ${SDK_PATH} -mmacosx-version-min=${MINIMAL_VERSION}" \
-# 	CFLAGS_FOR_TARGET="-isysroot ${SDK_PATH} -mmacosx-version-min=${MINIMAL_VERSION} -g -O2" \
-# 	CXXFLAGS_FOR_TARGET="-isysroot ${SDK_PATH} -mmacosx-version-min=${MINIMAL_VERSION} -g -O2" \
-# 	LDFLAGS_FOR_TARGET="-isysroot ${SDK_PATH} -mmacosx-version-min=${MINIMAL_VERSION}"
-# 
+#  	--target=i386-apple-darwin8.11.0 \
+# 	BOOT_CFLAGS="${CFLAGS}" \
+# 	CFLAGS="${CFLAGS}" \
+# 	CXXFLAGS="${CFLAGS}" \
+# 	LDFLAGS="${LDFLAGS}" \
+# 	CFLAGS_FOR_TARGET="${CFLAGS}" \
+# 	CXXFLAGS_FOR_TARGET="${CFLAGS}" \
+# 	LDFLAGS_FOR_TARGET="${LDFLAGS}"
