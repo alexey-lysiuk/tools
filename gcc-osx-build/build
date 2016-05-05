@@ -52,10 +52,8 @@ cd build
 	--with-dwarf2
 make -j2
 
-cd ../..
-
-GCC_INSTALL_IMAGE=${GCC_VERSION}.sparseimage
-GCC_FINAL_IMAGE=${GCC_VERSION}.dmg
+GCC_INSTALL_IMAGE=../../${GCC_VERSION}.sparseimage
+GCC_FINAL_IMAGE=../../${GCC_VERSION}.dmg
 
 hdiutil create -size 384m -type SPARSE -fs HFS+ -volname ${GCC_VERSION} -ov ${GCC_INSTALL_IMAGE}
 sudo hdiutil attach -mountpoint ${GCC_PREFIX} ${GCC_INSTALL_IMAGE}
@@ -63,4 +61,4 @@ sudo hdiutil attach -mountpoint ${GCC_PREFIX} ${GCC_INSTALL_IMAGE}
 make install
 
 hdiutil detach ${GCC_PREFIX}
-hdiutil convert ${GCC_VERSION}.sparseimage -format UDBZ -ov -o ${GCC_FINAL_IMAGE}
+hdiutil convert ${GCC_INSTALL_IMAGE} -format UDBZ -ov -o ${GCC_FINAL_IMAGE}
