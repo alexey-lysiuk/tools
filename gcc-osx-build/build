@@ -1,0 +1,66 @@
+#!/bin/sh
+
+set -o errexit
+
+GCC_VERSION=gcc-4.9.3
+GCC_PREFIX=/usr/local/${GCC_VERSION}
+
+function make_dir {
+	if [ ! -e $1 ]; then
+		mkdir -p $1
+	fi
+}
+
+function get_source {
+	URL=$1
+	FILENAME=${URL##*/}
+
+	if [ ! -e ${FILENAME} ]; then
+		curl -O ${URL}
+	fi
+
+	if [[ ${FILENAME} == gcc* ]]; then
+		DIRNAME=src
+	else
+		DIRNAME=src/${FILENAME%%-*}
+	fi
+
+	if [ ! -e ${DIRNAME} ]; then
+		tar xvf ${FILENAME}
+		mv ${FILENAME%%.tar*} ${DIRNAME}
+	fi
+}
+
+cd "`dirname \"$0\"`"
+
+make_dir ${GCC_VERSION}
+cd ${GCC_VERSION}
+
+get_source ftp://ftp.gnu.org/gnu/gcc/${GCC_VERSION}/${GCC_VERSION}.tar.bz2
+get_source ftp://ftp.gnu.org/gnu/gmp/gmp-6.1.0.tar.bz2
+get_source ftp://ftp.gnu.org/gnu/mpfr/mpfr-3.1.4.tar.bz2
+get_source ftp://ftp.gnu.org/gnu/mpc/mpc-1.0.3.tar.gz
+get_source http://isl.gforge.inria.fr/isl-0.16.1.tar.bz2
+
+make_dir build
+cd build
+
+../src/configure \
+	--prefix=${GCC_PREFIX} \
+	--disable-nls \
+	--enable-languages=c,c++,objc,obj-c++,lto \
+	--with-dwarf2
+make -j2
+
+cd ../..
+
+GCC_INSTALL_IMAGE=${GCC_VERSION}.sparseimage
+GCC_FINAL_IMAGE=${GCC_VERSION}.dmg
+
+hdiutil create -size 384m -type SPARSE -fs HFS+ -volname ${GCC_VERSION} -ov ${GCC_INSTALL_IMAGE}
+sudo hdiutil attach -mountpoint ${GCC_PREFIX} ${GCC_INSTALL_IMAGE}
+
+make install
+
+hdiutil detach ${GCC_PREFIX}
+hdiutil convert ${GCC_VERSION}.sparseimage -format UDBZ -ov -o ${GCC_FINAL_IMAGE}
