@@ -2,7 +2,7 @@
 
 set -o errexit
 
-GCC_VERSION=gcc-4.9.3
+GCC_VERSION=gcc-5.3.0
 GCC_PREFIX=/usr/local/${GCC_VERSION}
 
 function make_dir {
