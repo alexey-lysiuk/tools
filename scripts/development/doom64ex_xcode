@@ -1,0 +1,19 @@
+#!/bin/sh
+
+set -o errexit
+
+cd /Volumes/ramdisk
+git clone https://github.com/alexey-lysiuk/doom64ex-osx-build.git
+
+cd doom64ex-osx-build
+git clone https://github.com/alexey-lysiuk/Doom64EX.git
+
+cd Doom64EX
+git remote add kaiser https://github.com/svkaiser/Doom64EX.git
+git fetch --all
+
+cd ..
+./xcode.sh
+
+cd build
+open doom64ex.xcodeproj
