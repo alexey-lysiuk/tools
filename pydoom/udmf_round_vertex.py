@@ -52,8 +52,13 @@ if '__main__' == __name__:
     import sys
 
     if 1 == len(sys.argv):
-        print('Usage: {0} file.wad ...'.format(__file__))
-        exit(0)
+        try:
+            self_name = __file__
+        except NameError:
+            self_name = sys.argv[0]
+
+        print('Usage: %s file.wad ...' % self_name)
+        sys.exit(0)
 
     import profiling
     profiler = profiling.Profiler(False)
