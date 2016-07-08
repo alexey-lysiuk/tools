@@ -20,8 +20,8 @@ import collections
 import pyparsing
 
 
-_KEYWORD = pyparsing.Regex(r'[^{}();"\'\n\t ]+')
-_QUOTED_STRING = pyparsing.Regex(r'"([^"\\]*(\\.[^"\\]*)*)"')
+_KEYWORD = pyparsing.CharsNotIn('{}();"\'\n\t')
+_QUOTED_STRING = pyparsing.QuotedString('"')
 _INTEGER = pyparsing.Regex(r'[+-]?[1-9]+[0-9]* | 0[0-9]+ | 0x[0-9A-Fa-f]+')
 _FLOAT = pyparsing.Regex(r'[+-]?[0-9]+\'.\'[0-9]*([eE][+-]?[0-9]+)?')
 _IDENTIFIER = pyparsing.Regex(r'[A-Za-z_]+[A-Za-z0-9_]*')
