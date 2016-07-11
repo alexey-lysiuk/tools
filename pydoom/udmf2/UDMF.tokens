@@ -1,0 +1,17 @@
+T__0=1
+T__1=2
+T__2=3
+T__3=4
+Boolean=5
+Identifier=6
+Integer=7
+Float=8
+QuotedString=9
+Keyword=10
+WhiteSpace=11
+BlockComment=12
+LineComment=13
+'{'=1
+'}'=2
+'='=3
+';'=4
