@@ -16,6 +16,15 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-from udmf_pyparsing import UDMFMap
+PARSER_DEFAULT = 0
+PARSER_ANTLR4 = 1
+PARSER_PYPARSING = 2
 
-# TODO: UDFM parsing via antlr4
+
+def load(data, parser=PARSER_DEFAULT):
+    if PARSER_PYPARSING == parser:
+        import udmf_pyparsing
+        return udmf_pyparsing.load(data)
+    else:
+        import udmf_antlr4
+        return udmf_antlr4.load(data)

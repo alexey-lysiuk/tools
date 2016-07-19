@@ -34,7 +34,7 @@ def _process_wad(filename):
             continue
 
         print('Processing map %s...' % namespace)
-        udmfmap = udmf.UDMFMap(lump.data)
+        udmfmap = udmf.load(lump.data)
 
         for vertex in udmfmap.vertices:
             vertex['x'] = round(vertex['x'])
