@@ -17,3 +17,6 @@ DerivedData/
 *.pbxuser
 build/
 *.xccheckout
+
+# JetBrains IDEs
+.idea/
