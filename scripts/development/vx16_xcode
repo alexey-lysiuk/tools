@@ -1,0 +1,19 @@
+#!/bin/sh
+
+set -o errexit
+
+cd /Volumes/ramdisk
+git clone https://github.com/alexey-lysiuk/vx16.git
+
+cd vx16
+mkdir build
+
+cd build
+/Applications/CMake.app/Contents/bin/cmake             \
+	-GXcode                                            \
+	-DCMAKE_CXX_FLAGS="-std=c++11"                     \
+	-DCMAKE_OSX_DEPLOYMENT_TARGET="10.7"               \
+	-DCMAKE_XCODE_ATTRIBUTE_CLANG_CXX_LIBRARY="libc++" \
+	..
+
+open vx16.xcodeproj
