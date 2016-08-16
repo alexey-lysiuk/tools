@@ -3,10 +3,16 @@
 set -o errexit
 
 cd /Volumes/ramdisk
-git clone https://github.com/alexey-lysiuk/vx16.git
+
+if [ ! -e vx16 ]; then
+	git clone https://github.com/alexey-lysiuk/vx16.git
+fi
 
 cd vx16
-mkdir build
+
+if [ ! -e build ]; then
+	mkdir build
+fi
 
 cd build
 /Applications/CMake.app/Contents/bin/cmake             \
