@@ -7,7 +7,7 @@
 	<key>CFBundleIconFile</key>
 	<string>Removable.icns</string>
 	<key>CFBundleIdentifier</key>
-	<string>com.github.alexey-lysiuk</string>
+	<string>com.github.alexey-lysiuk.ramdisk</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
