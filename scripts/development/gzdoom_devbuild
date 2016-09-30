@@ -1,0 +1,33 @@
+#!/bin/sh
+
+set -o errexit
+
+cd /Volumes/Storage/Work/gzdoom-macos-build
+git pull
+
+function makedir {
+	if [ ! -e $1 ]; then
+		mkdir -p $1
+	fi
+}
+
+VOLATILE_DIR=/Volumes/ramdisk/gzdoom_devbuild/
+BUILD=.build
+DIST=.dist
+LIBS=.libs
+
+makedir "${VOLATILE_DIR}${BUILD}"
+makedir "${VOLATILE_DIR}${DIST}"
+makedir "${VOLATILE_DIR}${LIBS}"
+
+function makelink {
+	if [ ! -e $1 ]; then
+		ln -s "${VOLATILE_DIR}$1" $1
+	fi
+}
+
+makelink ${BUILD}
+makelink ${DIST}
+makelink ${LIBS}
+
+./build_gzdoom
