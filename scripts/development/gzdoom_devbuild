@@ -18,4 +18,4 @@ git clone "${BUILD_ENV_DIR}"
 cd gzdoom-macos-build
 git clone "${GZDOOM_DIR}" gzdoom
 
-./build_gzdoom
+./build $@
