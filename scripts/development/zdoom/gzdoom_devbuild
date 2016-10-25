@@ -1,0 +1,5 @@
+#!/bin/sh
+
+ZDOOM_PROJECT=GZDoom
+
+. devbuild.sh
