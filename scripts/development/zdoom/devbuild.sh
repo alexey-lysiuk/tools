@@ -27,6 +27,11 @@ git clone -s "${SRC_DEPS_DIR}" "${DEPS_DIR}"
 git clone -s "${SRC_ZDOOM_DIR}" "${ZDOOM_DIR}"
 
 cd "${ZDOOM_DIR}"
+
+if [ -n "$1" ]; then
+	git checkout "$1"
+fi
+
 ZDOOM_VERSION=`git describe --tags`
 
 mkdir "${BUILD_DIR}"

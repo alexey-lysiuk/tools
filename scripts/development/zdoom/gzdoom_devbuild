@@ -2,4 +2,4 @@
 
 ZDOOM_PROJECT=GZDoom
 
-. devbuild.sh
+. devbuild.sh $@
