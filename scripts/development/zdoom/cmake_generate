@@ -15,8 +15,9 @@ FMOD_DIR=${DEPS_DIR}fmodex/
 OPENAL_DIR=${DEPS_DIR}openal/
 MPG123_DIR=${DEPS_DIR}mpg123/
 SNDFILE_DIR=${DEPS_DIR}sndfile/
-OTHER_LIBS=-L${DEPS_DIR}ogg/lib\ -logg\ -L${DEPS_DIR}vorbis/lib\ -lvorbis\ -lvorbisenc\ -L${DEPS_DIR}flac/lib\ -lFLAC
-FRAMEWORKS=-framework\ AudioUnit\ -framework\ AudioToolbox\ -framework\ CoreAudio\ -framework\ ForceFeedback
+SDL_DIR=${DEPS_DIR}sdl/
+OTHER_LIBS=-liconv\ -L${DEPS_DIR}ogg/lib\ -logg\ -L${DEPS_DIR}vorbis/lib\ -lvorbis\ -lvorbisenc\ -L${DEPS_DIR}flac/lib\ -lFLAC
+FRAMEWORKS=-framework\ AudioUnit\ -framework\ AudioToolbox\ -framework\ CoreAudio\ -framework\ CoreVideo\ -framework\ ForceFeedback
 LINKER_FLAGS=${OTHER_LIBS}\ ${FRAMEWORKS}
 
 /Applications/CMake.app/Contents/bin/cmake -GXcode   \
@@ -32,6 +33,8 @@ LINKER_FLAGS=${OTHER_LIBS}\ ${FRAMEWORKS}
 	-DMPG123_LIBRARIES=${MPG123_DIR}lib/libmpg123.a  \
 	-DSNDFILE_INCLUDE_DIR=${SNDFILE_DIR}include      \
 	-DSNDFILE_LIBRARY=${SNDFILE_DIR}lib/libsndfile.a \
+	-DSDL2_INCLUDE_DIR=${SDL_DIR}include             \
+	-DSDL2_LIBRARY=${SDL_DIR}lib/libSDL2.a           \
 	..
 
 function open_xcode_project {
