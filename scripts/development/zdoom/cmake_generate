@@ -1,0 +1,44 @@
+#!/bin/sh
+
+set -o errexit
+
+cd /Volumes/ramdisk/zdoom
+
+if [ ! -e build ]; then
+	mkdir build
+fi
+
+cd build
+
+DEPS_DIR=/Volumes/Storage/Work/zdoom-macos-deps/
+FMOD_DIR=${DEPS_DIR}fmodex/
+OPENAL_DIR=${DEPS_DIR}openal/
+MPG123_DIR=${DEPS_DIR}mpg123/
+SNDFILE_DIR=${DEPS_DIR}sndfile/
+OTHER_LIBS=-L${DEPS_DIR}ogg/lib\ -logg\ -L${DEPS_DIR}vorbis/lib\ -lvorbis\ -lvorbisenc\ -L${DEPS_DIR}flac/lib\ -lFLAC
+FRAMEWORKS=-framework\ AudioUnit\ -framework\ AudioToolbox\ -framework\ CoreAudio\ -framework\ ForceFeedback
+LINKER_FLAGS=${OTHER_LIBS}\ ${FRAMEWORKS}
+
+/Applications/CMake.app/Contents/bin/cmake -GXcode   \
+	-DOSX_COCOA_BACKEND=YES                          \
+	-DDYN_OPENAL=NO                                  \
+	-DCMAKE_OSX_DEPLOYMENT_TARGET="10.7"             \
+	-DCMAKE_EXE_LINKER_FLAGS="${LINKER_FLAGS}"       \
+	-DFMOD_INCLUDE_DIR=${FMOD_DIR}inc                \
+	-DFMOD_LIBRARY=${FMOD_DIR}lib/libfmodex.dylib    \
+	-DOPENAL_INCLUDE_DIR=${OPENAL_DIR}include        \
+	-DOPENAL_LIBRARY=${OPENAL_DIR}lib/libopenal.a    \
+	-DMPG123_INCLUDE_DIR=${MPG123_DIR}include        \
+	-DMPG123_LIBRARIES=${MPG123_DIR}lib/libmpg123.a  \
+	-DSNDFILE_INCLUDE_DIR=${SNDFILE_DIR}include      \
+	-DSNDFILE_LIBRARY=${SNDFILE_DIR}lib/libsndfile.a \
+	..
+
+function open_xcode_project {
+	if grep -qi project\\s*\(\\s*$1\\s*\) ../CMakeLists.txt; then
+		open $1.xcodeproj
+	fi
+}
+
+open_xcode_project ZDoom
+open_xcode_project GZDoom
