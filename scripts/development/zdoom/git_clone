@@ -1,0 +1,14 @@
+#!/bin/sh
+
+set -o errexit
+
+cd /Volumes/ramdisk
+
+git clone https://github.com/alexey-lysiuk/gzdoom.git zdoom
+cd zdoom
+
+git remote add rheit https://github.com/rheit/zdoom.git
+git remote add coelckers https://github.com/coelckers/gzdoom.git
+git remote add eruanna https://github.com/raa-eruanna/qzdoom.git
+git fetch --all
+git checkout -b master origin/master
