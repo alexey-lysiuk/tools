@@ -57,6 +57,7 @@ LINKER_FLAGS=${OTHER_LIBS}\ ${FRAMEWORKS}
 	-DMPG123_LIBRARIES="${MPG123_DIR}lib/libmpg123.a"    \
 	-DSNDFILE_INCLUDE_DIR="${SNDFILE_DIR}include"        \
 	-DSNDFILE_LIBRARY="${SNDFILE_DIR}lib/libsndfile.a"   \
+	-DLLVM_DIR="${DEPS_DIR}llvm/lib/cmake/llvm"          \
 	"${ZDOOM_DIR}"
 make -j4
 
