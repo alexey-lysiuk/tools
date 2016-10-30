@@ -21,14 +21,18 @@ FMOD_DIR=${DEPS_DIR}fmodex/
 OPENAL_DIR=${DEPS_DIR}openal/
 MPG123_DIR=${DEPS_DIR}mpg123/
 SNDFILE_DIR=${DEPS_DIR}sndfile/
+FSYNTH_DIR=${DEPS_DIR}fluidsynth/
+FSYNTH_LIB_PREFIX=${FSYNTH_DIR}lib/lib
+FSYNTH_LIBS=${FSYNTH_LIB_PREFIX}fluidsynth.a\;${FSYNTH_LIB_PREFIX}glib-2.0.a\;${FSYNTH_LIB_PREFIX}intl.a
 SDL_DIR=${DEPS_DIR}sdl/
 OTHER_LIBS=-liconv\ -L${DEPS_DIR}ogg/lib\ -logg\ -L${DEPS_DIR}vorbis/lib\ -lvorbis\ -lvorbisenc\ -L${DEPS_DIR}flac/lib\ -lFLAC
-FRAMEWORKS=-framework\ AudioUnit\ -framework\ AudioToolbox\ -framework\ CoreAudio\ -framework\ CoreVideo\ -framework\ ForceFeedback
+FRAMEWORKS=-framework\ AudioUnit\ -framework\ AudioToolbox\ -framework\ CoreAudio\ -framework\ CoreMIDI\ -framework\ CoreVideo\ -framework\ ForceFeedback
 LINKER_FLAGS=${OTHER_LIBS}\ ${FRAMEWORKS}
 
 /Applications/CMake.app/Contents/bin/cmake -GXcode   \
 	-DOSX_COCOA_BACKEND=YES                          \
 	-DDYN_OPENAL=NO                                  \
+	-DDYN_FLUIDSYNTH=NO                              \
 	-DCMAKE_OSX_DEPLOYMENT_TARGET="10.7"             \
 	-DCMAKE_EXE_LINKER_FLAGS="${LINKER_FLAGS}"       \
 	-DFMOD_INCLUDE_DIR=${FMOD_DIR}inc                \
@@ -39,6 +43,8 @@ LINKER_FLAGS=${OTHER_LIBS}\ ${FRAMEWORKS}
 	-DMPG123_LIBRARIES=${MPG123_DIR}lib/libmpg123.a  \
 	-DSNDFILE_INCLUDE_DIR=${SNDFILE_DIR}include      \
 	-DSNDFILE_LIBRARY=${SNDFILE_DIR}lib/libsndfile.a \
+	-DFLUIDSYNTH_INCLUDE_DIR=${FSYNTH_DIR}include    \
+	-DFLUIDSYNTH_LIBRARIES=${FSYNTH_LIBS}            \
 	-DSDL2_INCLUDE_DIR=${SDL_DIR}include             \
 	-DSDL2_LIBRARY=${SDL_DIR}lib/libSDL2.a           \
 	..
