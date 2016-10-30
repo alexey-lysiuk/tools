@@ -1,5 +1,6 @@
 #!/bin/sh
 
 ZDOOM_PROJECT=GZDoom
+ZDOOM_OS_MIN_VER=10.7
 
 . devbuild.sh $@

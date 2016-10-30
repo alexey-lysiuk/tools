@@ -12,8 +12,6 @@ ZDOOM_DIR=${BASE_DIR}${ZDOOM_PROJECT_LOW}/
 BUILD_DIR=${BASE_DIR}build/
 DIST_DIR=${BASE_DIR}dist/
 
-MACOS_MIN_VERSION=10.7
-
 cd "${SRC_DEPS_DIR}"
 git pull
 
@@ -47,7 +45,7 @@ LINKER_FLAGS=${OTHER_LIBS}\ ${FRAMEWORKS}
 
 /Applications/CMake.app/Contents/bin/cmake               \
 	-DCMAKE_BUILD_TYPE="RelWithDebInfo"                  \
-	-DCMAKE_OSX_DEPLOYMENT_TARGET="${MACOS_MIN_VERSION}" \
+	-DCMAKE_OSX_DEPLOYMENT_TARGET="${ZDOOM_OS_MIN_VER}"  \
 	-DCMAKE_EXE_LINKER_FLAGS="${LINKER_FLAGS}"           \
 	-DOSX_COCOA_BACKEND=YES                              \
 	-DDYN_OPENAL=NO                                      \
@@ -70,7 +68,7 @@ cp -R ${ZDOOM_PROJECT_LOW}.app "${BUNDLE_PATH}"
 cp -R "${ZDOOM_DIR}docs" "${DIST_DIR}Docs"
 ln -s /Applications "${DIST_DIR}/Applications"
 
-plutil -replace LSMinimumSystemVersion -string "${MACOS_MIN_VERSION}" "${INFO_PLIST_PATH}"
+plutil -replace LSMinimumSystemVersion -string "${ZDOOM_OS_MIN_VER}" "${INFO_PLIST_PATH}"
 plutil -replace CFBundleVersion -string "${ZDOOM_VERSION}" "${INFO_PLIST_PATH}"
 plutil -replace CFBundleShortVersionString -string "${ZDOOM_VERSION}" "${INFO_PLIST_PATH}"
 plutil -replace CFBundleLongVersionString -string "${ZDOOM_VERSION}" "${INFO_PLIST_PATH}"
