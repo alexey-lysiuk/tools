@@ -2,7 +2,13 @@
 
 set -o errexit
 
-cd /Volumes/ramdisk/zdoom
+cd /Volumes/ramdisk
+
+if [ ! -e zdoom ]; then
+	"`dirname \"$0\"`/git_clone"
+fi
+
+cd zdoom
 
 if [ ! -e build ]; then
 	mkdir build
