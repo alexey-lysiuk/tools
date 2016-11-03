@@ -3,4 +3,4 @@
 ZDOOM_PROJECT=QZDoom
 ZDOOM_OS_MIN_VER=10.8
 
-. devbuild.sh $@
+. "`dirname \"$0\"`/devbuild.sh" $@
