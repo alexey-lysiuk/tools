@@ -40,7 +40,7 @@ OPENAL_DIR=${DEPS_DIR}openal/
 MPG123_DIR=${DEPS_DIR}mpg123/
 SNDFILE_DIR=${DEPS_DIR}sndfile/
 OTHER_LIBS=-L${DEPS_DIR}ogg/lib\ -logg\ -L${DEPS_DIR}vorbis/lib\ -lvorbis\ -lvorbisenc\ -L${DEPS_DIR}flac/lib\ -lFLAC
-FRAMEWORKS=-framework\ AudioUnit\ -framework\ AudioToolbox\ -framework\ CoreAudio\ -framework\ ForceFeedback
+FRAMEWORKS=-framework\ AudioUnit\ -framework\ AudioToolbox\ -framework\ CoreAudio
 LINKER_FLAGS=${OTHER_LIBS}\ ${FRAMEWORKS}
 
 /Applications/CMake.app/Contents/bin/cmake               \
