@@ -14,9 +14,9 @@ cd "${SLADE_DIR}"
 git pull
 
 cd /Volumes/ramdisk
-git clone "${BUILD_ENV_DIR}"
+git clone -s "${BUILD_ENV_DIR}"
 
 cd ${BUILD_ENV}
-git clone "${SLADE_DIR}" SLADE
+git clone -s "${SLADE_DIR}" SLADE
 
 ./make_dmg.sh $@
