@@ -5,7 +5,7 @@ set -o errexit
 BASE_DIR=/Volumes/Storage/Work/
 BUILD_ENV=slade-macos-build
 BUILD_ENV_DIR=${BASE_DIR}${BUILD_ENV}
-SLADE_DIR=${BASE_DIR}slade_devbuild
+SLADE_DIR=${BASE_DIR}devbuilds/slade
 
 cd "${BUILD_ENV_DIR}"
 git pull
