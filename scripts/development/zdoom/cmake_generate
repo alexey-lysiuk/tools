@@ -2,13 +2,17 @@
 
 set -o errexit
 
+SCRIPT_DIR=$(dirname $0)/
+
 cd /Volumes/ramdisk
 
 if [ ! -e zdoom ]; then
-	"`dirname \"$0\"`/git_clone"
+	"${SCRIPT_DIR}git_clone"
 fi
 
 cd zdoom
+
+ZDOOM_PROJECT=`${SCRIPT_DIR}/project.py`
 
 if [ ! -e build ]; then
 	mkdir build
@@ -49,11 +53,4 @@ LINKER_FLAGS=${OTHER_LIBS}\ ${FRAMEWORKS}
 	-DSDL2_LIBRARY=${SDL_DIR}lib/libSDL2.a           \
 	..
 
-function open_xcode_project {
-	if grep -qi project\\s*\(\\s*$1\\s*\) ../CMakeLists.txt; then
-		open $1.xcodeproj
-	fi
-}
-
-open_xcode_project ZDoom
-open_xcode_project GZDoom
+open ${ZDOOM_PROJECT}.xcodeproj
