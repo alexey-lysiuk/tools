@@ -14,6 +14,12 @@ cd zdoom
 
 ZDOOM_PROJECT=`${SCRIPT_DIR}/project.py`
 
+if [ "${ZDOOM_PROJECT}" == "QZDoom" ]; then
+	MACOS_MIN_VER=10.8
+else
+	MACOS_MIN_VER=10.7
+fi
+
 if [ ! -e build ]; then
 	mkdir build
 fi
@@ -37,7 +43,7 @@ LINKER_FLAGS=${OTHER_LIBS}\ ${FRAMEWORKS}
 	-DOSX_COCOA_BACKEND=YES                          \
 	-DDYN_OPENAL=NO                                  \
 	-DDYN_FLUIDSYNTH=NO                              \
-	-DCMAKE_OSX_DEPLOYMENT_TARGET="10.7"             \
+	-DCMAKE_OSX_DEPLOYMENT_TARGET="${MACOS_MIN_VER}" \
 	-DCMAKE_EXE_LINKER_FLAGS="${LINKER_FLAGS}"       \
 	-DFMOD_INCLUDE_DIR=${FMOD_DIR}inc                \
 	-DFMOD_LIBRARY=${FMOD_DIR}lib/libfmodex.dylib    \
@@ -51,6 +57,7 @@ LINKER_FLAGS=${OTHER_LIBS}\ ${FRAMEWORKS}
 	-DFLUIDSYNTH_LIBRARIES=${FSYNTH_LIBS}            \
 	-DSDL2_INCLUDE_DIR=${SDL_DIR}include             \
 	-DSDL2_LIBRARY=${SDL_DIR}lib/libSDL2.a           \
+	-DLLVM_DIR=${DEPS_DIR}llvm/lib/cmake/llvm        \
 	..
 
 open ${ZDOOM_PROJECT}.xcodeproj
