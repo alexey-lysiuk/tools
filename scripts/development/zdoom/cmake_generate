@@ -2,7 +2,7 @@
 
 set -o errexit
 
-SCRIPT_DIR=$(dirname $0)/
+SCRIPT_DIR=$(cd "${0%/*}"; pwd)/
 
 cd /Volumes/ramdisk
 
@@ -12,7 +12,7 @@ fi
 
 cd zdoom
 
-ZDOOM_PROJECT=`${SCRIPT_DIR}/project.py`
+ZDOOM_PROJECT=$("${SCRIPT_DIR}project.py")
 
 if [ "${ZDOOM_PROJECT}" == "QZDoom" ]; then
 	MACOS_MIN_VER=10.8
