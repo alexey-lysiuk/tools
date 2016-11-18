@@ -59,7 +59,7 @@ LINKER_FLAGS=${OTHER_LIBS}\ ${FRAMEWORKS}
 	-DSNDFILE_LIBRARY="${SNDFILE_DIR}lib/libsndfile.a"   \
 	-DLLVM_DIR="${DEPS_DIR}llvm/lib/cmake/llvm"          \
 	"${ZDOOM_DIR}"
-make -j4
+make -j2
 
 BUNDLE_PATH=${DIST_DIR}${ZDOOM_PROJECT}.app
 INFO_PLIST_PATH=${BUNDLE_PATH}/Contents/Info.plist
