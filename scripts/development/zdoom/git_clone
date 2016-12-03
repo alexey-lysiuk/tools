@@ -3,10 +3,11 @@
 set -o errexit
 
 cd /Volumes/ramdisk
+git clone /Volumes/Storage/Work/mirrors/gzdoom-macos zdoom
 
-git clone https://github.com/alexey-lysiuk/gzdoom.git zdoom
 cd zdoom
-
+git remote remove origin
+git remote add origin https://github.com/alexey-lysiuk/gzdoom.git
 git remote add rheit https://github.com/rheit/zdoom.git
 git remote add coelckers https://github.com/coelckers/gzdoom.git
 git remote add eruanna https://github.com/raa-eruanna/qzdoom.git
