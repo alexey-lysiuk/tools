@@ -34,22 +34,41 @@ function update_mirror {
 	cd ..
 }
 
+GH=https://github.com/
+
 # my repositories
 update_mirror gzdoom-macos \
-	https://github.com/alexey-lysiuk/gzdoom.git \
-	https://github.com/rheit/zdoom.git \
-	https://github.com/coelckers/gzdoom.git \
-	https://github.com/raa-eruanna/qzdoom.git
-update_mirror zdoom-macos-deps https://github.com/alexey-lysiuk/zdoom-macos-deps.git
-update_mirror prboom-macos https://github.com/alexey-lysiuk/prboom-macos.git
-update_mirror r667aaa https://github.com/alexey-lysiuk/Realm667-AAA.git
-update_mirror r667aaa-cache https://github.com/alexey-lysiuk/Realm667-AAA-Cache.git
+	${GH}alexey-lysiuk/gzdoom.git \
+	${GH}rheit/zdoom.git \
+	${GH}coelckers/gzdoom.git \
+	${GH}raa-eruanna/qzdoom.git
+update_mirror zdoom-macos-deps ${GH}alexey-lysiuk/zdoom-macos-deps.git
+update_mirror prboom-macos ${GH}alexey-lysiuk/prboom-macos.git
+update_mirror r667aaa ${GH}alexey-lysiuk/Realm667-AAA.git
+update_mirror r667aaa-cache ${GH}alexey-lysiuk/Realm667-AAA-Cache.git
 update_mirror slade \
-	https://github.com/alexey-lysiuk/SLADE.git \
-	https://github.com/sirjuddington/SLADE.git
-update_mirror slade-macos-build https://github.com/alexey-lysiuk/slade-macos-build.git
-update_mirror tools https://github.com/alexey-lysiuk/tools.git
+	${GH}alexey-lysiuk/SLADE.git \
+	${GH}sirjuddington/SLADE.git
+update_mirror slade-macos-build ${GH}alexey-lysiuk/slade-macos-build.git
+update_mirror tools ${GH}alexey-lysiuk/tools.git
 
 # id software
-update_mirror quake https://github.com/id-Software/Quake.git
-update_mirror quake2 https://github.com/id-Software/Quake-2.git
+IDSOFT=${GH}id-Software/
+update_mirror wolf3d ${IDSOFT}wolf3d.git
+update_mirror wolf3d-ios ${IDSOFT}Wolf3D-iOS.git
+update_mirror wolf3d-browser ${IDSOFT}wolf3d-browser.git
+update_mirror doom ${IDSOFT}DOOM.git
+update_mirror idsetup ${IDSOFT}idsetup.git
+update_mirror doom-ios ${IDSOFT}DOOM-iOS.git
+update_mirror doom-ios-v2 ${IDSOFT}DOOM-IOS2.git
+update_mirror quake ${IDSOFT}Quake.git
+update_mirror quake-tools ${IDSOFT}Quake-Tools.git
+update_mirror quake2 ${IDSOFT}Quake-2.git
+update_mirror quake2-tools ${IDSOFT}Quake-2-Tools.git
+update_mirror quake3 ${IDSOFT}Quake-III-Arena.git
+update_mirror gtkradiant ${IDSOFT}GtkRadiant.git
+update_mirror rtcw-sp ${IDSOFT}RTCW-SP.git
+update_mirror rtcw-mp ${IDSOFT}RTCW-MP.git
+update_mirror doom3 ${IDSOFT}DOOM-3.git
+update_mirror doom3-bfg ${IDSOFT}DOOM-3-BFG.git
+update_mirror enemy-territory ${IDSOFT}Enemy-Territory.git
