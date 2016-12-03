@@ -40,6 +40,15 @@ update_mirror gzdoom-macos \
 	https://github.com/rheit/zdoom.git \
 	https://github.com/coelckers/gzdoom.git \
 	https://github.com/raa-eruanna/qzdoom.git
+update_mirror zdoom-macos-deps https://github.com/alexey-lysiuk/zdoom-macos-deps.git
+update_mirror prboom-macos https://github.com/alexey-lysiuk/prboom-macos.git
+update_mirror r667aaa https://github.com/alexey-lysiuk/Realm667-AAA.git
+update_mirror r667aaa-cache https://github.com/alexey-lysiuk/Realm667-AAA-Cache.git
+update_mirror slade \
+	https://github.com/alexey-lysiuk/SLADE.git \
+	https://github.com/sirjuddington/SLADE.git
+update_mirror slade-macos-build https://github.com/alexey-lysiuk/slade-macos-build.git
+update_mirror tools https://github.com/alexey-lysiuk/tools.git
 
 # id software
 update_mirror quake https://github.com/id-Software/Quake.git
