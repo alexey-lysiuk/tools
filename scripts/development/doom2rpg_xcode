@@ -1,0 +1,23 @@
+#!/bin/sh
+
+set -o errexit
+
+cd /Volumes/ramdisk
+git clone https://github.com/alexey-lysiuk/doom2rpg.git
+
+cd doom2rpg
+mkdir build
+
+DEPS_DIR=/Volumes/Storage/Work/doom2rpg-macos-deps/
+SDL_DIR=${DEPS_DIR}sdl/
+PHYSFS_DIR=${DEPS_DIR}physfs/
+
+cd build
+/Applications/CMake.app/Contents/bin/cmake -GXcode   \
+	-DCMAKE_OSX_DEPLOYMENT_TARGET="10.7"             \
+	-DSDL2_INCLUDE_DIR="${SDL_DIR}include"           \
+	-DSDL2_LIBRARY="${SDL_DIR}lib/libSDL2.a"         \
+	-DPHYSFS_INCLUDE_DIR="${PHYSFS_DIR}include"      \
+	-DPHYSFS_LIBRARY="${PHYSFS_DIR}lib/libphysfs.a"  \
+	..
+open doom2rpg.xcodeproj
