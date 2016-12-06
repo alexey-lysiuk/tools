@@ -39,8 +39,11 @@ FMOD_DIR=${DEPS_DIR}fmodex/
 OPENAL_DIR=${DEPS_DIR}openal/
 MPG123_DIR=${DEPS_DIR}mpg123/
 SNDFILE_DIR=${DEPS_DIR}sndfile/
-OTHER_LIBS=-L${DEPS_DIR}ogg/lib\ -logg\ -L${DEPS_DIR}vorbis/lib\ -lvorbis\ -lvorbisenc\ -L${DEPS_DIR}flac/lib\ -lFLAC
-FRAMEWORKS=-framework\ AudioUnit\ -framework\ AudioToolbox\ -framework\ CoreAudio
+FSYNTH_DIR=${DEPS_DIR}fluidsynth/
+FSYNTH_LIB_PREFIX=${FSYNTH_DIR}lib/lib
+FSYNTH_LIBS=${FSYNTH_LIB_PREFIX}fluidsynth.a\;${FSYNTH_LIB_PREFIX}glib-2.0.a\;${FSYNTH_LIB_PREFIX}intl.a
+OTHER_LIBS=-liconv\ -L${DEPS_DIR}ogg/lib\ -logg\ -L${DEPS_DIR}vorbis/lib\ -lvorbis\ -lvorbisenc\ -L${DEPS_DIR}flac/lib\ -lFLAC
+FRAMEWORKS=-framework\ AudioUnit\ -framework\ AudioToolbox\ -framework\ CoreAudio\ -framework\ CoreMIDI
 LINKER_FLAGS=${OTHER_LIBS}\ ${FRAMEWORKS}
 
 /Applications/CMake.app/Contents/bin/cmake               \
@@ -49,6 +52,7 @@ LINKER_FLAGS=${OTHER_LIBS}\ ${FRAMEWORKS}
 	-DCMAKE_EXE_LINKER_FLAGS="${LINKER_FLAGS}"           \
 	-DOSX_COCOA_BACKEND=YES                              \
 	-DDYN_OPENAL=NO                                      \
+	-DDYN_FLUIDSYNTH=NO                                  \
 	-DFMOD_INCLUDE_DIR="${FMOD_DIR}inc"                  \
 	-DFMOD_LIBRARY="${FMOD_DIR}lib/libfmodex.dylib"      \
 	-DOPENAL_INCLUDE_DIR="${OPENAL_DIR}include"          \
@@ -57,6 +61,8 @@ LINKER_FLAGS=${OTHER_LIBS}\ ${FRAMEWORKS}
 	-DMPG123_LIBRARIES="${MPG123_DIR}lib/libmpg123.a"    \
 	-DSNDFILE_INCLUDE_DIR="${SNDFILE_DIR}include"        \
 	-DSNDFILE_LIBRARY="${SNDFILE_DIR}lib/libsndfile.a"   \
+	-DFLUIDSYNTH_INCLUDE_DIR="${FSYNTH_DIR}include"      \
+	-DFLUIDSYNTH_LIBRARIES="${FSYNTH_LIBS}"              \
 	-DLLVM_DIR="${DEPS_DIR}llvm/lib/cmake/llvm"          \
 	"${ZDOOM_DIR}"
 make -j2
