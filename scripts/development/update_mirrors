@@ -73,3 +73,9 @@ update_mirror rtcw-mp ${IDSOFT}RTCW-MP.git
 update_mirror doom3 ${IDSOFT}DOOM-3.git
 update_mirror doom3-bfg ${IDSOFT}DOOM-3-BFG.git
 update_mirror enemy-territory ${IDSOFT}Enemy-Territory.git
+
+# tools
+update_mirror mucommander ${GH}mucommander/mucommander.git
+update_mirror trolcommander ${GH}trol73/mucommander.git
+update_mirror hexfiend ${GH}ridiculousfish/HexFiend.git
+update_mirror wadext ${GH}coelckers/wadext.git
