@@ -37,20 +37,21 @@ function update_mirror {
 GH=https://github.com/
 
 # my repositories
+AL=${AL}
 update_mirror gzdoom-macos \
-	${GH}alexey-lysiuk/gzdoom.git \
+	${AL}gzdoom.git \
 	${GH}rheit/zdoom.git \
 	${GH}coelckers/gzdoom.git \
 	${GH}raa-eruanna/qzdoom.git
-update_mirror zdoom-macos-deps ${GH}alexey-lysiuk/zdoom-macos-deps.git
-update_mirror prboom-macos ${GH}alexey-lysiuk/prboom-macos.git
-update_mirror r667aaa ${GH}alexey-lysiuk/Realm667-AAA.git
-update_mirror r667aaa-cache ${GH}alexey-lysiuk/Realm667-AAA-Cache.git
+update_mirror zdoom-macos-deps ${AL}zdoom-macos-deps.git
+update_mirror prboom-macos ${AL}prboom-macos.git
+update_mirror r667aaa ${AL}Realm667-AAA.git
+update_mirror r667aaa-cache ${AL}Realm667-AAA-Cache.git
 update_mirror slade \
-	${GH}alexey-lysiuk/SLADE.git \
+	${AL}SLADE.git \
 	${GH}sirjuddington/SLADE.git
-update_mirror slade-macos-build ${GH}alexey-lysiuk/slade-macos-build.git
-update_mirror tools ${GH}alexey-lysiuk/tools.git
+update_mirror slade-macos-build ${AL}slade-macos-build.git
+update_mirror tools ${AL}tools.git
 
 # id software
 IDSOFT=${GH}id-Software/
