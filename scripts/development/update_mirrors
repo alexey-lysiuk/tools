@@ -91,4 +91,7 @@ update_mirror shadowgrounds ${GH}vayerx/shadowgrounds.git
 update_mirror mucommander ${GH}mucommander/mucommander.git
 update_mirror trolcommander ${GH}trol73/mucommander.git
 update_mirror hexfiend ${GH}ridiculousfish/HexFiend.git
+update_mirror gfxcardstatus ${GH}codykrieger/gfxCardStatus.git
+update_mirror acc ${GH}rheit/acc.git
+update_mirror zdbsp ${GH}rheit/zdbsp.git
 update_mirror wadext ${GH}coelckers/wadext.git
