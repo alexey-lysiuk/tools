@@ -3,7 +3,7 @@
 set -o errexit
 
 cd /Volumes/ramdisk
-git clone /Volumes/Storage/Work/mirrors/gzdoom-macos zdoom
+git clone -s /Volumes/Storage/Work/mirrors/gzdoom-macos zdoom
 
 cd zdoom
 git remote remove origin
