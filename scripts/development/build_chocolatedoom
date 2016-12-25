@@ -1,0 +1,11 @@
+#!/bin/sh
+
+set -o errexit
+
+cd /Volumes/ramdisk
+git clone https://github.com/chocolate-doom/chocpkg.git
+
+cd chocpkg/chocpkg
+./chocpkg install native:pkg-config
+./chocpkg install native:autotools
+./chocpkg install chocolate-doom
