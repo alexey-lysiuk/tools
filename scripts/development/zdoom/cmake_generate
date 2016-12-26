@@ -6,11 +6,11 @@ SCRIPT_DIR=$(cd "${0%/*}"; pwd)/
 
 cd /Volumes/ramdisk
 
-if [ ! -e zdoom ]; then
-	"${SCRIPT_DIR}git_clone"
+if [ ! -e zdoom$1 ]; then
+	"${SCRIPT_DIR}git_clone" $1
 fi
 
-cd zdoom
+cd zdoom$1
 
 ZDOOM_PROJECT=$("${SCRIPT_DIR}project.py")
 
