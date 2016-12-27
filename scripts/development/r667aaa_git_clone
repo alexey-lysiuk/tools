@@ -1,8 +1,15 @@
 #!/bin/sh
 
 cd /Volumes/ramdisk
+git clone /Volumes/Storage/Work/mirrors/r667aaa
 
-git clone https://github.com/alexey-lysiuk/Realm667-AAA
-cd Realm667-AAA
+cd r667aaa
+git remote remove origin
+git remote add origin https://github.com/alexey-lysiuk/Realm667-AAA.git
+git fetch --all
+git clone /Volumes/Storage/Work/mirrors/r667aaa-cache cache
 
-git clone https://github.com/alexey-lysiuk/Realm667-AAA-Cache cache
+cd cache
+git remote remove origin
+git remote add origin https://github.com/alexey-lysiuk/Realm667-AAA-Cache.git
+git fetch --all
