@@ -85,7 +85,44 @@ plutil -replace CFBundleShortVersionString -string "${ZDOOM_VERSION}" "${INFO_PL
 plutil -replace CFBundleLongVersionString -string "${ZDOOM_VERSION}" "${INFO_PLIST_PATH}"
 
 DMG_NAME=${ZDOOM_PROJECT}-${ZDOOM_VERSION}
-DMG_PATH=${BASE_DIR}`echo ${DMG_NAME} | tr '[:upper:]' '[:lower:]'`.dmg
+DMG_FILENAME=$(echo ${DMG_NAME}.dmg | tr '[:upper:]' '[:lower:]')
+DMG_PATH=${BASE_DIR}${DMG_FILENAME}
 
 hdiutil create -srcfolder "${DIST_DIR}" -volname "${DMG_NAME}" \
 	-format UDBZ -fs HFS+ -fsargs "-c c=64,a=16,e=16" "${DMG_PATH}"
+
+DEPLOY_CONFIG_PATH=${SRC_BASE_DIR}devbuilds/.deploy_config
+
+if [ ! -e "${DEPLOY_CONFIG_PATH}" ]; then
+	tput setaf 1
+	tput bold
+	echo "\nDeployment configuration file was not found!\n"
+	tput sgr0
+	exit 1
+fi
+
+ZDOOM_DEVBUILDS=${ZDOOM_PROJECT_LOW}-macos-devbuilds
+SRC_DEVBUILDS_DIR=${SRC_BASE_DIR}devbuilds/${ZDOOM_DEVBUILDS}/
+DEVBUILDS_DIR=${BASE_DIR}${ZDOOM_DEVBUILDS}/
+
+cd "${SRC_DEVBUILDS_DIR}"
+git pull
+
+cd "${BASE_DIR}"
+git clone -s "${SRC_DEVBUILDS_DIR}" "${DEVBUILDS_DIR}"
+
+TMP_CHECKSUM=$(shasum -a 256 "${DMG_PATH}")
+DMG_CHECKSUM=${TMP_CHECKSUM:0:64}
+
+REPO_URL=https://github.com/alexey-lysiuk/${ZDOOM_DEVBUILDS}
+DOWNLOAD_URL=${REPO_URL}/releases/download/${ZDOOM_VERSION}/${DMG_FILENAME}
+
+cd "${DEVBUILDS_DIR}"
+git remote remove origin
+git remote add origin ${REPO_URL}.git
+git fetch --all
+git branch -u origin/master
+echo \|[\`${ZDOOM_VERSION}\`]\(${DOWNLOAD_URL}\)\|\`${DMG_CHECKSUM}\`\| >> README.md
+git add .
+git commit -m "+ ${ZDOOM_VERSION}"
+git push
