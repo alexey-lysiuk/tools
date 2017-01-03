@@ -1,5 +1,7 @@
 set -o errexit
 
+SCRIPT_DIR=$(cd "${0%/*}"; pwd)/
+
 ZDOOM_PROJECT_LOW=$(echo ${ZDOOM_PROJECT} | tr '[:upper:]' '[:lower:]')
 
 SRC_BASE_DIR=/Volumes/Storage/Work/
@@ -11,6 +13,10 @@ DEPS_DIR=${BASE_DIR}deps/
 ZDOOM_DIR=${BASE_DIR}${ZDOOM_PROJECT_LOW}/
 BUILD_DIR=${BASE_DIR}build/
 DIST_DIR=${BASE_DIR}dist/
+
+# -----------------------------------------------------------------------------
+# Prepare build environment
+# ----------------------------------------------------------------------------
 
 cd "${SRC_DEPS_DIR}"
 git pull
@@ -30,7 +36,12 @@ if [ -n "$1" ]; then
 	git checkout "$1"
 fi
 
-ZDOOM_VERSION=`git describe --tags`
+ZDOOM_VERSION=$(git describe --tags)
+ZDOOM_COMMIT=$(git log --pretty=format:'%h' -n 1)
+
+# -----------------------------------------------------------------------------
+# Do a build
+# -----------------------------------------------------------------------------
 
 mkdir "${BUILD_DIR}"
 cd "${BUILD_DIR}"
@@ -71,6 +82,10 @@ LINKER_FLAGS=${OTHER_LIBS}\ ${FRAMEWORKS}
 	"${ZDOOM_DIR}"
 make -j2
 
+# -----------------------------------------------------------------------------
+# Create disk image
+# -----------------------------------------------------------------------------
+
 BUNDLE_PATH=${DIST_DIR}${ZDOOM_PROJECT}.app
 INFO_PLIST_PATH=${BUNDLE_PATH}/Contents/Info.plist
 
@@ -91,6 +106,10 @@ DMG_PATH=${BASE_DIR}${DMG_FILENAME}
 hdiutil create -srcfolder "${DIST_DIR}" -volname "${DMG_NAME}" \
 	-format UDBZ -fs HFS+ -fsargs "-c c=64,a=16,e=16" "${DMG_PATH}"
 
+# -----------------------------------------------------------------------------
+# Prepare deployment environment
+# -----------------------------------------------------------------------------
+
 DEPLOY_CONFIG_PATH=${SRC_BASE_DIR}devbuilds/.deploy_config
 
 if [ ! -e "${DEPLOY_CONFIG_PATH}" ]; then
@@ -105,6 +124,15 @@ ZDOOM_DEVBUILDS=${ZDOOM_PROJECT_LOW}-macos-devbuilds
 SRC_DEVBUILDS_DIR=${SRC_BASE_DIR}devbuilds/${ZDOOM_DEVBUILDS}/
 DEVBUILDS_DIR=${BASE_DIR}${ZDOOM_DEVBUILDS}/
 
+cd "${SRC_ZDOOM_DIR}"
+ZDOOM_REPO=$(git remote get-url origin)
+ZDOOM_REPO=${ZDOOM_REPO/https:\/\/github.com\//}
+ZDOOM_REPO=${ZDOOM_REPO/.git/}
+
+# -----------------------------------------------------------------------------
+# Update devbuilds Git repository
+# -----------------------------------------------------------------------------
+
 cd "${SRC_DEVBUILDS_DIR}"
 git pull
 
@@ -117,6 +145,8 @@ DMG_CHECKSUM=${TMP_CHECKSUM:0:64}
 REPO_URL=https://github.com/alexey-lysiuk/${ZDOOM_DEVBUILDS}
 DOWNLOAD_URL=${REPO_URL}/releases/download/${ZDOOM_VERSION}/${DMG_FILENAME}
 
+. ${DEPLOY_CONFIG_PATH}
+
 cd "${DEVBUILDS_DIR}"
 git remote remove origin
 git remote add origin ${REPO_URL}.git
@@ -124,5 +154,19 @@ git fetch --all
 git branch -u origin/master
 echo \|[\`${ZDOOM_VERSION}\`]\(${DOWNLOAD_URL}\)\|\`${DMG_CHECKSUM}\`\| >> README.md
 git add .
+# TODO: use token
 git commit -m "+ ${ZDOOM_VERSION}"
 git push
+
+# -----------------------------------------------------------------------------
+# Create GitHub release
+# -----------------------------------------------------------------------------
+
+python -B ${SCRIPT_DIR}github_release.py \
+	"${GITHUB_USER}" \
+	"${GITHUB_TOKEN}" \
+	"${ZDOOM_DEVBUILDS}" \
+	"${ZDOOM_VERSION}" \
+	"${ZDOOM_PROJECT} ${ZDOOM_VERSION}" \
+	"Development build at ${ZDOOM_REPO}@${ZDOOM_COMMIT}\nSHA-256: ${DMG_CHECKSUM}" \
+	"${DMG_PATH}"
