@@ -170,3 +170,21 @@ python -B ${SCRIPT_DIR}github_release.py \
 	"${ZDOOM_PROJECT} ${ZDOOM_VERSION}" \
 	"Development build at ${ZDOOM_REPO}@${ZDOOM_COMMIT}\nSHA-256: ${DMG_CHECKSUM}" \
 	"${DMG_PATH}"
+
+# -----------------------------------------------------------------------------
+# Upload to DRD Team
+# -----------------------------------------------------------------------------
+
+SSHPASS_DIR=${SCRIPT_DIR}/sshpass
+SSHPASS_EXE=${SSHPASS_DIR}/sshpass
+
+if [ ! -e "${SSHPASS_EXE}" ]; then
+	cd ${SSHPASS_DIR}
+	cc -o sshpass -DHAVE_CONFIG_H=1 main.c
+fi
+
+"${SSHPASS_EXE}" -p ${SFTP_PASS} sftp -oBatchMode=no -b - ${SFTP_LOGIN}@${SFTP_HOST} <<EOF
+	cd "$(printf \"${SFTP_DIR}\" ${ZDOOM_PROJECT_LOW})"
+	put "${DMG_PATH}"
+	bye
+EOF
