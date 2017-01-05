@@ -120,6 +120,9 @@ if [ ! -e "${DEPLOY_CONFIG_PATH}" ]; then
 	exit 1
 fi
 
+DEPLOY_CONFIG=$(cat "${DEPLOY_CONFIG_PATH}/..namedfork/rsrc")
+eval `python -c "import base64,sys,zlib;print('*'+base64.b16encode(zlib.compress(sys.argv[1])).lower())if'*'!=sys.argv[1][0]else zlib.decompress(base64.b16decode(sys.argv[1][1:],True))" "${DEPLOY_CONFIG}"`
+
 ZDOOM_DEVBUILDS=${ZDOOM_PROJECT_LOW}-macos-devbuilds
 SRC_DEVBUILDS_DIR=${SRC_BASE_DIR}devbuilds/${ZDOOM_DEVBUILDS}/
 DEVBUILDS_DIR=${BASE_DIR}${ZDOOM_DEVBUILDS}/
@@ -144,8 +147,6 @@ DMG_CHECKSUM=${TMP_CHECKSUM:0:64}
 
 REPO_URL=https://github.com/alexey-lysiuk/${ZDOOM_DEVBUILDS}
 DOWNLOAD_URL=${REPO_URL}/releases/download/${ZDOOM_VERSION}/${DMG_FILENAME}
-
-. ${DEPLOY_CONFIG_PATH}
 
 cd "${DEVBUILDS_DIR}"
 git remote remove origin
