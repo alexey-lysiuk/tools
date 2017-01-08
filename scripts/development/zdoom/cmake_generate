@@ -13,12 +13,7 @@ fi
 cd zdoom$1
 
 ZDOOM_PROJECT=$("${SCRIPT_DIR}project.py")
-
-if [ "${ZDOOM_PROJECT}" == "QZDoom" ]; then
-	MACOS_MIN_VER=10.8
-else
-	MACOS_MIN_VER=10.7
-fi
+MACOS_MIN_VER=10.7
 
 if [ ! -e build ]; then
 	mkdir build
