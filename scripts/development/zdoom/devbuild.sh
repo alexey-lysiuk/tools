@@ -102,9 +102,11 @@ plutil -replace CFBundleLongVersionString -string "${ZDOOM_VERSION}" "${INFO_PLI
 DMG_NAME=${ZDOOM_PROJECT}-${ZDOOM_VERSION}
 DMG_FILENAME=$(echo ${DMG_NAME}.dmg | tr '[:upper:]' '[:lower:]')
 DMG_PATH=${BASE_DIR}${DMG_FILENAME}
+TMP_DMG_PATH=${BASE_DIR}${ZDOOM_PROJECT}-tmp.dmg
 
-hdiutil create -srcfolder "${DIST_DIR}" -volname "${DMG_NAME}" \
-	-format UDBZ -fs HFS+ -fsargs "-c c=64,a=16,e=16" "${DMG_PATH}"
+hdiutil makehybrid -o "${TMP_DMG_PATH}" "${DIST_DIR}" -hfs -hfs-volume-name "${DMG_NAME}"
+hdiutil convert -format UDBZ -imagekey bzip2-level=9 "${TMP_DMG_PATH}" -o "${DMG_PATH}"
+rm "${TMP_DMG_PATH}"
 
 # -----------------------------------------------------------------------------
 # Prepare deployment environment
