@@ -2,7 +2,7 @@
 
 set -o errexit
 
-GCC_VERSION=gcc-6.1.0
+GCC_VERSION=gcc-6.3.0
 GCC_PREFIX=/usr/local/${GCC_VERSION}
 
 function make_dir {
@@ -37,10 +37,10 @@ make_dir ${GCC_VERSION}
 cd ${GCC_VERSION}
 
 get_source ftp://ftp.gnu.org/gnu/gcc/${GCC_VERSION}/${GCC_VERSION}.tar.bz2
-get_source ftp://ftp.gnu.org/gnu/gmp/gmp-6.1.0.tar.bz2
-get_source ftp://ftp.gnu.org/gnu/mpfr/mpfr-3.1.4.tar.bz2
+get_source ftp://ftp.gnu.org/gnu/gmp/gmp-6.1.2.tar.bz2
+get_source ftp://ftp.gnu.org/gnu/mpfr/mpfr-3.1.5.tar.bz2
 get_source ftp://ftp.gnu.org/gnu/mpc/mpc-1.0.3.tar.gz
-get_source http://isl.gforge.inria.fr/isl-0.16.1.tar.bz2
+get_source http://isl.gforge.inria.fr/isl-0.18.tar.bz2
 
 make_dir build
 cd build
@@ -57,6 +57,7 @@ GCC_FINAL_IMAGE=../../${GCC_VERSION}.dmg
 
 hdiutil create -size 384m -type SPARSE -fs HFS+ -volname ${GCC_VERSION} -ov ${GCC_INSTALL_IMAGE}
 sudo hdiutil attach -mountpoint ${GCC_PREFIX} ${GCC_INSTALL_IMAGE}
+sudo -k
 
 make install
 
