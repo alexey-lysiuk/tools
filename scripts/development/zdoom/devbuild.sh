@@ -4,9 +4,9 @@ SCRIPT_DIR=$(cd "${0%/*}"; pwd)/
 
 ZDOOM_PROJECT_LOW=$(echo ${ZDOOM_PROJECT} | tr '[:upper:]' '[:lower:]')
 
-SRC_BASE_DIR=/Volumes/Storage/Work/
+SRC_BASE_DIR=/Volumes/Storage/Work/devbuilds/
 SRC_DEPS_DIR=${SRC_BASE_DIR}zdoom-macos-deps/
-SRC_ZDOOM_DIR=${SRC_BASE_DIR}devbuilds/${ZDOOM_PROJECT_LOW}/
+SRC_ZDOOM_DIR=${SRC_BASE_DIR}${ZDOOM_PROJECT_LOW}/
 
 BASE_DIR=/Volumes/ramdisk/${ZDOOM_PROJECT_LOW}-devbuild/
 DEPS_DIR=${BASE_DIR}deps/
@@ -19,10 +19,10 @@ DIST_DIR=${BASE_DIR}dist/
 # ----------------------------------------------------------------------------
 
 cd "${SRC_DEPS_DIR}"
-git pull
+git fetch
 
 cd "${SRC_ZDOOM_DIR}"
-git pull
+git fetch
 
 mkdir "${BASE_DIR}"
 
@@ -112,7 +112,7 @@ rm "${TMP_DMG_PATH}"
 # Prepare deployment environment
 # -----------------------------------------------------------------------------
 
-DEPLOY_CONFIG_PATH=${SRC_BASE_DIR}devbuilds/.deploy_config
+DEPLOY_CONFIG_PATH=${SRC_BASE_DIR}.deploy_config
 
 if [ ! -e "${DEPLOY_CONFIG_PATH}" ]; then
 	tput setaf 1
@@ -126,7 +126,7 @@ DEPLOY_CONFIG=$(cat "${DEPLOY_CONFIG_PATH}/..namedfork/rsrc")
 eval `python -c "import base64,sys,zlib;print('*'+base64.b16encode(zlib.compress(sys.argv[1])).lower())if'*'!=sys.argv[1][0]else zlib.decompress(base64.b16decode(sys.argv[1][1:],True))" "${DEPLOY_CONFIG}"`
 
 ZDOOM_DEVBUILDS=${ZDOOM_PROJECT_LOW}-macos-devbuilds
-SRC_DEVBUILDS_DIR=${SRC_BASE_DIR}devbuilds/${ZDOOM_DEVBUILDS}/
+SRC_DEVBUILDS_DIR=${SRC_BASE_DIR}${ZDOOM_DEVBUILDS}/
 DEVBUILDS_DIR=${BASE_DIR}${ZDOOM_DEVBUILDS}/
 
 cd "${SRC_ZDOOM_DIR}"
@@ -139,7 +139,7 @@ ZDOOM_REPO=${ZDOOM_REPO/.git/}
 # -----------------------------------------------------------------------------
 
 cd "${SRC_DEVBUILDS_DIR}"
-git pull
+git fetch
 
 cd "${BASE_DIR}"
 git clone -s "${SRC_DEVBUILDS_DIR}" "${DEVBUILDS_DIR}"
