@@ -58,7 +58,7 @@ FRAMEWORKS=-framework\ AudioUnit\ -framework\ AudioToolbox\ -framework\ CoreAudi
 LINKER_FLAGS=${OTHER_LIBS}\ ${FRAMEWORKS}
 
 /Applications/CMake.app/Contents/bin/cmake               \
-	-DCMAKE_BUILD_TYPE="RelWithDebInfo"                  \
+	-DCMAKE_BUILD_TYPE="Release"                         \
 	-DCMAKE_OSX_DEPLOYMENT_TARGET="${ZDOOM_OS_MIN_VER}"  \
 	-DCMAKE_EXE_LINKER_FLAGS="${LINKER_FLAGS}"           \
 	-DOSX_COCOA_BACKEND=YES                              \
