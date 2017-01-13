@@ -4,6 +4,10 @@ SCRIPT_DIR=$(cd "${0%/*}"; pwd)/
 
 ZDOOM_PROJECT_LOW=$(echo ${ZDOOM_PROJECT} | tr '[:upper:]' '[:lower:]')
 
+if [ -z "${ZDOOM_OS_MIN_VER}" ]; then
+	ZDOOM_OS_MIN_VER=10.7
+fi
+
 SRC_BASE_DIR=/Volumes/Storage/Work/devbuilds/
 SRC_DEPS_DIR=${SRC_BASE_DIR}zdoom-macos-deps/
 SRC_ZDOOM_DIR=${SRC_BASE_DIR}${ZDOOM_PROJECT_LOW}/
