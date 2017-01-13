@@ -1,5 +1,6 @@
 #!/bin/sh
 
 ZDOOM_PROJECT=GZDoom
+ZDOOM_IDENTIFIER=org.drdteam.gzdoom
 
 . "`dirname \"$0\"`/devbuild.sh" $@
