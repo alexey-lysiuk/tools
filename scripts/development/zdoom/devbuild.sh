@@ -108,6 +108,11 @@ hdiutil makehybrid -o "${TMP_DMG_PATH}" "${DIST_DIR}" -hfs -hfs-volume-name "${D
 hdiutil convert -format UDBZ -imagekey bzip2-level=9 "${TMP_DMG_PATH}" -o "${DMG_PATH}"
 rm "${TMP_DMG_PATH}"
 
+if [ -n "$1" ]; then
+	# create .tar.bz2 containing app bundle for "special" builds
+	tar -c ${ZDOOM_PROJECT_LOW}.app | bzip2 -1 > "${BASE_DIR}${ZDOOM_PROJECT_LOW}.app.tar.bz2"
+fi
+
 # -----------------------------------------------------------------------------
 # Prepare deployment environment
 # -----------------------------------------------------------------------------
