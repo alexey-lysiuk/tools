@@ -165,7 +165,11 @@ git remote remove origin
 git remote add origin ${REPO_URL}.git
 git fetch --all
 git branch -u origin/master
-echo \|[\`${ZDOOM_VERSION}\`]\(${DOWNLOAD_URL}\)\|\`${DMG_CHECKSUM}\`\| >> README.md
+
+awk "/\|---\|---\|/ { print; print \"|[\`${ZDOOM_VERSION}\`](${DOWNLOAD_URL})|\`${DMG_CHECKSUM}\`|\"; next }1" README.md > README.tmp
+rm README.md
+mv README.tmp README.md
+
 git add .
 # TODO: use token
 git commit -m "+ ${ZDOOM_VERSION}"
