@@ -197,7 +197,7 @@ if [ ! -e "${SSHPASS_EXE}" ]; then
 fi
 
 "${SSHPASS_EXE}" -p ${SFTP_PASS} sftp -oBatchMode=no -b - ${SFTP_LOGIN}@${SFTP_HOST} <<EOF
-	cd "$(printf \"${SFTP_DIR}\" ${ZDOOM_PROJECT_LOW})"
+	cd $(printf \"${SFTP_DIR}\" ${ZDOOM_PROJECT_LOW})
 	put "${DMG_PATH}"
 	bye
 EOF
