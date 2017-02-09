@@ -135,10 +135,6 @@ fi
 DEPLOY_CONFIG=$(cat "${DEPLOY_CONFIG_PATH}/..namedfork/rsrc")
 eval `python -c "import base64,sys,zlib;print('*'+base64.b16encode(zlib.compress(sys.argv[1])).lower())if'*'!=sys.argv[1][0]else zlib.decompress(base64.b16decode(sys.argv[1][1:],True))" "${DEPLOY_CONFIG}"`
 
-ZDOOM_DEVBUILDS=${ZDOOM_PROJECT_LOW}-macos-devbuilds
-SRC_DEVBUILDS_DIR=${SRC_BASE_DIR}${ZDOOM_DEVBUILDS}/
-DEVBUILDS_DIR=${BASE_DIR}${ZDOOM_DEVBUILDS}/
-
 cd "${SRC_ZDOOM_DIR}"
 ZDOOM_REPO=$(git remote get-url origin)
 ZDOOM_REPO=${ZDOOM_REPO/https:\/\/github.com\//}
@@ -148,24 +144,16 @@ ZDOOM_REPO=${ZDOOM_REPO/.git/}
 # Update devbuilds Git repository
 # -----------------------------------------------------------------------------
 
-cd "${SRC_DEVBUILDS_DIR}"
-git fetch
-
-cd "${BASE_DIR}"
-git clone -s "${SRC_DEVBUILDS_DIR}" "${DEVBUILDS_DIR}"
-
 TMP_CHECKSUM=$(shasum -a 256 "${DMG_PATH}")
 DMG_CHECKSUM=${TMP_CHECKSUM:0:64}
+
+ZDOOM_DEVBUILDS=${ZDOOM_PROJECT_LOW}-macos-devbuilds
+DEVBUILDS_DIR=${SRC_BASE_DIR}${ZDOOM_DEVBUILDS}/
 
 REPO_URL=https://github.com/alexey-lysiuk/${ZDOOM_DEVBUILDS}
 DOWNLOAD_URL=${REPO_URL}/releases/download/${ZDOOM_VERSION}/${DMG_FILENAME}
 
 cd "${DEVBUILDS_DIR}"
-git remote remove origin
-git remote add origin ${REPO_URL}.git
-git fetch --all
-git branch -u origin/master
-
 awk "/\|---\|---\|/ { print; print \"|[\`${ZDOOM_VERSION}\`](${DOWNLOAD_URL})|\`${DMG_CHECKSUM}\`|\"; next }1" README.md > README.tmp
 rm README.md
 mv README.tmp README.md
