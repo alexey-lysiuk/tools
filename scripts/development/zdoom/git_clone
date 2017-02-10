@@ -13,3 +13,4 @@ git remote add coelckers https://github.com/coelckers/gzdoom.git
 git remote add eruanna https://github.com/raa-eruanna/qzdoom.git
 git fetch --all
 git checkout -b master origin/master
+git branch -D macOS
