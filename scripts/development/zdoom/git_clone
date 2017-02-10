@@ -14,3 +14,4 @@ git remote add eruanna https://github.com/raa-eruanna/qzdoom.git
 git fetch --all
 git checkout -b master origin/master
 git branch -D macOS
+git pull coelckers master
