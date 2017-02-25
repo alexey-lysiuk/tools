@@ -28,10 +28,10 @@ cd automake-1.15
 make install
 
 cd ..
-curl -OL http://libsdl.org/release/SDL2-2.0.4.tar.gz
-tar -xzf SDL2-2.0.4.tar.gz
+curl -OL http://libsdl.org/release/SDL2-2.0.5.tar.gz
+tar -xzf SDL2-2.0.5.tar.gz
 
-cd SDL2-2.0.4
+cd SDL2-2.0.5
 ./configure --prefix="${SDL2_PREFIX}" --disable-shared --enable-static
 make install
 
