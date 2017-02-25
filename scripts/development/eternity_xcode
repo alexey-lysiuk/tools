@@ -1,0 +1,103 @@
+#!/bin/sh
+
+set -o errexit
+
+MIRRORS_DIR=/Volumes/Storage/Work/mirrors/
+
+cd /Volumes/ramdisk
+git clone -s "${MIRRORS_DIR}eternity"
+
+cd eternity
+git remote remove origin
+git remote add origin https://github.com/team-eternity/eternity.git
+git fetch --all
+git branch -u origin/master
+git pull
+
+git clone "${MIRRORS_DIR}prboom-macos"
+
+cd prboom-macos
+git checkout -b master origin/master
+
+DEP_DIR=prboom-macos/thirdparty/
+INCLUDE_DIR=macosx/include/
+LIB_DIR=macosx/staticlib/
+
+cd ..
+mkdir -p ${INCLUDE_DIR} ${LIB_DIR}
+
+for INC in SDL SDL_mixer SDL_net; do
+	cp ${DEP_DIR}${INC}/include/* ${INCLUDE_DIR}
+done
+
+echo '*' > ${INCLUDE_DIR}.gitignore
+
+for LIB in SDL SDL_mixer SDL_net mad mikmod smpeg vorbis; do
+	cp ${DEP_DIR}${LIB}/lib/lib${LIB}.a ${LIB_DIR}
+done
+
+cp ${DEP_DIR}vorbis/lib/libogg.a ${LIB_DIR}
+cp ${DEP_DIR}vorbis/lib/libvorbisfile.a ${LIB_DIR}
+cp ${DEP_DIR}flac/lib/libFLAC.a ${LIB_DIR}
+
+for SUFFIX in .1 abi; do
+	ln -s /usr/lib/libc++${SUFFIX}.dylib macosx/libc++/
+done
+
+rm -r prboom-macos
+
+patch -p1 <<EOF
+--- a/macosx/EternityEngine.xcodeproj/project.pbxproj
++++ b/macosx/EternityEngine.xcodeproj/project.pbxproj
+@@ -311,6 +311,7 @@
+ 		4FC0A93F1E1E2ABC006CEC45 /* cam_common.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FC0A93A1E1E2ABC006CEC45 /* cam_common.cpp */; };
+ 		4FC0A9401E1E2ABC006CEC45 /* cam_shoot.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FC0A93C1E1E2ABC006CEC45 /* cam_shoot.cpp */; };
+ 		4FC0A9411E1E2ABC006CEC45 /* cam_use.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FC0A93D1E1E2ABC006CEC45 /* cam_use.cpp */; };
++		8A4C26A91E2140A200AE79A4 /* libmad.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8A4C26A81E21409300AE79A4 /* libmad.a */; };
+ /* End PBXBuildFile section */
+
+ /* Begin PBXFileReference section */
+@@ -451,6 +452,7 @@
+ 		4FFFDF7D175348B600E70FEC /* AudioUnit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioUnit.framework; path = ../../../../../../../../System/Library/Frameworks/AudioUnit.framework; sourceTree = "<group>"; };
+ 		4FFFDF7E175348B600E70FEC /* Carbon.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Carbon.framework; path = ../../../../../../../../System/Library/Frameworks/Carbon.framework; sourceTree = "<group>"; };
+ 		4FFFDF7F175348B600E70FEC /* IOKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IOKit.framework; path = ../../../../../../../../System/Library/Frameworks/IOKit.framework; sourceTree = "<group>"; };
++		8A4C26A81E21409300AE79A4 /* libmad.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libmad.a; path = staticlib/libmad.a; sourceTree = "<group>"; };
+ 		8D1107310486CEB800E47090 /* EternityEngine-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "EternityEngine-Info.plist"; sourceTree = "<group>"; };
+ 		FA16D39E15E01B82002318D1 /* d_files.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = d_files.cpp; path = ../source/d_files.cpp; sourceTree = SOURCE_ROOT; };
+ 		FA16D3BC15E01E96002318D1 /* a_common.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = a_common.h; path = ../source/a_common.h; sourceTree = SOURCE_ROOT; };
+@@ -938,6 +940,7 @@
+ 				4F5F399D182D9C160027813A /* libFLAC.a in Frameworks */,
+ 				4F5F3999182D9C0B0027813A /* libSDL.a in Frameworks */,
+ 				4F5F3998182D9C090027813A /* libSDL_net.a in Frameworks */,
++				8A4C26A91E2140A200AE79A4 /* libmad.a in Frameworks */,
+ 			);
+ 			runOnlyForDeploymentPostprocessing = 0;
+ 		};
+@@ -1092,6 +1095,7 @@
+ 				4FFFDF691753482C00E70FEC /* libFLAC.a */,
+ 				4FFFDF6A1753482C00E70FEC /* libmikmod.a */,
+ 				4FFFDF6B1753482C00E70FEC /* libsmpeg.a */,
++				8A4C26A81E21409300AE79A4 /* libmad.a */,
+ 			);
+ 			name = "Static Libraries";
+ 			sourceTree = "<group>";
+@@ -2466,6 +2470,7 @@
+ 					../libpng,
+ 					/usr/local/include/SDL,
+ 					../acsvm,
++					include,
+ 				);
+ 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/../Frameworks";
+ 				LLVM_LTO = NO;
+@@ -2510,6 +2515,7 @@
+ 					../libpng,
+ 					/usr/local/include/SDL,
+ 					../acsvm,
++					include,
+ 				);
+ 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/../Frameworks";
+ 				LLVM_LTO = YES;
+
+EOF
+
+open macosx/EternityEngine.xcodeproj
