@@ -2,8 +2,13 @@
 
 set -o errexit
 
+SRC_REPO_DIR=/Volumes/Storage/Work/mirrors/gzdoom-macos
+
+cd "${SRC_REPO_DIR}"
+git fetch --all
+
 cd /Volumes/ramdisk
-git clone -s /Volumes/Storage/Work/mirrors/gzdoom-macos zdoom$1
+git clone -s "${SRC_REPO_DIR}" zdoom$1
 
 cd zdoom$1
 git remote remove origin
