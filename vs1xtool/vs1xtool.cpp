@@ -55,8 +55,16 @@ enum class DataType
 	DECRYPTED
 };
 
+enum class Version
+{
+	NONE,
+	VS14,
+	VS15,
+};
+
 struct ProcessData
 {
+	Version version = Version::NONE;
 	HKEY regKey = nullptr;
 	const TCHAR* keyName = nullptr;
 	const BYTE* buffer = nullptr;
@@ -68,9 +76,41 @@ typedef std::vector<BYTE> ByteArray;
 
 typedef void (*ProcessFunction)(const ProcessData& data);
 
-const TCHAR LICENSE_KEY_NAME[] = _T("Licenses\\4D8CFBCB-2F6A-4AD2-BABF-10E28F6F2C8F");
+SHORT GetProductID(const Version version)
+{
+	switch (version)
+	{
+	case Version::VS14:
+		return 7078;
 
-void ProcessLicenseData(ProcessFunction processFunction, const TCHAR* const keyName, const DWORD registryOptions = 0)
+	case Version::VS15:
+		return 8878;
+
+	default:
+		FatalExit(-1);
+	}
+
+	return 0;
+}
+
+const TCHAR* GetLicenseKeyName(const Version version)
+{
+	switch (version)
+	{
+	case Version::VS14:
+		return _T("Licenses\\4D8CFBCB-2F6A-4AD2-BABF-10E28F6F2C8F");
+
+	case Version::VS15:
+		return _T("Licenses\\5C505A59-E312-4B89-9508-E162F8150517");
+
+	default:
+		FatalExit(-1);
+	}
+
+	return _T("");
+}
+
+void ProcessLicenseData(const ProcessFunction processFunction, const Version version, const TCHAR* const keyName, const DWORD registryOptions = 0)
 {
 	HKEY regKey = nullptr;
 	REG_API_CALL(RegOpenKeyEx(HKEY_CLASSES_ROOT, keyName, 0, KEY_READ | KEY_WOW64_32KEY | registryOptions, &regKey));
@@ -85,6 +125,7 @@ void ProcessLicenseData(ProcessFunction processFunction, const TCHAR* const keyN
 	CRYPT_INTEGER_BLOB decryptedBlob = { 0, nullptr };
 
 	ProcessData data;
+	data.version = version;
 	data.regKey = regKey;
 	data.keyName = keyName;
 
@@ -111,12 +152,13 @@ void ProcessLicenseData(ProcessFunction processFunction, const TCHAR* const keyN
 	REG_API_CALL(RegCloseKey(regKey));
 }
 
-void ProcessLicenseData(ProcessFunction processFunction, const DWORD registryOptions = 0)
+void ProcessLicenseData(const ProcessFunction processFunction, const Version version, const DWORD registryOptions = 0)
 {
-	ProcessLicenseData(processFunction, LICENSE_KEY_NAME, registryOptions);
+	const TCHAR* const licenseKeyName = GetLicenseKeyName(version);
+	ProcessLicenseData(processFunction, version, licenseKeyName, registryOptions);
 
 	HKEY regKey = nullptr;
-	REG_API_CALL(RegOpenKeyEx(HKEY_CLASSES_ROOT, LICENSE_KEY_NAME, 0, KEY_READ | KEY_WOW64_32KEY | registryOptions, &regKey));
+	REG_API_CALL(RegOpenKeyEx(HKEY_CLASSES_ROOT, licenseKeyName, 0, KEY_READ | KEY_WOW64_32KEY | registryOptions, &regKey));
 
 	for (DWORD subKeyIndex = 0; /* EMPTY */ ; ++subKeyIndex)
 	{
@@ -128,9 +170,9 @@ void ProcessLicenseData(ProcessFunction processFunction, const DWORD registryOpt
 		if (ERROR_SUCCESS == subKeyResult)
 		{
 			TCHAR fullKeyName[256] = {};
-			_sntprintf_s(fullKeyName, _countof(fullKeyName), _TRUNCATE, _T("%s\\%s"), LICENSE_KEY_NAME, subKeyName);
+			_sntprintf_s(fullKeyName, _countof(fullKeyName), _TRUNCATE, _T("%s\\%s"), licenseKeyName, subKeyName);
 
-			ProcessLicenseData(processFunction, fullKeyName, registryOptions);
+			ProcessLicenseData(processFunction, version, fullKeyName, registryOptions);
 		}
 		else if (ERROR_NO_MORE_ITEMS == subKeyResult)
 		{
@@ -224,8 +266,9 @@ ByteArray CopyLicense(const ProcessData& data)
 		FatalExit(-1);
 	}
 
-	if (   0xA6 != data.buffer[0]
-		|| 0x1B != data.buffer[1])
+	const SHORT productID = *reinterpret_cast<const SHORT*>(data.buffer);
+
+	if (GetProductID(data.version) != productID)
 	{
 		_tprintf(_T("ERROR: Wrong signature of decrypted data for key \"%s\"\n"), data.keyName);
 		FatalExit(-1);
@@ -239,7 +282,7 @@ ByteArray CopyLicense(const ProcessData& data)
 
 void WriteLicense(const HKEY registryKey, ByteArray& buffer)
 {
-	CRYPT_INTEGER_BLOB decryptedBlob = { buffer.size(), &buffer[0] };
+	CRYPT_INTEGER_BLOB decryptedBlob = { DWORD(buffer.size()), &buffer[0] };
 	CRYPT_INTEGER_BLOB encryptedBlob = { 0, nullptr };
 
 	if (!CryptProtectData(&decryptedBlob, nullptr, nullptr, nullptr, nullptr, CRYPTPROTECT_UI_FORBIDDEN | CRYPTPROTECT_LOCAL_MACHINE, &encryptedBlob))
@@ -328,7 +371,7 @@ BOOL IsElevated()
 	return result;
 }
 
-void UpdateLicence(ProcessFunction processFunction)
+void UpdateLicence(ProcessFunction processFunction, const Version version)
 {
 	if (!IsElevated())
 	{
@@ -337,29 +380,71 @@ void UpdateLicence(ProcessFunction processFunction)
 	}
 
 	TCHAR communityKey[256] = {};
-	_sntprintf_s(communityKey, _countof(communityKey), _TRUNCATE, _T("%s\\07078"), LICENSE_KEY_NAME);
+	_sntprintf_s(communityKey, _countof(communityKey), _TRUNCATE, _T("%s\\%05i"),
+		GetLicenseKeyName(version), GetProductID(version));
 
-	ProcessLicenseData(processFunction, communityKey, KEY_WRITE);
+	ProcessLicenseData(processFunction, version, communityKey, KEY_WRITE);
 }
 
 } // unnamed namespace
 
 int _tmain(int argc, TCHAR** argv)
 {
-	if (argc > 1)
+	if (argc < 2)
 	{
-		if (_tcscmp(argv[1], _T("--prolong")) == 0)
+		_putts(_T("ERROR: insufficient command line options"));
+		return EXIT_FAILURE;
+	}
+
+	enum class Action
+	{
+		NONE,
+		PROLONG,
+		REGISTER
+	};
+
+	Version version = Version::NONE;
+	Action action = Action::NONE;
+
+	for (int i = 1; i < argc; ++i)
+	{
+		if (_tcscmp(argv[i], _T("--vs14")) == 0)
 		{
-			UpdateLicence(ProlongLicense);
-			return 0;
+			version = Version::VS14;
 		}
-		else if (_tcscmp(argv[1], _T("--register")) == 0)
+		else if (_tcscmp(argv[i], _T("--vs15")) == 0)
 		{
-			UpdateLicence(RegisterProduct);
-			return 0;
+			version = Version::VS15;
+		}
+		else if (_tcscmp(argv[i], _T("--prolong")) == 0)
+		{
+			action = Action::PROLONG;
+		}
+		else if (_tcscmp(argv[i], _T("--register")) == 0)
+		{
+			action = Action::REGISTER;
 		}
 	}
 
-	ProcessLicenseData(PrintBytes);
-	ProcessLicenseData(DumpBytes);
+	if (Version::NONE == version)
+	{
+		_putts(_T("ERROR: no version specified"));
+		return EXIT_FAILURE;
+	}
+
+	if (Action::PROLONG == action)
+	{
+		UpdateLicence(ProlongLicense, version);
+	}
+	else if (Action::REGISTER == action)
+	{
+		UpdateLicence(RegisterProduct, version);
+	}
+	else
+	{
+		ProcessLicenseData(PrintBytes, version);
+		ProcessLicenseData(DumpBytes, version);
+	}
+
+	return EXIT_SUCCESS;
 }
