@@ -1,2 +1,5 @@
+*.VC.db
+*.ipch
 *.dec
 *.raw
+*.reg
