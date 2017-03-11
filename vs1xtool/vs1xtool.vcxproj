@@ -21,7 +21,7 @@
   <PropertyGroup Label="Globals">
     <ProjectGuid>{6F370E80-FE27-4EE7-8230-ADC8CC7BF5B1}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>vs14tool</RootNamespace>
+    <RootNamespace>vs1xtool</RootNamespace>
     <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -146,7 +146,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="vs14tool.cpp" />
+    <ClCompile Include="vs1xtool.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
