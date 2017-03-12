@@ -50,6 +50,7 @@ ZDOOM_COMMIT=$(git log --pretty=format:'%h' -n 1)
 mkdir "${BUILD_DIR}"
 cd "${BUILD_DIR}"
 
+MACOS_SDK_DIR=${SRC_BASE_DIR}/macos_sdk/MacOSX10.7.sdk
 FMOD_DIR=${DEPS_DIR}fmodex/
 OPENAL_DIR=${DEPS_DIR}openal/
 MPG123_DIR=${DEPS_DIR}mpg123/
@@ -64,6 +65,7 @@ LINKER_FLAGS=${OTHER_LIBS}\ ${FRAMEWORKS}
 /Applications/CMake.app/Contents/bin/cmake               \
 	-DCMAKE_BUILD_TYPE="Release"                         \
 	-DCMAKE_OSX_DEPLOYMENT_TARGET="${ZDOOM_OS_MIN_VER}"  \
+	-DCMAKE_OSX_SYSROOT="${MACOS_SDK_DIR}"               \
 	-DCMAKE_EXE_LINKER_FLAGS="${LINKER_FLAGS}"           \
 	-DOSX_COCOA_BACKEND=YES                              \
 	-DDYN_OPENAL=NO                                      \
