@@ -101,6 +101,7 @@ cp -R "${ZDOOM_DIR}docs" "${DIST_DIR}Docs"
 ln -s /Applications "${DIST_DIR}/Applications"
 
 plutil -replace LSMinimumSystemVersion -string "${ZDOOM_OS_MIN_VER}" "${INFO_PLIST_PATH}"
+plutil -replace CFBundleName -string "${ZDOOM_PROJECT}" "${INFO_PLIST_PATH}"
 plutil -replace CFBundleShortVersionString -string "${ZDOOM_VERSION}" "${INFO_PLIST_PATH}"
 plutil -replace CFBundleIdentifier -string "${ZDOOM_IDENTIFIER}" "${INFO_PLIST_PATH}"
 
