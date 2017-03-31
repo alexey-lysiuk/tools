@@ -23,6 +23,7 @@
 #include <tchar.h>
 #include <conio.h>
 
+#pragma warning(disable: 4192)
 #import <msxml6.dll>
 
 
