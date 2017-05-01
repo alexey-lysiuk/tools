@@ -51,7 +51,6 @@ mkdir "${BUILD_DIR}"
 cd "${BUILD_DIR}"
 
 MACOS_SDK_DIR=${SRC_BASE_DIR}/macos_sdk/MacOSX10.7.sdk
-FMOD_DIR=${DEPS_DIR}fmodex/
 OPENAL_DIR=${DEPS_DIR}openal/
 MPG123_DIR=${DEPS_DIR}mpg123/
 SNDFILE_DIR=${DEPS_DIR}sndfile/
@@ -74,8 +73,6 @@ LINKER_FLAGS=${OTHER_LIBS}\ ${FRAMEWORKS}
 	-DFORCE_INTERNAL_JPEG=YES                            \
 	-DFORCE_INTERNAL_BZIP2=YES                           \
 	-DFORCE_INTERNAL_GME=YES                             \
-	-DFMOD_INCLUDE_DIR="${FMOD_DIR}inc"                  \
-	-DFMOD_LIBRARY="${FMOD_DIR}lib/libfmodex.dylib"      \
 	-DOPENAL_INCLUDE_DIR="${OPENAL_DIR}include"          \
 	-DOPENAL_LIBRARY="${OPENAL_DIR}lib/libopenal.a"      \
 	-DMPG123_INCLUDE_DIR="${MPG123_DIR}include"          \
@@ -84,7 +81,6 @@ LINKER_FLAGS=${OTHER_LIBS}\ ${FRAMEWORKS}
 	-DSNDFILE_LIBRARY="${SNDFILE_DIR}lib/libsndfile.a"   \
 	-DFLUIDSYNTH_INCLUDE_DIR="${FSYNTH_DIR}include"      \
 	-DFLUIDSYNTH_LIBRARIES="${FSYNTH_LIBS}"              \
-	-DLLVM_DIR="${DEPS_DIR}llvm/lib/cmake/llvm"          \
 	"${ZDOOM_DIR}"
 make -j2
 
