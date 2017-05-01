@@ -37,6 +37,8 @@ LINKER_FLAGS=${OTHER_LIBS}\ ${FRAMEWORKS}
 /Applications/CMake.app/Contents/bin/cmake -GXcode   \
 	-DOSX_COCOA_BACKEND=YES                          \
 	-DDYN_OPENAL=NO                                  \
+	-DDYN_MPG123=NO                                  \
+	-DDYN_SNDFILE=NO                                 \
 	-DDYN_FLUIDSYNTH=NO                              \
 	-DFORCE_INTERNAL_ZLIB=YES                        \
 	-DFORCE_INTERNAL_JPEG=YES                        \
