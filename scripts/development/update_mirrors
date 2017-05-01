@@ -80,13 +80,22 @@ update_mirror iwad-patches ${GH}Doom-Utils/iwad-patches.git
 update_mirror historic-ports ${GH}Doom-Utils/historic-ports.git
 update_mirror doom3do ${GH}Olde-Skuul/doom3do.git
 update_mirror chocolate-doom ${GH}chocolate-doom/chocolate-doom.git
+update_mirror eternity ${GH}team-eternity/eternity.git
+update_mirror zdoom-old ${GH}doomtech/zdoom-old.git
 update_mirror gzdoom-svn ${GH}doomtech/gzdoom.git
 update_mirror freedoom ${GH}freedoom/freedoom.git
 update_mirror strife-ve ${GH}svkaiser/strife-ve.git
+update_mirror powerslave-ex ${GH}svkaiser/PowerslaveEX.git
 update_mirror doomrl ${GH}ChaosForge/doomrl.git
 update_mirror fpcvalkyrie ${GH}ChaosForge/fpcvalkyrie.git
 update_mirror serious-engine ${GH}Croteam-official/Serious-Engine.git
 update_mirror shadowgrounds ${GH}vayerx/shadowgrounds.git
+update_mirror darkplaces ${GH}xonotic/darkplaces.git
+update_mirror freeablo ${GH}wheybags/freeablo.git
+update_mirror dgengine ${GH}dgengin/DGEngine.git
+update_mirror postal ${GH}iammeat/POSTAL-1-Open-Source.git
+update_mirror xray-15 ${GH}OpenXRay/xray.git
+update_mirror xray-16 ${GH}OpenXRay/xray-16.git
 
 # tools
 update_mirror mucommander ${GH}mucommander/mucommander.git
@@ -97,3 +106,5 @@ update_mirror hwsensors ${GH}kozlek/HWSensors.git
 update_mirror acc ${GH}rheit/acc.git
 update_mirror zdbsp ${GH}rheit/zdbsp.git
 update_mirror wadext ${GH}coelckers/wadext.git
+update_mirror gzdoombuilder ${GH}m-x-d/GZDoom-Builder.git
+update_mirror dosbox ${GH}duganchen/dosbox.git
