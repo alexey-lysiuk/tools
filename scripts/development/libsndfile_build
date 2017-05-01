@@ -1,0 +1,58 @@
+#!/bin/sh
+
+set -o errexit
+
+BUILD_ROOT=/Volumes/ramdisk/libsndfile-build
+SDK_PATH=/Volumes/Storage/Work/devbuilds/macos_sdk/MacOSX10.7.sdk
+COMMON_OPTS=-mmacosx-version-min=10.7\ -isysroot\ ${SDK_PATH}
+
+if [ ! -e "${BUILD_ROOT}" ]; then
+	mkdir -p "${BUILD_ROOT}"
+fi
+
+cd ${BUILD_ROOT}
+
+hdiutil create -size 1g -type SPARSE -fs HFS+ -volname usr.local usr.local
+sudo hdiutil attach -mountpoint /usr/local usr.local.sparseimage
+sudo -k
+
+curl -O https://pkg-config.freedesktop.org/releases/pkg-config-0.29.1.tar.gz
+curl -O http://downloads.xiph.org/releases/ogg/libogg-1.3.2.tar.xz
+curl -O http://downloads.xiph.org/releases/vorbis/libvorbis-1.3.5.tar.xz
+curl -O http://downloads.xiph.org/releases/flac/flac-1.3.2.tar.xz
+curl -O http://www.mega-nerd.com/libsndfile/files/libsndfile-1.0.28.tar.gz
+
+tar -xf pkg-config-0.29.1.tar.gz
+tar -xf libogg-1.3.2.tar.xz
+tar -xf libvorbis-1.3.5.tar.xz
+tar -xf flac-1.3.2.tar.xz
+tar -xf libsndfile-1.0.28.tar.gz
+
+export   CFLAGS="-I/usr/local/include ${COMMON_OPTS}"
+export CXXFLAGS=${CFLAGS}
+export CPPFLAGS=${CFLAGS}
+export  LDFLAGS="-L/usr/local/lib ${COMMON_OPTS}"
+
+cd pkg-config-0.29.1
+./configure --with-internal-glib
+make install
+cd ..
+
+cd libogg-1.3.2
+./configure --disable-shared
+make install
+cd ..
+
+cd libvorbis-1.3.5
+./configure --disable-shared
+make install
+cd ..
+
+cd flac-1.3.2
+./configure --disable-shared --enable-static
+make install
+cd ..
+
+cd libsndfile-1.0.28
+./configure --disable-shared
+make install
