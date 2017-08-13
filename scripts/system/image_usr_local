@@ -6,3 +6,4 @@ cd /Volumes/ramdisk
 
 hdiutil create -size 8g -type SPARSE -fs HFS+ -volname usr.local usr.local
 sudo hdiutil attach -mountpoint /usr/local usr.local.sparseimage
+sudo -k
