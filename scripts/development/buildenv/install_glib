@@ -1,0 +1,10 @@
+#!/bin/sh
+
+DIR="`dirname \"$0\"`/"
+URL="https://download.gnome.org/sources/glib/2.53/glib-2.53.6.tar.xz"
+
+${DIR}install_ffi
+${DIR}install_gettext
+${DIR}install_pcre
+
+${DIR}do_install ${URL} --enable-static --disable-shared

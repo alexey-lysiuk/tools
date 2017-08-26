@@ -1,0 +1,12 @@
+#!/bin/sh
+
+DIR="`dirname \"$0\"`/"
+URL="http://www.jedsoft.org/releases/slang/slang-2.3.1a.tar.bz2"
+
+${DIR}install_pcre
+
+export BUILD_MAKE_FLAGS="install-static"
+
+${DIR}do_install ${URL}
+
+unset BUILD_MAKE_FLAGS

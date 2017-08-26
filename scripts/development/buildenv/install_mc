@@ -1,0 +1,16 @@
+#!/bin/sh
+
+DIR="`dirname \"$0\"`/"
+URL="https://www.midnight-commander.org/downloads/mc-4.8.19.tar.xz"
+
+${DIR}install_pkgconfig
+${DIR}install_glib
+${DIR}install_slang
+
+# TODO: other dependencies
+
+export BUILD_LDFLAGS="-framework CoreFoundation -framework CoreServices -lglib-2.0"
+
+${DIR}do_install ${URL}
+
+unset BUILD_LDFLAGS

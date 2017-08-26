@@ -1,0 +1,6 @@
+#!/bin/sh
+
+INST="`dirname \"$0\"`/do_install"
+URL="https://ftp.gnu.org/gnu/ncurses/ncurses-6.0.tar.gz"
+
+${INST} ${URL} --enable-static --disable-shared

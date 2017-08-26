@@ -1,0 +1,75 @@
+#!/bin/sh
+
+set -o errexit
+
+if [ "$#" -lt "1" ]; then
+	echo "Usage: do_install url [args...]"
+	exit 1
+fi
+
+# Configuration
+
+BUILDENV_PATH=/Volumes/ramdisk/buildenv/
+
+# COMMON_FLAGS="-mmacosx-version-min=10.7 -isysroot /Volumes/Storage/Work/devbuilds/macos_sdk/MacOSX10.7.sdk"
+
+export CFLAGS="-I/usr/local/include ${COMMON_FLAGS} ${BUILD_CFLAGS}"
+export CXXFLAGS="-I/usr/local/include ${COMMON_FLAGS} ${BUILD_CXXFLAGS}"
+export OBJCFLAGS="-I/usr/local/include ${COMMON_FLAGS} ${BUILD_OBJCFLAGS}"
+export CPPFLAGS="-I/usr/local/include ${COMMON_FLAGS} ${BUILD_CPPFLAGS}"
+export OBJCXXFLAGS="-I/usr/local/include ${COMMON_FLAGS} ${BUILD_OBJCXXFLAGS}"
+export LDFLAGS="-L/usr/local/lib ${COMMON_FLAGS} ${BUILD_LDFLAGS}"
+
+if [ ! -e "${BUILDENV_PATH}" ]; then
+	mkdir -p "${BUILDENV_PATH}"
+fi
+
+cd "${BUILDENV_PATH}"
+
+# Mount image file to /usr/local 
+
+IMAGE_BASENAME=usr.local
+IMAGE_FILENAME=${IMAGE_BASENAME}.sparseimage
+
+if [ ! -e "${IMAGE_FILENAME}" ]; then
+	hdiutil create -size 2g -type SPARSE -fs HFS+ -volname "${IMAGE_BASENAME}" "${IMAGE_BASENAME}"
+fi
+
+set +o errexit
+hdiutil info | fgrep usr.local.sparseimage > /dev/null
+IMAGE_MOUNTED=$?
+set -o errexit
+
+if [ "${IMAGE_MOUNTED}" -ne "0" ]; then
+	sudo -k hdiutil attach -mountpoint /usr/local "${IMAGE_FILENAME}"
+fi
+
+# Download and extract source code
+
+URL=$1
+FILENAME=${URL##*/}
+DIRNAME=${FILENAME%%.tar*}
+
+if [ ! -e "${FILENAME}" ]; then
+	curl -OL "${URL}"
+fi
+
+if [ ! -e "${DIRNAME}" ]; then
+	tar -xf "${FILENAME}"
+fi
+
+# Build and install
+
+cd "${DIRNAME}"
+
+# if [ ! -e "configure" ]; then
+# 	./autogen.sh
+# fi
+
+./configure ${@:2}
+
+if [ -z ${BUILD_MAKE_FLAGS+x} ]; then
+	make install
+else
+	make ${BUILD_MAKE_FLAGS}
+fi
