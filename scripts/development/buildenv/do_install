@@ -11,14 +11,15 @@ fi
 
 BUILDENV_PATH=/Volumes/ramdisk/buildenv/
 
-# COMMON_FLAGS="-mmacosx-version-min=10.7 -isysroot /Volumes/Storage/Work/devbuilds/macos_sdk/MacOSX10.7.sdk"
+# Example:
+# > export BUILD_COMMON_FLAGS="-mmacosx-version-min=10.7 -isysroot /Volumes/Storage/Work/devbuilds/macos_sdk/MacOSX10.7.sdk"
 
-export CFLAGS="-I/usr/local/include ${COMMON_FLAGS} ${BUILD_CFLAGS}"
-export CXXFLAGS="-I/usr/local/include ${COMMON_FLAGS} ${BUILD_CXXFLAGS}"
-export OBJCFLAGS="-I/usr/local/include ${COMMON_FLAGS} ${BUILD_OBJCFLAGS}"
-export CPPFLAGS="-I/usr/local/include ${COMMON_FLAGS} ${BUILD_CPPFLAGS}"
-export OBJCXXFLAGS="-I/usr/local/include ${COMMON_FLAGS} ${BUILD_OBJCXXFLAGS}"
-export LDFLAGS="-L/usr/local/lib ${COMMON_FLAGS} ${BUILD_LDFLAGS}"
+export CFLAGS="-I/usr/local/include ${BUILD_COMMON_FLAGS} ${BUILD_CFLAGS}"
+export CXXFLAGS="-I/usr/local/include ${BUILD_COMMON_FLAGS} ${BUILD_CXXFLAGS}"
+export OBJCFLAGS="-I/usr/local/include ${BUILD_COMMON_FLAGS} ${BUILD_OBJCFLAGS}"
+export CPPFLAGS="-I/usr/local/include ${BUILD_COMMON_FLAGS} ${BUILD_CPPFLAGS}"
+export OBJCXXFLAGS="-I/usr/local/include ${BUILD_COMMON_FLAGS} ${BUILD_OBJCXXFLAGS}"
+export LDFLAGS="-L/usr/local/lib ${BUILD_COMMON_FLAGS} ${BUILD_LDFLAGS}"
 
 if [ ! -e "${BUILDENV_PATH}" ]; then
 	mkdir -p "${BUILDENV_PATH}"

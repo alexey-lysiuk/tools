@@ -1,0 +1,12 @@
+#!/bin/sh
+
+if [ ! -z ${BUILD_MPG123_INSTALLED+x} ]; then
+	exit
+fi
+
+INST="`dirname \"$0\"`/do_install"
+URL="https://www.mpg123.de/download/mpg123-1.25.6.tar.bz2"
+
+${INST} ${URL} --enable-static --disable-shared
+
+export BUILD_MPG123_INSTALLED=1
