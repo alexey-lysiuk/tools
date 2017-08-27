@@ -16,16 +16,16 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-_COMMON_FLAGS = ' -mmacosx-version-min=10.7 -isysroot /Volumes/Storage/Work/devbuilds/macos_sdk/MacOSX10.7.sdk'
-_COMMON_COMPILE_FLAGS = '-I/usr/local/include' + _COMMON_FLAGS
+_DEFAULT_COMPILER_FLAGS = '-I/usr/local/include'
+_DEFAULT_LINKER_FLAGS = '-L/usr/local/lib'
 
 ENVIRON = {
-    'CFLAGS': _COMMON_COMPILE_FLAGS,
-    'CXXFLAGS': _COMMON_COMPILE_FLAGS,
-    'OBJCFLAGS': _COMMON_COMPILE_FLAGS,
-    'CPPFLAGS': _COMMON_COMPILE_FLAGS,
-    'OBJCXXFLAGS': _COMMON_COMPILE_FLAGS,
-    'LDFLAGS': '-L/usr/local/lib' + _COMMON_FLAGS
+    'CPPFLAGS': _DEFAULT_COMPILER_FLAGS,
+    'CFLAGS': _DEFAULT_COMPILER_FLAGS,
+    'CXXFLAGS': _DEFAULT_COMPILER_FLAGS,
+    'OBJCFLAGS': _DEFAULT_COMPILER_FLAGS,
+    'OBJCXXFLAGS': _DEFAULT_COMPILER_FLAGS,
+    'LDFLAGS': _DEFAULT_LINKER_FLAGS
 }
 
 
@@ -109,9 +109,8 @@ TARGETS = {
     },
 
     'glib': {
-        # The last version that supports Mac OS X 10.7 Lion
-        'url': 'https://download.gnome.org/sources/glib/2.44/glib-2.44.1.tar.xz',
-        'chk': '8811deacaf8a503d0a9b701777ea079ca6a4277be10e3d730d2112735d5eca07',
+        'url': 'https://download.gnome.org/sources/glib/2.52/glib-2.52.3.tar.xz',
+        'chk': '25ee7635a7c0fcd4ec91cbc3ae07c7f8f5ce621d8183511f414ded09e7e4e128',
         'dep': ('ffi', 'gettext', 'pcre'),
         'cmd': (
             ('./configure', '--enable-static', '--disable-shared'),
