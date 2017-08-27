@@ -18,6 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+import hashlib
 import os
 import subprocess
 import sys
@@ -52,6 +53,7 @@ def _mount_usr_local():
 
 def _download(url, filename):
     response = urlopen(url)
+    checksum = hashlib.sha256()
     step = 4096
     total = 0
 
@@ -61,11 +63,13 @@ def _download(url, filename):
             total += step
 
             if not data:
-                return
+                sys.stdout.write('\n')
+                return checksum.hexdigest()
 
             f.write(data)
+            checksum.update(data)
 
-            sys.stdout.write('\rDownloading %s, %i bytes' % (filename, total))
+            sys.stdout.write('\rDownloading %s: %i bytes' % (filename, total))
             sys.stdout.flush()
 
 
@@ -113,7 +117,11 @@ def _build(name):
     filename = splitted[1]
 
     if not os.path.exists(filename):
-        _download(url, filename)
+        checksum = _download(url, filename)
+
+        if checksum != target['chk']:
+            os.unlink(filename)
+            raise Exception("Checksum for %s doesn't match!" % filename)
 
     work_dir = _guess_work_dir(filename)
 
