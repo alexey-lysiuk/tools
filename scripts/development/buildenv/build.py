@@ -100,9 +100,12 @@ def _build(name):
 
     if not os.path.exists(filename):
         _download(url)
-        _extract(filename)
 
     work_dir = _guess_work_dir(filename)
+
+    if not os.path.exists(work_dir):
+        _extract(filename)
+
     environ = os.environ.copy()
     _merge_environ(environ, config.ENVIRON)
     _merge_environ(environ, _dict_value(target, 'env', {}))
