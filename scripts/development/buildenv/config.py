@@ -80,15 +80,18 @@ TARGETS = {
 
     'fluidsynth': {
         'url': 'https://github.com/FluidSynth/fluidsynth/archive/v1.1.6.tar.gz',
-        'dep': ('pkg-config', 'autoconf', 'automake', 'libtool', 'glib', 'sndfile'),
+        'dep': ('pkg-config', 'glib', 'sndfile'),
         'cmd': (
-            ('./autogen.sh', ),
-            ('./configure', '--enable-static', '--disable-shared', '--without-readline'),
+            (
+                _cmake(), '-DCMAKE_BUILD_TYPE=Release', '-DBUILD_SHARED_LIBS=NO', '-DLIB_SUFFIX=',
+                '-Denable-framework=NO', '-Denable-readline=NO', '.'
+            ),
             ('make', 'install')
-        ),
+        )
+        ,
         'env': {
-            'LDFLAGS': '-framework AudioToolbox -framework AudioUnit '
-                       '-framework CoreAudio -framework CoreMIDI -framework CoreServices'
+            'LDFLAGS': '-framework AudioToolbox -framework AudioUnit -framework CoreAudio '
+                       '-logg -lvorbis -lvorbisenc -lFLAC'
         }
     },
 
