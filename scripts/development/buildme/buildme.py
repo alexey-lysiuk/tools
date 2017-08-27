@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 #
-#    Yet another build environment for macOS
+#    Build Me: Yet another build environment for macOS
 #    Copyright (C) 2017 Alexey Lysiuk
 #
 #    This program is free software: you can redistribute it and/or modify
@@ -138,7 +138,7 @@ def _build(name):
 
 def _main():
     if len(sys.argv) < 2:
-        print('Usage: build.py [target ...]')
+        print('Usage: buildme.py [target ...]')
         sys.exit(1)
 
     to_build = []
