@@ -29,52 +29,89 @@ except ImportError:
     # Python 3
     from urllib.request import urlopen
 
-from config import TARGETS
+import config
 
 
-def mount_usr_local():
-    pass
+def _dict_value(dictionary, key, default):
+    return key in dictionary and dictionary[key] or default
 
 
-def download(url):
+def _mount_usr_local():
+    basename = 'usr.local'
+    filename = basename + '.sparseimage'
+
+    if not os.path.exists(filename):
+        subprocess.check_call(['hdiutil', 'create', '-size', '2g', '-type', 'SPARSE',
+                               '-fs', 'HFS+', '-volname', basename, filename])
+
+    hdi_info = subprocess.check_output(['hdiutil', 'info',])
+
+    if -1 == hdi_info.find(filename):
+        subprocess.check_call(['sudo', '-k', 'hdiutil', 'attach', '-mountpoint', '/usr/local', filename])
+
+
+def _download(url):
+    # TODO: python based download with progress
     subprocess.check_call(['curl', '-LO', url])
 
 
-def extract(filename):
+def _extract(filename):
     subprocess.check_call(['tar', '-xf', filename])
 
 
-def build(name):
-    target = TARGETS[name]
+_GUESS_FILENAMES = (
+    'configure',
+    'Makefile',
+    'autogen.sh',
+    'CMakeLists.txt'
+)
+
+
+def _guess_work_dir(filename):
+    files = subprocess.check_output(['tar', '-tf', filename])
+    result = ''
+    shortest = sys.maxint
+
+    for name in files.split('\n'):
+        parts = name.split('/')
+        parts_count = len(parts)
+
+        if parts[-1] in _GUESS_FILENAMES:
+            if parts_count < shortest:
+                result = '/'.join(parts[:-1])
+                shortest = parts_count
+
+    return result
+
+
+def _merge_environ(dst, src):
+    for e in src:
+        if e in dst:
+            dst[e] += ' ' + src[e]
+        else:
+            dst[e] = src[e]
+
+
+def _build(name):
+    target = config.TARGETS[name]
     url = target['url']
     splitted = url.rsplit('/', 1)
     filename = splitted[1]
 
     if not os.path.exists(filename):
-        download(url)
-        extract(filename)
+        _download(url)
+        _extract(filename)
 
-    chdir = 'nochdir' not in target or not target['nochdir']
+    work_dir = _guess_work_dir(filename)
+    environ = os.environ.copy()
+    _merge_environ(environ, config.ENVIRON)
+    _merge_environ(environ, _dict_value(target, 'env', {}))
 
-    if chdir:
-        # TODO: detect dirname
-        # TODO: extract only when dirname doesn't exist
-        dirname = filename
-        dirname = dirname.replace('.tar.gz', '')
-        dirname = dirname.replace('.tar.bz2', '')
-        dirname = dirname.replace('.tar.xz', '')
-        dirname = dirname.replace('.tgz', '')
-
-        os.chdir(dirname)
-
-    command = target['cmd']
-    subprocess.check_call([command], shell=True)
-
-    if chdir:
-        os.chdir('..')
+    for command in target['cmd']:
+        subprocess.check_call(command, cwd=work_dir, env=environ)
 
 
-def main():
+def _main():
     if len(sys.argv) < 2:
         print('Usage: build.py [target ...]')
         sys.exit(1)
@@ -85,7 +122,9 @@ def main():
         if root in to_build:
             return
 
-        for dep in TARGETS[root]['dep']:
+        deps = _dict_value(config.TARGETS[root], 'dep', ())
+
+        for dep in deps:
             add_deps(dep)
 
         to_build.append(root)
@@ -96,11 +135,11 @@ def main():
     self_path = os.path.dirname(os.path.abspath(__file__))
     os.chdir(self_path)
 
-    mount_usr_local()
+    _mount_usr_local()
 
     for name in to_build:
-        build(name)
+        _build(name)
 
 
 if __name__ == '__main__':
-    main()
+    _main()
