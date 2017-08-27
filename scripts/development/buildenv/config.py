@@ -33,7 +33,6 @@ ENVIRON = {
 TARGETS = {
     'autoconf': {
         'url': 'https://ftp.gnu.org/gnu/autoconf/autoconf-2.69.tar.xz',
-        'dep': (),
         'cmd': (
             ('./configure', ),
             ('make', 'install')
@@ -42,7 +41,6 @@ TARGETS = {
 
     'automake': {
         'url': 'https://ftp.gnu.org/gnu/automake/automake-1.15.1.tar.xz',
-        'dep': (),
         'cmd': (
             ('./configure',),
             ('make', 'install')
@@ -51,7 +49,6 @@ TARGETS = {
 
     'ffi': {
         'url': 'https://sourceware.org/pub/libffi/libffi-3.2.1.tar.gz',
-        'dep': (),
         'cmd': (
             ('./configure', '--enable-static', '--disable-shared'),
             ('make', 'install')
@@ -83,7 +80,6 @@ TARGETS = {
 
     'gettext': {
         'url': 'https://ftp.gnu.org/pub/gnu/gettext/gettext-0.19.8.1.tar.xz',
-        'dep': (),
         'cmd': (
             ('./configure', '--enable-static', '--disable-shared'),
             ('make', 'install')
@@ -102,7 +98,6 @@ TARGETS = {
 
     'libtool': {
         'url': 'http://ftp-gnu-org.ip-connect.vn.ua/libtool/libtool-2.4.6.tar.xz',
-        'dep': (),
         'cmd': (
             ('./configure', '--enable-static', '--disable-shared'),
             ('make', 'install')
@@ -111,7 +106,6 @@ TARGETS = {
 
     'mpg123': {
         'url': 'https://www.mpg123.de/download/mpg123-1.25.6.tar.bz2',
-        'dep': (),
         'cmd': (
             ('./configure', '--enable-static', '--disable-shared'),
             ('make', 'install')
@@ -120,7 +114,6 @@ TARGETS = {
 
     'ogg': {
         'url': 'https://downloads.xiph.org/releases/ogg/libogg-1.3.2.tar.xz',
-        'dep': (),
         'cmd': (
             ('./configure', '--enable-static', '--disable-shared'),
             ('make', 'install')
@@ -129,7 +122,6 @@ TARGETS = {
 
     'pcre': {
         'url': 'https://ftp.pcre.org/pub/pcre/pcre-8.41.tar.bz2',
-        'dep': (),
         'cmd': (
             ('./configure', '--enable-static', '--disable-shared', '--enable-unicode-properties'),
             ('make', 'install')
@@ -138,7 +130,6 @@ TARGETS = {
 
     'pkg-config': {
         'url': 'https://pkg-config.freedesktop.org/releases/pkg-config-0.29.2.tar.gz',
-        'dep': (),
         'cmd': (
             ('./configure', '--with-internal-glib'),
             ('make', 'install')
