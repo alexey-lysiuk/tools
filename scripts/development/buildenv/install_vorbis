@@ -1,8 +1,0 @@
-#!/bin/sh
-
-DIR="`dirname \"$0\"`/"
-URL="https://downloads.xiph.org/releases/vorbis/libvorbis-1.3.5.tar.xz"
-
-${DIR}install_ogg
-
-${DIR}do_install ${URL} --enable-static --disable-shared

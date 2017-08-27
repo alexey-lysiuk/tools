@@ -1,6 +1,0 @@
-#!/bin/sh
-
-INST="`dirname \"$0\"`/do_install"
-URL="https://sourceware.org/pub/libffi/libffi-3.2.1.tar.gz"
-
-${INST} ${URL} --enable-static --disable-shared

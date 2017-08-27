@@ -1,6 +1,0 @@
-#!/bin/sh
-
-INST="`dirname \"$0\"`/do_install"
-URL="https://ftp.gnu.org/gnu/automake/automake-1.15.1.tar.xz"
-
-${INST} ${URL}
