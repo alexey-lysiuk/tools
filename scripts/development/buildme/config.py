@@ -42,8 +42,20 @@ def _cmake():
 
 
 # TODO: name aliases: 'libogg' -> 'ogg'
+# TODO: ./configure --disable-dependency-tracking
 
 TARGETS = {
+    'ao': {
+        'url': 'http://downloads.xiph.org/releases/ao/libao-1.2.0.tar.gz',
+        'chk': '03ad231ad1f9d64b52474392d63c31197b0bc7bd416e58b1c10a329a5ed89caf',
+        # 'url': 'https://github.com/xiph/libao/archive/1.2.2.tar.gz',
+        # 'chk': 'df8a6d0e238feeccb26a783e778716fb41a801536fe7b6fce068e313c0e2bf4d',
+        'cmd': (
+            ('./configure', '--enable-static', '--disable-shared', '--disable-dependency-tracking'),
+            ('make', 'install')
+        )
+    },
+
     'autoconf': {
         'url': 'https://ftp.gnu.org/gnu/autoconf/autoconf-2.69.tar.xz',
         'chk': '64ebcec9f8ac5b2487125a86a7760d2591ac9e1d3dbd59489633f9de62a57684',
@@ -57,7 +69,7 @@ TARGETS = {
         'url': 'https://ftp.gnu.org/gnu/automake/automake-1.15.1.tar.xz',
         'chk': 'af6ba39142220687c500f79b4aa2f181d9b24e4f8d8ec497cea4ba26c64bedaf',
         'cmd': (
-            ('./configure',),
+            ('./configure', ),
             ('make', 'install')
         )
     },
@@ -74,7 +86,7 @@ TARGETS = {
     'flac': {
         'url': 'https://downloads.xiph.org/releases/flac/flac-1.3.2.tar.xz',
         'chk': '91cfc3ed61dc40f47f050a109b08610667d73477af6ef36dcad31c31a4a8d53f',
-        'dep': ('ogg',),
+        'dep': ('ogg', ),
         'cmd': (
             ('./configure', '--enable-static', '--disable-shared'),
             ('make', 'install')
@@ -91,8 +103,7 @@ TARGETS = {
                 '-Denable-framework=NO', '-Denable-readline=NO', '.'
             ),
             ('make', 'install')
-        )
-        ,
+        ),
         'env': {
             'LDFLAGS': '-framework AudioToolbox -framework AudioUnit -framework CoreAudio '
                        '-logg -lvorbis -lvorbisenc -lFLAC'
@@ -182,10 +193,33 @@ TARGETS = {
         )
     },
 
+    'speex': {
+        'url': 'http://downloads.xiph.org/releases/speex/speex-1.2.0.tar.gz',
+        'chk': 'eaae8af0ac742dc7d542c9439ac72f1f385ce838392dc849cae4536af9210094',
+        'dep': ('ogg', ),
+        'cmd': (
+            ('./configure', '--enable-static', '--disable-shared', '--disable-dependency-tracking'),
+            ('make', 'install')
+        )
+    },
+
+    'timidity': {
+        'url': 'https://downloads.sourceforge.net/project/timidity/'
+               'TiMidity++/TiMidity++-2.14.0/TiMidity++-2.14.0.tar.bz2',
+        'chk': 'f97fb643f049e9c2e5ef5b034ea9eeb582f0175dce37bc5df843cc85090f6476',
+        'dep': ('vorbis', 'flac', 'speex', 'ao'),
+        # TODO: need patch sources in order to build
+        # https://sourceforge.net/p/timidity/git/ci/6e189f6073e979ceccaf05c3bb5f495a1b9ed87e/tree/timidity/mfi.c?diff=7eaa3a5e7782cfa741e7f4642156ccd08218deb4
+        'cmd': (
+            ('./configure', '--enable-audio=darwin,vorbis,flac,speex,ao', '--disable-dependency-tracking'),
+            ('make', 'install')
+        )
+    },
+
     'vorbis': {
         'url': 'https://downloads.xiph.org/releases/vorbis/libvorbis-1.3.5.tar.xz',
         'chk': '54f94a9527ff0a88477be0a71c0bab09a4c3febe0ed878b24824906cd4b0e1d1',
-        'dep': ('ogg',),
+        'dep': ('ogg', ),
         'cmd': (
             ('./configure', '--enable-static', '--disable-shared'),
             ('make', 'install')
