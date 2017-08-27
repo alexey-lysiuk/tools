@@ -50,9 +50,23 @@ def _mount_usr_local():
         subprocess.check_call(['sudo', '-k', 'hdiutil', 'attach', '-mountpoint', '/usr/local', filename])
 
 
-def _download(url):
-    # TODO: python based download with progress
-    subprocess.check_call(['curl', '-LO', url])
+def _download(url, filename):
+    response = urlopen(url)
+    step = 4096
+    total = 0
+
+    with open(filename, 'wb') as f:
+        while True:
+            data = response.read(step)
+            total += step
+
+            if not data:
+                return
+
+            f.write(data)
+
+            sys.stdout.write('\rDownloading %s, %i bytes' % (filename, total))
+            sys.stdout.flush()
 
 
 def _extract(filename):
@@ -99,7 +113,7 @@ def _build(name):
     filename = splitted[1]
 
     if not os.path.exists(filename):
-        _download(url)
+        _download(url, filename)
 
     work_dir = _guess_work_dir(filename)
 
