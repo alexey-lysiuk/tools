@@ -28,7 +28,21 @@ ENVIRON = {
     'LDFLAGS': '-L/usr/local/lib' + _COMMON_FLAGS
 }
 
+
+def _cmake():
+    import subprocess
+
+    try:
+        subprocess.call('cmake')
+        return 'cmake'
+    except OSError:
+        pass
+
+    return '/Applications/CMake.app/Contents/bin/cmake'
+
+
 # TODO: file hash
+# TODO: name aliases: 'libogg' -> 'ogg'
 
 TARGETS = {
     'autoconf': {
@@ -116,6 +130,14 @@ TARGETS = {
         'url': 'https://downloads.xiph.org/releases/ogg/libogg-1.3.2.tar.xz',
         'cmd': (
             ('./configure', '--enable-static', '--disable-shared'),
+            ('make', 'install')
+        )
+    },
+
+    'openal': {
+        'url': 'https://github.com/kcat/openal-soft/archive/openal-soft-1.18.1.tar.gz',
+        'cmd': (
+            (_cmake(), '-DLIBTYPE=STATIC', '-DCMAKE_BUILD_TYPE=Release', '-DALSOFT_EMBED_HRTF_DATA=YES', '.'),
             ('make', 'install')
         )
     },
