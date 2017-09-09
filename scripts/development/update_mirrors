@@ -22,7 +22,7 @@ function update_mirror {
 				git remote add ${REMOTE_NAME} ${REMOTE_URL}
 			done
 
-			git fetch --all
+			git fetch --all --tags
 			git gc
 
 			cd ..
@@ -30,7 +30,7 @@ function update_mirror {
 	fi
 
 	cd ${DIR}
-	git fetch --all
+	git fetch --all --tags
 	cd ..
 }
 
