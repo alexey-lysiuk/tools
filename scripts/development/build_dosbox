@@ -12,7 +12,7 @@ if [ ! -e "${BUILD_ROOT}" ]; then
 fi
 
 cd "${BUILD_ROOT}"
-curl -OL http://ftp.gnu.org/gnu/autoconf/autoconf-2.69.tar.gz
+curl -OL https://ftp.gnu.org/gnu/autoconf/autoconf-2.69.tar.gz
 tar -xzf autoconf-2.69.tar.gz
 
 cd autoconf-2.69
@@ -20,32 +20,32 @@ cd autoconf-2.69
 make install
 
 cd ..
-curl -OL http://ftp.gnu.org/gnu/automake/automake-1.15.tar.gz
-tar -xzf automake-1.15.tar.gz
+curl -OL https://ftp.gnu.org/gnu/automake/automake-1.15.1.tar.gz
+tar -xzf automake-1.15.1.tar.gz
 
-cd automake-1.15
+cd automake-1.15.1
 ./configure --prefix="${AUTOTOOLS_PREFIX}"
 make install
 
 cd ..
-curl -OL http://libsdl.org/release/SDL2-2.0.5.tar.gz
-tar -xzf SDL2-2.0.5.tar.gz
+curl -OL https://libsdl.org/release/SDL2-2.0.7.tar.gz
+tar -xzf SDL2-2.0.7.tar.gz
 
-cd SDL2-2.0.5
+cd SDL2-2.0.7
 ./configure --prefix="${SDL2_PREFIX}" --disable-shared --enable-static
 make install
 
 cd ..
-curl -OL https://github.com/nigels-com/glew/releases/download/glew-2.0.0/glew-2.0.0.tgz
-tar -xzf glew-2.0.0.tgz
+curl -OL https://github.com/nigels-com/glew/releases/download/glew-2.1.0/glew-2.1.0.tgz
+tar -xzf glew-2.1.0.tgz
 
-cd glew-2.0.0
+cd glew-2.1.0
 make lib lib/libGLEW.a
 
 cd ..
 git clone https://github.com/alexey-lysiuk/dosbox.git
 
-GLEW_PREFIX=${BUILD_ROOT}/glew-2.0.0
+GLEW_PREFIX=${BUILD_ROOT}/glew-2.1.0
 GLEW_INCLUDE=${GLEW_PREFIX}/include
 declare -x CFLAGS=-I"${GLEW_INCLUDE}"
 declare -x CPPFLAGS=-I"${GLEW_INCLUDE}"
