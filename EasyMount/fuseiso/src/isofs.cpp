@@ -735,7 +735,7 @@ static char *isofs_fix_entry(char *entry, size_t len) {
     } else {
         // initialize iconv descriptor
         iconv_t cd = iconv_open(iocharset, "UCS-2BE");
-        if(cd < 0) {
+        if(iconv_t(-1) == cd) {
             perror("iconv");
             return NULL;
         }
