@@ -19,13 +19,4 @@ git clone -s "${BUILD_ENV_DIR}"
 cd ${BUILD_ENV}
 git clone -s "${SLADE_DIR}" SLADE
 
-cd SLADE
-SLADE_VERSION=SLADE-`git describe --tags`
-
-plutil -replace LSMinimumSystemVersion -string "10.7" Info.plist
-plutil -replace CFBundleVersion -string "${SLADE_VERSION}" Info.plist
-plutil -replace CFBundleShortVersionString -string "${SLADE_VERSION}" Info.plist
-plutil -replace CFBundleLongVersionString -string "${SLADE_VERSION}" Info.plist
-plutil -replace NSSupportsAutomaticGraphicsSwitching -bool true Info.plist
-
-../make_dmg.sh $@
+./make_dmg.sh $@
