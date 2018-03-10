@@ -58,7 +58,6 @@ LINKER_FLAGS=${OTHER_LIBS}\ ${FRAMEWORKS}
 	-DFLUIDSYNTH_LIBRARIES=${FSYNTH_LIBS}            \
 	-DSDL2_INCLUDE_DIR=${SDL_DIR}include             \
 	-DSDL2_LIBRARY=${SDL_DIR}lib/libSDL2.a           \
-	-DLLVM_DIR=${DEPS_DIR}llvm/lib/cmake/llvm        \
 	..
 
 open ${ZDOOM_PROJECT}.xcodeproj
