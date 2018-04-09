@@ -31,7 +31,7 @@ FSYNTH_LIB_PREFIX=${FSYNTH_DIR}lib/lib
 FSYNTH_LIBS=${FSYNTH_LIB_PREFIX}fluidsynth.a\;${FSYNTH_LIB_PREFIX}glib-2.0.a\;${FSYNTH_LIB_PREFIX}intl.a
 SDL_DIR=${DEPS_DIR}sdl/
 OTHER_LIBS=-liconv\ -L${DEPS_DIR}ogg/lib\ -logg\ -L${DEPS_DIR}vorbis/lib\ -lvorbis\ -lvorbisenc\ -L${DEPS_DIR}flac/lib\ -lFLAC
-FRAMEWORKS=-framework\ AudioUnit\ -framework\ AudioToolbox\ -framework\ CoreAudio\ -framework\ CoreMIDI\ -framework\ CoreVideo\ -framework\ ForceFeedback
+FRAMEWORKS=-framework\ AudioUnit\ -framework\ AudioToolbox\ -framework\ Carbon\ -framework\ CoreAudio\ -framework\ CoreMIDI\ -framework\ CoreVideo\ -framework\ ForceFeedback
 LINKER_FLAGS=${OTHER_LIBS}\ ${FRAMEWORKS}
 
 /Applications/CMake.app/Contents/bin/cmake -GXcode   \
