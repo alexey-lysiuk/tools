@@ -44,7 +44,6 @@ LINKER_FLAGS=${OTHER_LIBS}\ ${FRAMEWORKS}
 	-DFORCE_INTERNAL_JPEG=YES                        \
 	-DFORCE_INTERNAL_BZIP2=YES                       \
 	-DFORCE_INTERNAL_GME=YES                         \
-	-DSEND_ANON_STATS=NO                             \
 	-DCMAKE_OSX_DEPLOYMENT_TARGET="${MACOS_MIN_VER}" \
 	-DCMAKE_EXE_LINKER_FLAGS="${LINKER_FLAGS}"       \
 	-DFMOD_INCLUDE_DIR=${FMOD_DIR}inc                \
