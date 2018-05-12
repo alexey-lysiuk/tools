@@ -57,6 +57,7 @@ SNDFILE_DIR=${DEPS_DIR}sndfile/
 FSYNTH_DIR=${DEPS_DIR}fluidsynth/
 FSYNTH_LIB_PREFIX=${FSYNTH_DIR}lib/lib
 FSYNTH_LIBS=${FSYNTH_LIB_PREFIX}fluidsynth.a\;${FSYNTH_LIB_PREFIX}glib-2.0.a\;${FSYNTH_LIB_PREFIX}intl.a
+JPEG_DIR=${DEPS_DIR}jpeg/
 OTHER_LIBS=-liconv\ -L${DEPS_DIR}ogg/lib\ -logg\ -L${DEPS_DIR}vorbis/lib\ -lvorbis\ -lvorbisenc\ -L${DEPS_DIR}flac/lib\ -lFLAC
 FRAMEWORKS=-framework\ AudioUnit\ -framework\ AudioToolbox\ -framework\ CoreAudio\ -framework\ CoreMIDI
 LINKER_FLAGS=${OTHER_LIBS}\ ${FRAMEWORKS}
@@ -72,7 +73,6 @@ LINKER_FLAGS=${OTHER_LIBS}\ ${FRAMEWORKS}
 	-DDYN_SNDFILE=NO                                     \
 	-DDYN_FLUIDSYNTH=NO                                  \
 	-DFORCE_INTERNAL_ZLIB=YES                            \
-	-DFORCE_INTERNAL_JPEG=YES                            \
 	-DFORCE_INTERNAL_BZIP2=YES                           \
 	-DFORCE_INTERNAL_GME=YES                             \
 	-DOPENAL_INCLUDE_DIR="${OPENAL_DIR}include"          \
@@ -83,6 +83,8 @@ LINKER_FLAGS=${OTHER_LIBS}\ ${FRAMEWORKS}
 	-DSNDFILE_LIBRARY="${SNDFILE_DIR}lib/libsndfile.a"   \
 	-DFLUIDSYNTH_INCLUDE_DIR="${FSYNTH_DIR}include"      \
 	-DFLUIDSYNTH_LIBRARIES="${FSYNTH_LIBS}"              \
+	-DJPEG_INCLUDE_DIR="${JPEG_DIR}include"              \
+	-DJPEG_LIBRARY="${JPEG_DIR}lib/libjpeg.a"            \
 	"${ZDOOM_DIR}"
 make -j2
 
