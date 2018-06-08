@@ -97,7 +97,7 @@ INFO_PLIST_PATH=${BUNDLE_PATH}/Contents/Info.plist
 
 mkdir "${DIST_DIR}"
 cp -R ${ZDOOM_PROJECT_LOW}.app "${BUNDLE_PATH}"
-cp -R "${ZDOOM_DIR}docs" "${DIST_DIR}Docs"
+cp -R "${ZDOOM_DIR}docs/licenses" "${DIST_DIR}Licenses"
 ln -s /Applications "${DIST_DIR}/Applications"
 
 plutil -replace LSMinimumSystemVersion -string "${ZDOOM_OS_MIN_VER}" "${INFO_PLIST_PATH}"
