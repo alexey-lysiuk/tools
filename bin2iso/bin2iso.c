@@ -786,7 +786,7 @@ int   main(int argc, char **argv) {
          //bug?? Why did a trailing space show up??
          while(sBinFilename[--j] == ' ') sBinFilename[j] = '\0';
 
-         strlwr(sBinFilename);
+         _strlwr(sBinFilename);
 
       } else {
          printf ("Error: Filename not found on first line of cuefile.\n", argv[1]);
