@@ -6,6 +6,7 @@ Debug/
 Release/
 bin/
 obj/
+.vs/
 *.opendb
 *.sdf
 *.suo
