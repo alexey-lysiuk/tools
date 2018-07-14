@@ -3,10 +3,10 @@
 set -o errexit
 
 cd /Volumes/ramdisk
-git clone https://github.com/alexey-lysiuk/doom64ex-osx-build.git
+git clone https://github.com/alexey-lysiuk/doom64ex-macos-build.git
 
-cd doom64ex-osx-build
-git clone https://github.com/alexey-lysiuk/Doom64EX.git
+cd doom64ex-macos-build
+git clone --recurse-submodules https://github.com/alexey-lysiuk/Doom64EX.git
 
 cd Doom64EX
 git remote add kaiser https://github.com/svkaiser/Doom64EX.git
