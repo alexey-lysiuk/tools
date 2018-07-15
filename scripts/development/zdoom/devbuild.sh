@@ -50,7 +50,7 @@ ZDOOM_COMMIT=$(git log --pretty=format:'%h' -n 1)
 mkdir "${BUILD_DIR}"
 cd "${BUILD_DIR}"
 
-MACOS_SDK_DIR=${SRC_BASE_DIR}/macos_sdk/MacOSX10.7.sdk
+MACOS_SDK_DIR=${SRC_BASE_DIR}/macos_sdk/MacOSX${ZDOOM_OS_MIN_VER}.sdk
 OPENAL_DIR=${DEPS_DIR}openal/
 MPG123_DIR=${DEPS_DIR}mpg123/
 SNDFILE_DIR=${DEPS_DIR}sndfile/
