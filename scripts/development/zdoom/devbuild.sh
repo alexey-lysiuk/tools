@@ -34,6 +34,9 @@ cd "${BASE_DIR}"
 git clone -s "${SRC_DEPS_DIR}" "${DEPS_DIR}"
 git clone -s "${SRC_ZDOOM_DIR}" "${ZDOOM_DIR}"
 
+cd "${DEPS_DIR}"
+git checkout "${ZDOOM_OS_MIN_VER}"
+
 cd "${ZDOOM_DIR}"
 
 if [ -n "$1" ]; then
