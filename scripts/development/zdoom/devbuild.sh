@@ -5,7 +5,7 @@ SCRIPT_DIR=$(cd "${0%/*}"; pwd)/
 ZDOOM_PROJECT_LOW=$(echo ${ZDOOM_PROJECT} | tr '[:upper:]' '[:lower:]')
 
 if [ -z "${ZDOOM_OS_MIN_VER}" ]; then
-	ZDOOM_OS_MIN_VER=10.7
+	ZDOOM_OS_MIN_VER=10.9
 fi
 
 SRC_BASE_DIR=/Volumes/Storage/Work/devbuilds/
