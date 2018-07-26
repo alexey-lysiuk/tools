@@ -16,6 +16,7 @@ git remote add origin https://github.com/alexey-lysiuk/gzdoom.git
 git remote add rheit https://github.com/rheit/zdoom.git
 git remote add coelckers https://github.com/coelckers/gzdoom.git
 git remote add eruanna https://github.com/raa-eruanna/qzdoom.git
+git remote add drfrag https://github.com/drfrag666/gzdoom.git
 git fetch --all
 git checkout -b master origin/master
 git branch -D macOS
