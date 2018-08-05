@@ -9,6 +9,10 @@ fi
 
 for f in "$@"; do
 	MOUNTPOINT=$(basename -s .dmg "$f")
-	mkdir "$MOUNTPOINT"
-	hdiutil attach "$f" -mountpoint "$MOUNTPOINT"
+
+	if [ ! -e "$MOUNTPOINT" ]; then
+		mkdir "$MOUNTPOINT"
+	fi
+
+	hdiutil attach "$f" -mountpoint "$MOUNTPOINT" -noverify
 done
