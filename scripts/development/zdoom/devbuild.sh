@@ -76,7 +76,6 @@ LINKER_FLAGS=${OTHER_LIBS}\ ${FRAMEWORKS}
 	-DDYN_SNDFILE=NO                                     \
 	-DDYN_FLUIDSYNTH=NO                                  \
 	-DFORCE_INTERNAL_ZLIB=YES                            \
-	-DFORCE_INTERNAL_BZIP2=YES                           \
 	-DFORCE_INTERNAL_GME=YES                             \
 	-DOPENAL_INCLUDE_DIR="${OPENAL_DIR}include"          \
 	-DOPENAL_LIBRARY="${OPENAL_DIR}lib/libopenal.a"      \
