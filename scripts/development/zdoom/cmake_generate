@@ -22,7 +22,6 @@ fi
 cd build
 
 DEPS_DIR=/Volumes/Storage/Work/zdoom-macos-deps/
-FMOD_DIR=${DEPS_DIR}fmodex/
 OPENAL_DIR=${DEPS_DIR}openal/
 MPG123_DIR=${DEPS_DIR}mpg123/
 SNDFILE_DIR=${DEPS_DIR}sndfile/
@@ -45,8 +44,6 @@ LINKER_FLAGS=${OTHER_LIBS}\ ${FRAMEWORKS}
 	-DFORCE_INTERNAL_GME=YES                         \
 	-DCMAKE_OSX_DEPLOYMENT_TARGET="${MACOS_MIN_VER}" \
 	-DCMAKE_EXE_LINKER_FLAGS="${LINKER_FLAGS}"       \
-	-DFMOD_INCLUDE_DIR=${FMOD_DIR}inc                \
-	-DFMOD_LIBRARY=${FMOD_DIR}lib/libfmodex.dylib    \
 	-DOPENAL_INCLUDE_DIR=${OPENAL_DIR}include        \
 	-DOPENAL_LIBRARY=${OPENAL_DIR}lib/libopenal.a    \
 	-DMPG123_INCLUDE_DIR=${MPG123_DIR}include        \
