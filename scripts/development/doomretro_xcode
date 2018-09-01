@@ -7,5 +7,6 @@ cd doomretro
 
 git remote add bradharding https://github.com/bradharding/doomretro.git
 git fetch --all
+git pull bradharding master
 
 open xcode/doomretroapp.xcodeproj
