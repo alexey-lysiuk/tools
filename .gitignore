@@ -13,6 +13,7 @@ obj/
 *.vcxproj.user
 
 # Xcode
+xcshareddata/
 xcuserdata/
 DerivedData/
 *.mode1v3
