@@ -26,7 +26,7 @@ cd "${SRC_DEPS_DIR}"
 git fetch
 
 cd "${SRC_ZDOOM_DIR}"
-git fetch
+git fetch --all --tags
 
 mkdir "${BASE_DIR}"
 
