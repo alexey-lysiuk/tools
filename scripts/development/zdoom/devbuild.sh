@@ -77,6 +77,7 @@ LINKER_FLAGS=${OTHER_LIBS}\ ${FRAMEWORKS}
 	-DDYN_FLUIDSYNTH=NO                                  \
 	-DFORCE_INTERNAL_ZLIB=YES                            \
 	-DFORCE_INTERNAL_GME=YES                             \
+	-DPK3_QUIET_ZIPDIR=YES                               \
 	-DOPENAL_INCLUDE_DIR="${OPENAL_DIR}include"          \
 	-DOPENAL_LIBRARY="${OPENAL_DIR}lib/libopenal.a"      \
 	-DMPG123_INCLUDE_DIR="${MPG123_DIR}include"          \
