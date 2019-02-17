@@ -1,0 +1,12 @@
+#!/bin/sh
+
+cd /Volumes/ramdisk
+
+git clone https://github.com/alexey-lysiuk/NBlood.git
+cd NBlood
+
+git remote add nukeykt https://github.com/nukeykt/NBlood.git
+git fetch --all
+git pull nukeykt master
+
+open platform/Apple/EDuke32.xcodeproj
