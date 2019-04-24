@@ -2,5 +2,6 @@
 
 ZDOOM_PROJECT=GZDoom
 ZDOOM_IDENTIFIER=org.drdteam.gzdoom
+ZDOOM_VULKAN=1
 
 . "`dirname \"$0\"`/devbuild.sh" $@
