@@ -59,3 +59,19 @@ LINKER_FLAGS=${OTHER_LIBS}\ ${FRAMEWORKS}
 	..
 
 open ${ZDOOM_PROJECT}.xcodeproj
+
+# Copy Vulkan support file(s)
+
+ZDOOM_PROJECT_LOWER=$(echo ${ZDOOM_PROJECT} | tr '[:upper:]' '[:lower:]')
+DEFAULT_CONFIGURATION=Debug
+MVK_FILENAME=libMoltenVK.dylib
+MVK_SOURCE_PATH=${DEPS_DIR}moltenvk/lib/
+MVK_TARGET_PATH=${DEFAULT_CONFIGURATION}/${ZDOOM_PROJECT_LOWER}.app/Contents/MacOS/
+
+if [ ! -e "${MVK_TARGET_PATH}" ]; then
+	mkdir -p "${MVK_TARGET_PATH}"
+fi
+
+if [ ! -e "${MVK_TARGET_PATH}${MVK_FILENAME}" ]; then
+	ln -s "${MVK_SOURCE_PATH}${MVK_FILENAME}" "${MVK_TARGET_PATH}"
+fi
