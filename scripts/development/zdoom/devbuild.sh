@@ -61,6 +61,7 @@ FSYNTH_DIR=${DEPS_DIR}fluidsynth/
 FSYNTH_LIB_PREFIX=${FSYNTH_DIR}lib/lib
 FSYNTH_LIBS=${FSYNTH_LIB_PREFIX}fluidsynth.a\;${FSYNTH_LIB_PREFIX}glib-2.0.a\;${FSYNTH_LIB_PREFIX}intl.a
 JPEG_DIR=${DEPS_DIR}jpeg/
+MOLTENVK_DIR=${DEPS_DIR}moltenvk/
 OTHER_LIBS=-liconv\ -L${DEPS_DIR}ogg/lib\ -logg\ -L${DEPS_DIR}vorbis/lib\ -lvorbis\ -lvorbisenc\ -L${DEPS_DIR}flac/lib\ -lFLAC
 FRAMEWORKS=-framework\ AudioUnit\ -framework\ AudioToolbox\ -framework\ CoreAudio\ -framework\ CoreMIDI
 LINKER_FLAGS=${OTHER_LIBS}\ ${FRAMEWORKS}
@@ -100,11 +101,11 @@ INFO_PLIST_PATH=${BUNDLE_PATH}/Contents/Info.plist
 
 mkdir "${DIST_DIR}"
 cp -R ${ZDOOM_PROJECT_LOW}.app "${BUNDLE_PATH}"
-cp -R "${ZDOOM_DIR}docs/licenses" "${DIST_DIR}Licenses"
+cp -R "${ZDOOM_DIR}docs/licenses" "${MOLTENVK_DIR}apache2.txt" "${DIST_DIR}Licenses"
 ln -s /Applications "${DIST_DIR}/Applications"
 
 if [ ! -z "${ZDOOM_VULKAN}" ]; then
-	cp "${DEPS_DIR}moltenvk/lib/libMoltenVK.dylib" "${BUNDLE_PATH}/Contents/MacOS/"
+	cp "${MOLTENVK_DIR}lib/libMoltenVK.dylib" "${BUNDLE_PATH}/Contents/MacOS/"
 fi
 
 plutil -replace LSMinimumSystemVersion -string "${ZDOOM_OS_MIN_VER}" "${INFO_PLIST_PATH}"
