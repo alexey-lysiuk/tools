@@ -101,7 +101,8 @@ INFO_PLIST_PATH=${BUNDLE_PATH}/Contents/Info.plist
 
 mkdir "${DIST_DIR}"
 cp -R ${ZDOOM_PROJECT_LOW}.app "${BUNDLE_PATH}"
-cp -R "${ZDOOM_DIR}docs/licenses" "${MOLTENVK_DIR}apache2.txt" "${DIST_DIR}Licenses"
+cp -R "${ZDOOM_DIR}docs/licenses" "${DIST_DIR}Licenses"
+cp "${MOLTENVK_DIR}apache2.txt" "${DIST_DIR}Licenses"
 ln -s /Applications "${DIST_DIR}/Applications"
 
 if [ ! -z "${ZDOOM_VULKAN}" ]; then
