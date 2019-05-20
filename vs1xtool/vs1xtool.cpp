@@ -60,6 +60,7 @@ enum class Version
 	NONE,
 	VS14,
 	VS15,
+	VS16,
 };
 
 struct ProcessData
@@ -86,6 +87,9 @@ SHORT GetProductID(const Version version)
 	case Version::VS15:
 		return 8878;
 
+	case Version::VS16:
+		return 9278;
+
 	default:
 		FatalExit(-1);
 	}
@@ -102,6 +106,9 @@ const TCHAR* GetLicenseKeyName(const Version version)
 
 	case Version::VS15:
 		return _T("Licenses\\5C505A59-E312-4B89-9508-E162F8150517");
+
+	case Version::VS16:
+		return _T("Licenses\\41717607-F34E-432C-A138-A3CFD7E25CDA");
 
 	default:
 		FatalExit(-1);
@@ -415,6 +422,10 @@ int _tmain(int argc, TCHAR** argv)
 		else if (_tcscmp(argv[i], _T("--vs15")) == 0)
 		{
 			version = Version::VS15;
+		}
+		else if (_tcscmp(argv[i], _T("--vs16")) == 0)
+		{
+			version = Version::VS16;
 		}
 		else if (_tcscmp(argv[i], _T("--prolong")) == 0)
 		{
