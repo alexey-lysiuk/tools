@@ -22,10 +22,13 @@ def main():
         parsed_url[2] = ''  # clear path
         domain = urlparse.urlunsplit(parsed_url)
 
+        total = len(links)
+        current = 1
+
         for link in links:
             fb2_url = urlparse.urljoin(domain, link)
 
-            print('Downloading %s...' % fb2_url)
+            print('Downloading %s [%i of %i]...' % (fb2_url, current, total))
             fb2_response = urllib2.urlopen(fb2_url)
             fb2_data = fb2_response.read()
 
@@ -35,6 +38,7 @@ def main():
             with open(cd_params['filename'], 'wb') as f:
                 f.write(fb2_data)
 
+            current += 1
 
 if '__main__' == __name__:
     main()
