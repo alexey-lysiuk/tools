@@ -27,7 +27,17 @@
 #include <bzlib.h>
 #include <ctype.h>
 #include <libgen.h>
+//#include <sys/stat.h>
+
+#ifdef _MSC_VER
+#include <direct.h>
+#else
 #include <sys/stat.h>
+inline int _mkdir(const char* const name) { return mkdir(name, 0755); }
+#endif
+
+#include <string>
+#include <vector>
 
 void
 die (const char *format, ...)
@@ -101,18 +111,54 @@ decompress_Block (char *dst, size_t dst_len, char *&src, size_t & src_len)
       return strm.next_out - dst;
     }
   else
+  {
     die ("Unknown type %02x", type);
+	  return 0;
+  }
 }
 
-void
-mkpath (char *name)
+//void
+//mkpath (char *name)
+void mkpath (char *filename)
 {
-  if (!name || !strcmp (name, "/") || !strcmp (name, "."))
-    return;
-  char *dir = strdup (name);
-  mkpath (dirname (dir));
-  free (dir);
-  mkdir (name, 0777);
+//  if (!name || !strcmp (name, "/") || !strcmp (name, "."))
+//    return;
+//  char *dir = strdup (name);
+//	dir = dirname (dir);
+//  mkpath (dir);
+//  free (dir);
+//  mkdir (name, 0777);
+
+	std::vector<std::string> nameParts;
+	std::string currentNamePart;
+
+	for (size_t i = 0, count = strlen(filename); i < count; ++i)
+	{
+		const char ch = filename[i];
+
+		if ('\\' == ch || '/' == ch)
+		{
+			if (currentNamePart.empty())
+			{
+				continue;
+			}
+
+			nameParts.push_back(currentNamePart);
+			currentNamePart.clear();
+		}
+		else
+		{
+			currentNamePart += ch;
+		}
+	}
+
+	std::string dirPath;
+
+	for (const std::string& namePart : nameParts)
+	{
+		dirPath += namePart + '/';
+		_mkdir(dirPath.c_str());
+	}
 }
 
 void
@@ -218,27 +264,33 @@ main (int ac, const char *ag[])
 	die ("Unknown value flag6 %x", flag6);
       if (flag != 0 && flag != 2)
 	die ("Unknown value flag %x", flag);
-      char *name = strdup (index + (flag ? 38 : 62));
+      //char *name = strdup (index + (flag ? 38 : 62));
+		char *name = strdup (index + (flag ? 44 : 68));
       for (char *a = name; *a; a++)
 	if (*a == '\\')
 	  *a = '/';
 
       char *src = filedata + offset;
-      size_t src_len = clen;
-      if (clen > filedatalen)
-	die ("Compress position");
-      char *dst = (char *) malloc (ulen);
-      if (!dst)
-	die ("Malloc error");
-      size_t l = decompress_Block (dst, ulen, src, src_len);
-      if (l != ulen)
-	die ("Uncompress data error");
-      printf ("Name %s\n", name);
-      char *dir = strdup (name);
-      mkpath (dirname (dir));
-      write_file (name, dst, ulen);
-      free (dst);
-      free (dir);
+		if (clen > 0)
+		{
+			size_t src_len = clen;
+			if (clen > filedatalen)
+				die ("Compress position");
+			char *dst = (char *) malloc (ulen);
+			if (!dst)
+				die ("Malloc error");
+			size_t l = decompress_Block (dst, ulen, src, src_len);
+			if (l != ulen)
+				die ("Uncompress data error");
+			printf ("Name %s\n", name);
+			char *dir = strdup (name);
+			//mkpath (dirname (dir));
+			mkpath(dir);
+			write_file (name, dst, ulen);
+			free (dst);
+			free (dir);
+		}
+
       free (name);
 
       indexlen -= size;
