@@ -158,7 +158,12 @@ ZDOOM_REPO=${ZDOOM_REPO/.git/}
 TMP_CHECKSUM=$(shasum -a 256 "${DMG_PATH}")
 DMG_CHECKSUM=${TMP_CHECKSUM:0:64}
 
-ZDOOM_DEVBUILDS=${ZDOOM_PROJECT_LOW}-macos-devbuilds
+if [ "${ZDOOM_PROJECT_LOW}" = "lzdoom" ]; then
+	ZDOOM_DEVBUILDS=gzdoom-macos-devbuilds
+else
+	ZDOOM_DEVBUILDS=${ZDOOM_PROJECT_LOW}-macos-devbuilds
+fi
+
 DEVBUILDS_DIR=${SRC_BASE_DIR}${ZDOOM_DEVBUILDS}/
 
 REPO_URL=https://github.com/alexey-lysiuk/${ZDOOM_DEVBUILDS}
