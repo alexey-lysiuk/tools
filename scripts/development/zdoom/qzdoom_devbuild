@@ -4,4 +4,4 @@ ZDOOM_PROJECT=QZDoom
 ZDOOM_IDENTIFIER=org.drdteam.qzdoom
 ZDOOM_VULKAN=1
 
-. "`dirname \"$0\"`/devbuild.sh" $@
+. "`dirname \"$0\"`/devbuild_legacy.sh" $@
