@@ -3,16 +3,15 @@
 set -o errexit
 
 cd /Volumes/ramdisk
-
-if [ ! -e zmusic ]; then
-	git clone https://github.com/coelckers/ZMusic.git zmusic
-fi
+git clone https://github.com/coelckers/ZMusic.git zmusic
 
 cd zmusic
 
-if [ ! -e build ]; then
-	mkdir build
+if [ -n "$1" ]; then
+	git checkout "$1"
 fi
+
+mkdir build
 
 cd build
 
