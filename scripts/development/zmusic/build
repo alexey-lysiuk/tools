@@ -3,9 +3,9 @@
 set -o errexit
 
 cd /Volumes/ramdisk
-git clone https://github.com/coelckers/ZMusic.git zmusic
+git clone https://github.com/coelckers/ZMusic.git zmusic-build
 
-cd zmusic
+cd zmusic-build
 
 if [ -n "$1" ]; then
 	git checkout "$1"
@@ -49,3 +49,8 @@ libtool -static -o libzmusic.a                \
 	thirdparty/timidity/libtimidity.a         \
 	thirdparty/timidityplus/libtimidityplus.a \
 	thirdparty/wildmidi/libwildmidi.a
+
+libtool -static -o libzmusiclite.a            \
+	source/libzmusiclite.a                    \
+	thirdparty/dumb/libdumb.a                 \
+	thirdparty/game-music-emu/gme/libgme.a
