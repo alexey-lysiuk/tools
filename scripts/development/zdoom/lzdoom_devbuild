@@ -2,6 +2,6 @@
 
 ZDOOM_PROJECT=LZDoom
 ZDOOM_IDENTIFIER=org.zdoom.lzdoom
-ZDOOM_OS_MIN_VER=10.7
+ZDOOM_OS_MIN_VER=10.9
 
 . "`dirname \"$0\"`/devbuild_legacy.sh" $@
