@@ -50,37 +50,10 @@ ZDOOM_COMMIT=$(git log --pretty=format:'%h' -n 1)
 # Do a build
 # -----------------------------------------------------------------------------
 
-mkdir "${BUILD_DIR}"
-cd "${BUILD_DIR}"
-
-MACOS_SDK_DIR=${SRC_BASE_DIR}/macos_sdk/MacOSX${ZDOOM_OS_MIN_VER}.sdk
-ZMUSIC_DIR=${DEPS_DIR}zmusic/
-OPENAL_DIR=${DEPS_DIR}openal/
-JPEG_DIR=${DEPS_DIR}jpeg/
-MOLTENVK_DIR=${DEPS_DIR}moltenvk/
-FLUIDSYNTH_LIBS=${DEPS_DIR}fluidsynth/lib/libfluidsynth.a\ ${DEPS_DIR}fluidsynth/lib/libglib-2.0.a\ ${DEPS_DIR}fluidsynth/lib/libintl.a
-SNDFILE_LIBS=${DEPS_DIR}ogg/lib/libogg.a\ ${DEPS_DIR}vorbis/lib/libvorbis.a\ ${DEPS_DIR}vorbis/lib/libvorbisenc.a\ ${DEPS_DIR}flac/lib/libFLAC.a\ ${DEPS_DIR}sndfile/lib/libsndfile.a
-EXTRA_LIBS=-liconv\ ${DEPS_DIR}mpg123/lib/libmpg123.a\ ${FLUIDSYNTH_LIBS}\ ${SNDFILE_LIBS}
-FRAMEWORKS=-framework\ AudioUnit\ -framework\ AudioToolbox\ -framework\ Carbon\ -framework\ CoreAudio\ -framework\ CoreMIDI\ -framework\ CoreVideo\ -framework\ ForceFeedback
-LINKER_FLAGS=${EXTRA_LIBS}\ ${FRAMEWORKS}
-
-/Applications/CMake.app/Contents/bin/cmake               \
-	-DCMAKE_BUILD_TYPE="Release"                         \
-	-DCMAKE_OSX_DEPLOYMENT_TARGET="${ZDOOM_OS_MIN_VER}"  \
-	-DCMAKE_OSX_SYSROOT="${MACOS_SDK_DIR}"               \
-	-DCMAKE_EXE_LINKER_FLAGS="${LINKER_FLAGS}"           \
-	-DDYN_OPENAL=NO                                      \
-	-DFORCE_INTERNAL_ZLIB=YES                            \
-	-DFORCE_INTERNAL_BZIP2=YES                           \
-	-DPK3_QUIET_ZIPDIR=YES                               \
-	-DZMUSIC_INCLUDE_DIR="${ZMUSIC_DIR}include"          \
-	-DZMUSIC_LIBRARIES="${ZMUSIC_DIR}lib/libzmusic.a"    \
-	-DOPENAL_INCLUDE_DIR="${OPENAL_DIR}include"          \
-	-DOPENAL_LIBRARY="${OPENAL_DIR}lib/libopenal.a"      \
-	-DJPEG_INCLUDE_DIR="${JPEG_DIR}include"              \
-	-DJPEG_LIBRARY="${JPEG_DIR}lib/libjpeg.a"            \
-	"${ZDOOM_DIR}"
-make -j2
+"${DEPS_DIR}/build.py" \
+	--source-path="${ZDOOM_DIR}" \
+	--build-path="${ZDOOM_DIR}/build" \
+	--sdk-path=${SRC_BASE_DIR}/macos_sdk/MacOSX${ZDOOM_OS_MIN_VER}.sdk
 
 # -----------------------------------------------------------------------------
 # Create disk image
@@ -88,9 +61,10 @@ make -j2
 
 BUNDLE_PATH=${DIST_DIR}${ZDOOM_PROJECT}.app
 INFO_PLIST_PATH=${BUNDLE_PATH}/Contents/Info.plist
+MOLTENVK_DIR=${DEPS_DIR}deps/moltenvk/
 
 mkdir "${DIST_DIR}"
-cp -R ${ZDOOM_PROJECT_LOW}.app "${BUNDLE_PATH}"
+cp -R "${ZDOOM_DIR}/build/${ZDOOM_PROJECT_LOW}.app" "${BUNDLE_PATH}"
 cp -R "${ZDOOM_DIR}docs/licenses" "${DIST_DIR}Licenses"
 ln -s /Applications "${DIST_DIR}/Applications"
 
