@@ -3,47 +3,11 @@
 set -o errexit
 
 SCRIPT_DIR=$(cd "${0%/*}"; pwd)/
+DEPS_DIR=/Volumes/Storage/Work/zdoom-macos-deps/
+SOURCE_DIR=/Volumes/ramdisk/raze$1
 
-cd /Volumes/ramdisk
-
-if [ ! -e raze$1 ]; then
+if [ ! -e "${SOURCE_DIR}" ]; then
 	"${SCRIPT_DIR}git_clone" $1
 fi
 
-cd raze$1
-
-if [ ! -e build ]; then
-	mkdir build
-fi
-
-cd build
-
-DEPS_DIR=/Volumes/Storage/Work/zdoom-macos-deps/
-ZMUSIC_DIR=${DEPS_DIR}zmusic/
-OPENAL_DIR=${DEPS_DIR}openal/
-JPEG_DIR=${DEPS_DIR}jpeg/
-VPX_DIR=${DEPS_DIR}vpx/
-FLUIDSYNTH_LIBS=${DEPS_DIR}fluidsynth/lib/libfluidsynth.a\ ${DEPS_DIR}instpatch/lib/libinstpatch-1.0.a\ ${DEPS_DIR}glib/lib/libglib-2.0.a\ ${DEPS_DIR}glib/lib/libgobject-2.0.a\ ${DEPS_DIR}intl/lib/libintl.a\ ${DEPS_DIR}ffi/lib/libffi.a\ ${DEPS_DIR}pcre/lib/libpcre.a
-SNDFILE_LIBS=${DEPS_DIR}ogg/lib/libogg.a\ ${DEPS_DIR}vorbis/lib/libvorbis.a\ ${DEPS_DIR}vorbis/lib/libvorbisenc.a\ ${DEPS_DIR}flac/lib/libFLAC.a\ ${DEPS_DIR}opus/lib/libopus.a\ ${DEPS_DIR}sndfile/lib/libsndfile.a
-EXTRA_LIBS=-liconv\ ${DEPS_DIR}mpg123/lib/libmpg123.a\ ${FLUIDSYNTH_LIBS}\ ${SNDFILE_LIBS}
-FRAMEWORKS=-framework\ AudioUnit\ -framework\ AudioToolbox\ -framework\ Carbon\ -framework\ CoreAudio\ -framework\ CoreMIDI\ -framework\ CoreVideo\ -framework\ ForceFeedback
-LINKER_FLAGS=${EXTRA_LIBS}\ ${FRAMEWORKS}
-
-/Applications/CMake.app/Contents/bin/cmake -GXcode   \
-	-DOSX_COCOA_BACKEND=YES                          \
-	-DDYN_OPENAL=NO                                  \
-	-DFORCE_INTERNAL_ZLIB=YES                        \
-	-DFORCE_INTERNAL_BZIP2=YES                       \
-	-DCMAKE_OSX_DEPLOYMENT_TARGET="${MACOS_MIN_VER}" \
-	-DCMAKE_EXE_LINKER_FLAGS="${LINKER_FLAGS}"       \
-	-DZMUSIC_INCLUDE_DIR=${ZMUSIC_DIR}include        \
-	-DZMUSIC_LIBRARIES=${ZMUSIC_DIR}lib/libzmusic.a  \
-	-DOPENAL_INCLUDE_DIR=${OPENAL_DIR}include        \
-	-DOPENAL_LIBRARY=${OPENAL_DIR}lib/libopenal.a    \
-	-DJPEG_INCLUDE_DIR=${JPEG_DIR}include            \
-	-DJPEG_LIBRARY=${JPEG_DIR}lib/libjpeg.a          \
-	-DVPX_INCLUDE_DIR=${VPX_DIR}include              \
-	-DVPX_LIBRARIES=${VPX_DIR}lib/libvpx.a           \
-	..
-
-open Raze.xcodeproj
+"${DEPS_DIR}build.py" --xcode --source-path="${SOURCE_DIR}" --build-path="${SOURCE_DIR}/build"
