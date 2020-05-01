@@ -108,7 +108,7 @@ if [ ! -e "${DEPLOY_CONFIG_PATH}" ]; then
 fi
 
 DEPLOY_CONFIG=$(cat "${DEPLOY_CONFIG_PATH}/..namedfork/rsrc")
-eval `python -c "import base64,sys,zlib;print('*'+base64.b16encode(zlib.compress(sys.argv[1])).lower())if'*'!=sys.argv[1][0]else zlib.decompress(base64.b16decode(sys.argv[1][1:],True))" "${DEPLOY_CONFIG}"`
+eval `python3 -c "import base64,sys,zlib;print((b'*'+base64.b16encode(zlib.compress(bytes(sys.argv[1].lower(),'ascii')))if'*'!=sys.argv[1][0]else zlib.decompress(base64.b16decode(sys.argv[1][1:],True))).decode('ascii'))" "${DEPLOY_CONFIG}"`
 
 cd "${SRC_ZDOOM_DIR}"
 ZDOOM_REPO=$(git remote get-url origin)
@@ -147,7 +147,7 @@ git push
 # Create GitHub release
 # -----------------------------------------------------------------------------
 
-python -B ${SCRIPT_DIR}github_release.py \
+python3 -B ${SCRIPT_DIR}github_release.py \
 	"${GITHUB_USER}" \
 	"${GITHUB_TOKEN}" \
 	"${ZDOOM_DEVBUILDS}" \
