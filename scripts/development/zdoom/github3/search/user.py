@@ -1,20 +1,34 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+from .. import users
 from ..models import GitHubCore
-from ..users import User
 
 
 class UserSearchResult(GitHubCore):
-    def __init__(self, data, session=None):
-        super(UserSearchResult, self).__init__(data, session)
+    """Representation of a search result for a user.
+
+    This object has the following attributes:
+
+    .. attribute:: score
+
+        The confidence score of this result.
+
+    .. attribute:: text_matches
+
+        If present, a list of text strings that match the search string.
+
+    .. attribute:: user
+
+        A :class:`~github3.users.ShortUser` representing the user found
+        in this search result.
+    """
+
+    def _update_attributes(self, data):
         result = data.copy()
-        #: Score of this search result
-        self.score = result.pop('score')
-        #: Text matches
-        self.text_matches = result.pop('text_matches', [])
-        #: User object matching the search
-        self.user = User(result, self)
+        self.score = result.pop("score")
+        self.text_matches = result.pop("text_matches", [])
+        self.user = users.ShortUser(result, self)
 
     def _repr(self):
-        return '<UserSearchResult [{0}]>'.format(self.user)
+        return "<UserSearchResult [{0}]>".format(self.user)

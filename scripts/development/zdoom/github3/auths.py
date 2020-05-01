@@ -1,11 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-github3.auths
-=============
-
-This module contains the Authorization object.
-
-"""
+"""This module contains the Authorization object."""
 from __future__ import unicode_literals
 
 from .decorators import requires_basic_auth
@@ -13,87 +7,180 @@ from .models import GitHubCore
 
 
 class Authorization(GitHubCore):
+    """Representation of an OAuth Authorization.
 
-    """The :class:`Authorization <Authorization>` object.
+    See also: https://developer.github.com/v3/oauth_authorizations/
 
-    Two authorization instances can be checked like so::
+    This object has the following attributes:
 
-        a1 == a2
-        a1 != a2
+    .. attribute:: app
 
-    And is equivalent to::
+        Details about the application the authorization was created for.
 
-        a1.id == a2.id
-        a1.id != a2.id
+    .. attribute:: created_at
 
-    See also: http://developer.github.com/v3/oauth/#oauth-authorizations-api
+        A :class:`~datetime.datetime` representing when this authorization was
+        created.
 
+    .. attribute:: fingerprint
+
+        .. versionadded:: 1.0
+
+        The optional parameter that is used to allow an OAuth application to
+        create multiple authorizations for the same user. This will help
+        distinguish two authorizations for the same app.
+
+    .. attribute:: hashed_token
+
+        .. versionadded:: 1.0
+
+        This is the base64 of the SHA-256 digest of the token.
+
+        .. seealso::
+
+            `Removing Authorization Tokens`_
+                The blog post announcing the removal of :attr:`token`.
+
+    .. attribute:: id
+
+        The unique identifier for this authorization.
+
+    .. attribute:: note_url
+
+        The URL that points to a longer description about the purpose of this
+        autohrization.
+
+    .. attribute:: note
+
+        The short note provided when this authorization was created.
+
+    .. attribute:: scopes
+
+        The list of scopes assigned to this token.
+
+        .. seealso::
+
+            `Scopes for OAuth Applications`_
+                GitHub's documentation around available scopes and what they
+                mean
+
+    .. attribute:: token
+
+        If this authorization was created, this will contain the full token.
+        Otherwise, this attribute will be an empty string.
+
+    .. attribute:: token_last_eight
+
+        .. versionadded:: 1.0
+
+        The last eight characters of the token. This allows users to identify
+        a token after the initial retrieval.
+
+    .. attribute:: updated_at
+
+        A :class:`~datetime.datetime` representing when this authorization was
+        most recently updated.
+
+    .. _Scopes for OAuth Applications:
+        https://developer.github.com/apps/building-oauth-apps/scopes-for-oauth-apps/
+    .. _Removing Authorization Tokens:
+        https://developer.github.com/changes/2014-12-08-removing-authorizations-token/#what-should-you-do
     """
 
-    def __init__(self, auth, session=None):
-        super(Authorization, self).__init__(auth, session)
-        #: Details about the application (name, url)
-        self.app = auth.get('app', {})
-        #: Returns the Authorization token
-        self.token = auth.get('token', '')
-        #: App name
-        self.name = self.app.get('name', '')
-        #: URL about the note
-        self.note_url = auth.get('note_url') or ''
-        #: Note about the authorization
-        self.note = auth.get('note') or ''
-        #: List of scopes this applies to
-        self.scopes = auth.get('scopes', [])
-        #: Unique id of the authorization
-        self.id = auth.get('id', 0)
-        self._api = self._build_url('authorizations', str(self.id))
-        #: datetime object representing when the authorization was created.
-        self.created_at = self._strptime(auth.get('created_at'))
-        #: datetime object representing when the authorization was updated.
-        self.updated_at = self._strptime(auth.get('updated_at'))
+    def _update_attributes(self, auth):
+        self._api = auth["url"]
+        self.app = auth["app"]
+        self.created_at = self._strptime(auth["created_at"])
+        self.fingerprint = auth["fingerprint"]
+        self.id = auth["id"]
+        self.note_url = auth["note_url"]
+        self.note = auth["note"]
+        self.scopes = auth["scopes"]
+        self.token = auth["token"]
+        self.token_last_eight = auth["token_last_eight"]
+        self.updated_at = self._strptime(auth["updated_at"])
 
     def _repr(self):
-        return '<Authorization [{0}]>'.format(self.name)
+        return "<Authorization [{0}]>".format(self.name)
 
-    def _update_(self, auth):
-        self.__init__(auth, self._session)
+    def _update(self, scopes_data, note, note_url):
+        """Helper for add_scopes, replace_scopes, remove_scopes."""
+        if note is not None:
+            scopes_data["note"] = note
+        if note_url is not None:
+            scopes_data["note_url"] = note_url
+        json = self._json(self._post(self._api, data=scopes_data), 200)
+
+        if json:
+            self._update_attributes(json)
+            return True
+
+        return False
+
+    @requires_basic_auth
+    def add_scopes(self, scopes, note=None, note_url=None):
+        """Add the scopes to this authorization.
+
+        .. versionadded:: 1.0
+
+        :param list scopes:
+            Adds these scopes to the ones present on this authorization
+        :param str note:
+            (optional), Note about the authorization
+        :param str note_url:
+            (optional), URL to link to when the user views the authorization
+        :returns:
+            True if successful, False otherwise
+        :rtype:
+            bool
+        """
+        return self._update({"add_scopes": scopes}, note, note_url)
 
     @requires_basic_auth
     def delete(self):
-        """delete this authorization"""
+        """Delete this authorization.
+
+        :returns:
+            True if successful, False otherwise
+        :rtype:
+            bool
+        """
         return self._boolean(self._delete(self._api), 204, 404)
 
     @requires_basic_auth
-    def update(self, scopes=[], add_scopes=[], rm_scopes=[], note='',
-               note_url=''):
-        """Update this authorization.
+    def remove_scopes(self, scopes, note=None, note_url=None):
+        """Remove the scopes from this authorization.
 
-        :param list scopes: (optional), replaces the authorization scopes with
-            these
-        :param list add_scopes: (optional), scopes to be added
-        :param list rm_scopes: (optional), scopes to be removed
-        :param str note: (optional), new note about authorization
-        :param str note_url: (optional), new note URL about this authorization
-        :returns: bool
+        .. versionadded:: 1.0
 
+        :param list scopes:
+            Remove these scopes from the ones present on this authorization
+        :param str note:
+            (optional), Note about the authorization
+        :param str note_url:
+            (optional), URL to link to when the user views the authorization
+        :returns:
+            True if successful, False otherwise
+        :rtype:
+            bool
         """
-        success = False
-        json = None
-        if scopes:
-            d = {'scopes': scopes}
-            json = self._json(self._post(self._api, data=d), 200)
-        if add_scopes:
-            d = {'add_scopes': add_scopes}
-            json = self._json(self._post(self._api, data=d), 200)
-        if rm_scopes:
-            d = {'remove_scopes': rm_scopes}
-            json = self._json(self._post(self._api, data=d), 200)
-        if note or note_url:
-            d = {'note': note, 'note_url': note_url}
-            json = self._json(self._post(self._api, data=d), 200)
+        return self._update({"rm_scopes": scopes}, note, note_url)
 
-        if json:
-            self._update_(json)
-            success = True
+    @requires_basic_auth
+    def replace_scopes(self, scopes, note=None, note_url=None):
+        """Replace the scopes on this authorization.
 
-        return success
+        .. versionadded:: 1.0
+
+        :param list scopes:
+            Use these scopes instead of the previous list
+        :param str note:
+            (optional), Note about the authorization
+        :param str note_url:
+            (optional), URL to link to when the user views the authorization
+        :returns:
+            True if successful, False otherwise
+        :rtype:
+            bool
+        """
+        return self._update({"scopes": scopes}, note, note_url)

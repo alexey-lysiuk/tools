@@ -1,30 +1,65 @@
 # -*- coding: utf-8 -*-
+"""Code search results implementation."""
 from __future__ import unicode_literals
 
-from ..models import GitHubCore
-from ..repos import Repository
+from .. import models
+from .. import repos
 
 
-class CodeSearchResult(GitHubCore):
-    def __init__(self, data, session=None):
-        super(CodeSearchResult, self).__init__(data, session)
-        self._api = data.get('url')
-        #: Filename the match occurs in
-        self.name = data.get('name')
-        #: Path in the repository to the file
-        self.path = data.get('path')
-        #: SHA in which the code can be found
-        self.sha = data.get('sha')
-        #: URL to the Git blob endpoint
-        self.git_url = data.get('git_url')
-        #: URL to the HTML view of the blob
-        self.html_url = data.get('html_url')
-        #: Repository the code snippet belongs to
-        self.repository = Repository(data.get('repository', {}), self)
-        #: Score of the result
-        self.score = data.get('score')
-        #: Text matches
-        self.text_matches = data.get('text_matches', [])
+class CodeSearchResult(models.GitHubCore):
+    """A representation of a code search result from the API.
+
+    This object has the following attributes:
+
+    .. attribute:: git_url
+
+        The URL to retrieve the blob via Git
+
+    .. attribute:: html_url
+
+        The URL to view the blob found in a browser.
+
+    .. attribute:: name
+
+        The name of the file where the search result was found.
+
+    .. attribute:: path
+
+        The path in the repository to the file containing the result.
+
+    .. attribute:: repository
+
+        A :class:`~github3.repos.repo.ShortRepository` representing the
+        repository in which the result was found.
+
+    .. attribute:: score
+
+        The confidence score assigned to the result.
+
+    .. attribute:: sha
+
+        The SHA1 of the blob in which the code can be found.
+
+    .. attribute:: text_matches
+
+        A list of the text matches in the blob that generated this result.
+
+        .. note::
+
+            To receive these, you must pass ``text_match=True`` to
+            :meth:`~github3.github.GitHub.search_code`.
+    """
+
+    def _update_attributes(self, data):
+        self._api = data["url"]
+        self.git_url = data["git_url"]
+        self.html_url = data["html_url"]
+        self.name = data["name"]
+        self.path = data["path"]
+        self.repository = repos.ShortRepository(data["repository"], self)
+        self.score = data["score"]
+        self.sha = data["sha"]
+        self.text_matches = data.get("text_matches", [])
 
     def _repr(self):
-        return '<CodeSearchResult [{0}]>'.format(self.path)
+        return "<CodeSearchResult [{0}]>".format(self.path)

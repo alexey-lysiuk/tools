@@ -1,132 +1,183 @@
 # -*- coding: utf-8 -*-
+"""The module containing deployment logic."""
 from __future__ import unicode_literals
 
+from .. import users
+
 from ..models import GitHubCore
-from ..users import User
 
 
 class Deployment(GitHubCore):
-    CUSTOM_HEADERS = {
-        'Accept': 'application/vnd.github.cannonball-preview+json'
-        }
+    """Representation of a deployment of a repository at a point in time.
 
-    def __init__(self, deployment, session=None):
-        super(Deployment, self).__init__(deployment, session)
-        self._api = deployment.get('url')
+    See also: https://developer.github.com/v3/repos/deployments/
 
-        #: GitHub's id of this deployment
-        self.id = deployment.get('id')
+    This object has the following attributes:
 
-        #: SHA of the branch on GitHub
-        self.sha = deployment.get('sha')
+    .. attribute:: created_at
 
-        #: The reference used to create the Deployment, e.g.,
-        #: `deploy-20140526`
-        self.ref = deployment.get('ref')
+        A :class:`~datetime.datetime` representing the date and time when this
+        deployment was created.
 
-        #: User object representing the creator of the deployment
-        self.creator = deployment.get('creator')
-        if self.creator:
-            self.creator = User(self.creator, self)
+    .. attribute:: creator
 
-        #: JSON string payload of the Deployment
-        self.payload = deployment.get('payload')
+        A :class:`~github3.users.ShortUser` representing the user who created
+        this deployment.
 
-        #: Date the Deployment was created
-        self.created_at = self._strptime(deployment.get('created_at'))
+    .. attribute:: description
 
-        #: Date the Deployment was updated
-        self.updated_at = self._strptime(deployment.get('updated_at'))
+        The description of this deployment as provided by the :attr:`creator`.
 
-        #: Description of the deployment
-        self.description = deployment.get('description')
+    .. attribute:: environment
 
-        #: Target for the deployment, e.g., 'production', 'staging'
-        self.environment = deployment.get('environment')
+        The environment targeted for this deployment, e.g., ``'production'``,
+        ``'staging'``.
 
-        #: URL to get the statuses of this deployment
-        self.statuses_url = deployment.get('statuses_url')
+    .. attribute:: id
+
+        The unique identifier of this deployment.
+
+    .. attribute:: payload
+
+        The JSON payload string sent as part to trigger this deployment.
+
+    .. attribute:: ref
+
+        The reference used to create this deployment, e.g.,
+        ``'deploy-20140526'``.
+
+    .. attribute:: sha
+
+        The SHA1 of the branch on GitHub when it was deployed.
+
+    .. attribute:: statuses_url
+
+        The URL to retrieve the statuses of this deployment from the API.
+
+    .. attribute:: updated_at
+
+        A :class:`~datetime.datetime` object representing the date and time
+        when this deployment was most recently updated.
+    """
+
+    def _update_attributes(self, deployment):
+        self._api = deployment["url"]
+        self.created_at = self._strptime(deployment["created_at"])
+        self.creator = users.ShortUser(deployment["creator"], self)
+        self.description = deployment["description"]
+        self.environment = deployment["environment"]
+        self.id = deployment["id"]
+        self.payload = deployment["payload"]
+        self.ref = deployment["ref"]
+        self.sha = deployment["sha"]
+        self.statuses_url = deployment["statuses_url"]
+        self.updated_at = self._strptime(deployment["updated_at"])
 
     def _repr(self):
-        return '<Deployment [{0} @ {1}]>'.format(self.id, self.sha)
+        return "<Deployment [{0} @ {1}]>".format(self.id, self.sha)
 
-    def create_status(self, state, target_url='', description=''):
+    def create_status(self, state, target_url=None, description=None):
         """Create a new deployment status for this deployment.
 
-        :param str state: (required), The state of the status. Can be one of
+        :param str state:
+            (required), The state of the status. Can be one of
             ``pending``, ``success``, ``error``, or ``failure``.
-        :param str target_url: The target URL to associate with this status.
+        :param str target_url:
+            The target URL to associate with this status.
             This URL should contain output to keep the user updated while the
             task is running or serve as historical information for what
             happened in the deployment. Default: ''.
-        :param str description: A short description of the status. Default: ''.
-        :return: partial :class:`DeploymentStatus <DeploymentStatus>`
+        :param str description:
+            A short description of the status. Default: ''.
+        :return:
+            the incomplete deployment status
+        :rtype:
+            :class:`~github3.repos.deployment.DeploymentStatus`
         """
         json = None
 
-        if state in ('pending', 'success', 'error', 'failure'):
-            data = {'state': state, 'target_url': target_url,
-                    'description': description}
-            response = self._post(self.statuses_url, data=data,
-                                  headers=Deployment.CUSTOM_HEADERS)
+        if state in ("pending", "success", "error", "failure"):
+            data = {
+                "state": state,
+                "target_url": target_url,
+                "description": description,
+            }
+            self._remove_none(data)
+            response = self._post(self.statuses_url, data=data)
             json = self._json(response, 201)
 
-        return DeploymentStatus(json, self) if json else None
+        return self._instance_or_null(DeploymentStatus, json)
 
-    def iter_statuses(self, number=-1, etag=None):
+    def statuses(self, number=-1, etag=None):
         """Iterate over the deployment statuses for this deployment.
 
-        :param int number: (optional), the number of statuses to return.
+        :param int number:
+            (optional), the number of statuses to return.
             Default: -1, returns all statuses.
-        :param str etag: (optional), the ETag header value from the last time
+        :param str etag:
+            (optional), the ETag header value from the last time
             you iterated over the statuses.
-        :returns: generator of :class:`DeploymentStatus`\ es
+        :returns:
+            generator of the statuses of this deployment
+        :rtype:
+            :class:`~github3.repos.deployment.DeploymentStatus`
         """
-        i = self._iter(int(number), self.statuses_url, DeploymentStatus,
-                       etag=etag)
-        i.headers = Deployment.CUSTOM_HEADERS
+        i = self._iter(
+            int(number), self.statuses_url, DeploymentStatus, etag=etag
+        )
         return i
 
 
 class DeploymentStatus(GitHubCore):
-    def __init__(self, status, session=None):
-        super(DeploymentStatus, self).__init__(status, session)
-        self._api = status.get('url')
+    """Representation of the status of a deployment of a repository.
 
-        #: GitHub's id for this deployment status
-        self.id = status.get('id')
+    See also
+    https://developer.github.com/v3/repos/deployments/#get-a-single-deployment-status
 
-        #: State of the deployment status
-        self.state = status.get('state')
+    This object has the following attributes:
 
-        #: Creater of the deployment status
-        self.creator = status.get('creator')
-        if self.creator:
-            self.creator = User(self.creator, self)
+    .. attribute:: created_at
 
-        #: JSON payload as a string
-        self.payload = status.get('payload', {})
+        A :class:`~datetime.datetime` representing the date and time when this
+        deployment status was created.
 
-        #: Target URL of the deployment
-        self.target_url = status.get('target_url')
+    .. attribute:: creator
 
-        #: Date the deployment status was created
-        self.created_at = self._strptime(status.get('created_at'))
+        A :class:`~github3.users.ShortUser` representing the user who created
+        this deployment status.
 
-        #: Date the deployment status was updated
-        self.updated_at = self._strptime(status.get('updated_at'))
+    .. attribute:: deployment_url
 
-        #: Description of the deployment
-        self.description = status.get('description')
+        The URL to retrieve the information about the deployment from the API.
 
-        #: :class:`Deployment` representing the deployment this status is
-        #: associated with
-        self.deployment = status.get('deployment')
-        if self.deployment:
-            self.deployment = Deployment(self.deployment, self)
+    .. attribute:: description
 
-        #: URL for the deployment this status is associated with
-        self.deployment_url = status.get('deployment_url')
+        The description of this status as provided by the :attr:`creator`.
+
+    .. attribute:: id
+
+        The unique identifier of this deployment.
+
+    .. attribute:: state
+
+        The state of the deployment, e.g., ``'success'``.
+
+    .. attribute:: target_url
+
+        The URL to associate with this status. This should link to the output
+        of the deployment.
+    """
+
+    def _update_attributes(self, status):
+        self._api = status["url"]
+        self.created_at = self._strptime(status["created_at"])
+        self.creator = users.ShortUser(status["creator"], self)
+        self.deployment_url = status["deployment_url"]
+        self.description = status["description"]
+        self.id = status["id"]
+        self.state = status["state"]
+        self.target_url = status["target_url"]
+        self.updated_at = self._strptime(status["updated_at"])
 
     def _repr(self):
-        return '<DeploymentStatus [{0}]>'.format(self.id)
+        return "<DeploymentStatus [{0}]>".format(self.id)

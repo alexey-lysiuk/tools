@@ -1,39 +1,90 @@
 # -*- coding: utf-8 -*-
-"""
-github3.gists.file
-------------------
-
-Module containing the logic for the GistFile object.
-"""
+"""Module containing the GistFile object."""
 from __future__ import unicode_literals
 
-from ..models import GitHubObject
+from .. import models
 
 
-class GistFile(GitHubObject):
+class _GistFile(models.GitHubCore):
+    """Base for GistFile classes."""
 
-    """This represents the file object returned by interacting with gists.
+    def _update_attributes(self, gistfile):
+        self.raw_url = gistfile["raw_url"]
+        self.filename = gistfile["filename"]
+        self.language = gistfile["language"]
+        self.size = gistfile["size"]
+        self.type = gistfile["type"]
 
-    It stores the raw url of the file, the file name, language, size and
-    content.
+    def _repr(self):
+        return "<{s.class_name} [{s.filename}]>".format(s=self)
+
+    def content(self):
+        """Retrieve contents of file from key 'raw_url'.
+
+        :returns:
+            unaltered, untruncated contents of file.
+        :rtype:
+            bytes
+        """
+        resp = self._get(self.raw_url)
+        if self._boolean(resp, 200, 404):
+            return resp.content
+        return None
+
+
+class GistFile(_GistFile):
+    """This represents the full file object returned by interacting with gists.
+
+    The object has all of the attributes as returned by the API for a
+    ShortGistFile as well as:
+
+    .. attribute:: truncated
+
+        A boolean attribute that indicates whether :attr:`original_content`
+        contains all of the file's contents.
+
+    .. attribute:: original_content
+
+        The contents of the file (potentially truncated) returned by the API.
+        If the file was truncated use :meth:`content` to retrieve it in its
+        entirety.
 
     """
 
-    def __init__(self, attributes):
-        super(GistFile, self).__init__(attributes)
+    class_name = "GistFile"
 
-        #: The raw URL for the file at GitHub.
-        self.raw_url = attributes.get('raw_url')
-        #: The name of the file.
-        self.filename = attributes.get('filename')
-        #: The name of the file.
-        self.name = attributes.get('filename')
-        #: The language associated with the file.
-        self.language = attributes.get('language')
-        #: The size of the file.
-        self.size = attributes.get('size')
-        #: The content of the file.
-        self.content = attributes.get('content')
+    def _update_attributes(self, gistfile):
+        super(GistFile, self)._update_attributes(gistfile)
+        self.original_content = gistfile["content"]
+        self.truncated = gistfile["truncated"]
 
-    def _repr(self):
-        return '<Gist File [{0}]>'.format(self.name)
+
+class ShortGistFile(_GistFile):
+    """This represents the file object returned by interacting with gists.
+
+    The object has the following attributes as returned by the API for a Gist:
+
+    .. attribute:: raw_url
+
+        This URL provides access to the complete, untruncated content of the
+        file represented by this object.
+
+    .. attribute:: filename
+
+        The string for the filename.
+
+    .. attribute:: language
+
+        The GitHub detected language for the file, e.g., Erlang, Python, text.
+
+    .. attribute:: type
+
+        The mime-type of the file. Related to :attr:`language`.
+
+    .. attribute:: size
+
+        The file size in bytes.
+    """
+
+    class_name = "ShortGistFile"
+    _refresh_to = GistFile

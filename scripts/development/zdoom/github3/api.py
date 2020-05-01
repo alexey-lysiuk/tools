@@ -3,21 +3,53 @@
 github3.api
 ===========
 
-:copyright: (c) 2012 by SigmaVirus24
+:copyright: (c) 2012-2014 by Ian Cordasco
 :license: Modified BSD, see LICENSE for more details
 
 """
 
+import warnings
+from functools import wraps
 from .github import GitHub, GitHubEnterprise
 
 gh = GitHub()
 
 
-def authorize(login, password, scopes, note='', note_url='', client_id='',
-              client_secret='', two_factor_callback=None):
+def deprecated(func):
+    """Decorator to mark a function as deprecated."""
+
+    @wraps(func)
+    def deprecation_wrapper(*args, **kwargs):
+        warnings.warn(
+            "The anonymous API function `github3.api.{0}` is deprecated. Use "
+            "`GitHub.{0}` instead.".format(func.__name__),
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return func(*args, **kwargs)
+
+    return deprecation_wrapper
+
+
+@deprecated
+def authorize(
+    username,
+    password,
+    scopes,
+    note="",
+    note_url="",
+    client_id="",
+    client_secret="",
+    two_factor_callback=None,
+    github=None,
+):
     """Obtain an authorization token for the GitHub API.
 
-    :param str login: (required)
+    .. deprecated:: 1.2.0
+
+        Use :meth:`github3.github.GitHub.authorize` instead.
+
+    :param str username: (required)
     :param str password: (required)
     :param list scopes: (required), areas you want this token to apply to,
         i.e., 'gist', 'user'
@@ -29,46 +61,98 @@ def authorize(login, password, scopes, note='', note_url='', client_id='',
         which to create the token
     :param func two_factor_callback: (optional), function to call when a
         Two-Factor Authentication code needs to be provided by the user.
+    :param GitHub github: (optional), GitHub (or GitHubEnterprise) object for
+        login.
     :returns: :class:`Authorization <Authorization>`
 
     """
-    gh = GitHub()
+    gh = github or GitHub()
     gh.login(two_factor_callback=two_factor_callback)
-    return gh.authorize(login, password, scopes, note, note_url, client_id,
-                        client_secret)
+    return gh.authorize(
+        username, password, scopes, note, note_url, client_id, client_secret
+    )
 
 
-def login(username=None, password=None, token=None, url=None,
-          two_factor_callback=None):
+def login(username=None, password=None, token=None, two_factor_callback=None):
     """Construct and return an authenticated GitHub session.
 
-    This will return a GitHubEnterprise session if a url is provided.
+    .. note::
+
+        To allow you to specify either a username and password combination or
+        a token, none of the parameters are required. If you provide none of
+        them, you will receive ``None``.
 
     :param str username: login name
     :param str password: password for the login
     :param str token: OAuth token
-    :param str url: (optional), URL of a GitHub Enterprise instance
     :param func two_factor_callback: (optional), function you implement to
-        provide the Two Factor Authentication code to GitHub when necessary
+        provide the Two-factor Authentication code to GitHub when necessary
     :returns: :class:`GitHub <github3.github.GitHub>`
 
     """
     g = None
 
     if (username and password) or token:
-        g = GitHubEnterprise(url) if url is not None else GitHub()
+        g = GitHub()
         g.login(username, password, token, two_factor_callback)
 
     return g
 
 
+def enterprise_login(
+    username=None,
+    password=None,
+    token=None,
+    url=None,
+    two_factor_callback=None,
+):
+    """Construct and return an authenticated GitHubEnterprise session.
+
+    .. note::
+
+        To allow you to specify either a username and password combination or
+        a token, none of the parameters are required. If you provide none of
+        them, you will receive ``None``.
+
+    :param str username: login name
+    :param str password: password for the login
+    :param str token: OAuth token
+    :param str url: URL of a GitHub Enterprise instance
+    :param func two_factor_callback: (optional), function you implement to
+        provide the Two-factor Authentication code to GitHub when necessary
+    :returns: :class:`GitHubEnterprise <github3.github.GitHubEnterprise>`
+
+    """
+    if not url:
+        raise ValueError(
+            "GitHub Enterprise requires you provide the URL of"
+            " the instance"
+        )
+
+    g = None
+
+    if (username and password) or token:
+        g = GitHubEnterprise(url)
+        g.login(username, password, token, two_factor_callback)
+
+    return g
+
+
+@deprecated
 def emojis():
     return gh.emojis()
+
+
 emojis.__doc__ = gh.emojis.__doc__
 
 
+@deprecated
 def gist(id_num):
     """Retrieve the gist identified by ``id_num``.
+
+    .. deprecated:: 1.2.0
+
+        Use :meth:`github3.github.GitHub.gist` instead.
 
     :param int id_num: (required), unique id of the gist
     :returns: :class:`Gist <github3.gists.Gist>`
@@ -77,8 +161,13 @@ def gist(id_num):
     return gh.gist(id_num)
 
 
+@deprecated
 def gitignore_template(language):
     """Return the template for language.
+
+    .. deprecated:: 1.2.0
+
+        Use :meth:`github3.github.GitHub.gitignore_template` instead.
 
     :returns: str
 
@@ -86,8 +175,13 @@ def gitignore_template(language):
     return gh.gitignore_template(language)
 
 
+@deprecated
 def gitignore_templates():
     """Return the list of available templates.
+
+    .. deprecated:: 1.2.0
+
+        Use :meth:`github3.github.GitHub.gitignore_templates` instead.
 
     :returns: list of template names
 
@@ -95,8 +189,13 @@ def gitignore_templates():
     return gh.gitignore_templates()
 
 
-def iter_all_repos(number=-1, etag=None):
+@deprecated
+def all_repositories(number=-1, etag=None):
     """Iterate over every repository in the order they were created.
+
+    .. deprecated:: 1.2.0
+
+        Use :meth:`github3.github.GitHub.all_repositories` instead.
 
     :param int number: (optional), number of repositories to return.
         Default: -1, returns all of them
@@ -105,11 +204,16 @@ def iter_all_repos(number=-1, etag=None):
     :returns: generator of :class:`Repository <github3.repos.Repository>`
 
     """
-    return gh.iter_all_repos(number, etag)
+    return gh.all_repositories(number, etag)
 
 
-def iter_all_users(number=-1, etag=None):
+@deprecated
+def all_users(number=-1, etag=None):
     """Iterate over every user in the order they signed up for GitHub.
+
+    .. deprecated:: 1.2.0
+
+        Use :meth:`github3.github.GitHub.all_users` instead.
 
     :param int number: (optional), number of users to return. Default: -1,
         returns all of them
@@ -118,11 +222,16 @@ def iter_all_users(number=-1, etag=None):
     :returns: generator of :class:`User <github3.users.User>`
 
     """
-    return gh.iter_all_users(number, etag)
+    return gh.all_users(number, etag)
 
 
-def iter_events(number=-1, etag=None):
+@deprecated
+def all_events(number=-1, etag=None):
     """Iterate over public events.
+
+    .. deprecated:: 1.2.0
+
+        Use :meth:`github3.github.GitHub.all_events` instead.
 
     :param int number: (optional), number of events to return. Default: -1
         returns all available events
@@ -131,11 +240,16 @@ def iter_events(number=-1, etag=None):
     :returns: generator of :class:`Event <github3.events.Event>`
 
     """
-    return gh.iter_events(number, etag)
+    return gh.all_events(number, etag)
 
 
-def iter_followers(username, number=-1, etag=None):
+@deprecated
+def followers_of(username, number=-1, etag=None):
     """List the followers of ``username``.
+
+    .. deprecated:: 1.2.0
+
+        Use :meth:`github3.github.GitHub.followers_of` instead.
 
     :param str username: (required), login of the person to list the followers
         of
@@ -146,11 +260,16 @@ def iter_followers(username, number=-1, etag=None):
     :returns: generator of :class:`User <github3.users.User>`
 
     """
-    return gh.iter_followers(username, number, etag) if username else []
+    return gh.followers_of(username, number, etag) if username else []
 
 
-def iter_following(username, number=-1, etag=None):
+@deprecated
+def followed_by(username, number=-1, etag=None):
     """List the people ``username`` follows.
+
+    .. deprecated:: 1.2.0
+
+        Use :meth:`github3.github.GitHub.followed_by` instead.
 
     :param str username: (required), login of the user
     :param int number: (optional), number of users being followed by username
@@ -160,13 +279,40 @@ def iter_following(username, number=-1, etag=None):
     :returns: generator of :class:`User <github3.users.User>`
 
     """
-    return gh.iter_following(username, number, etag) if username else []
+    return gh.followed_by(username, number, etag) if username else []
 
 
-def iter_gists(username=None, number=-1, etag=None):
-    """Iterate over public gists or gists for the provided username.
+@deprecated
+def public_gists(number=-1, etag=None):
+    """Iterate over all public gists.
 
-    :param str username: (optional), if provided, get the gists for this user
+    .. deprecated:: 1.2.0
+
+        Use :meth:`github3.github.GitHub.public_gists` instead.
+
+    .. versionadded:: 1.0
+
+        This was split from ``github3.iter_gists`` before 1.0.
+
+    :param int number: (optional), number of gists to return. Default: -1,
+        return all of them
+    :param str etag: (optional), ETag from a previous request to the same
+        endpoint
+    :returns: generator of :class:`Gist <github3.gists.Gist>`
+
+    """
+    return gh.public_gists(number, etag)
+
+
+@deprecated
+def gists_by(username, number=-1, etag=None):
+    """Iterate over gists created by the provided username.
+
+    .. deprecated:: 1.2.0
+
+        Use :meth:`github3.github.GitHub.gists_by` instead.
+
+    :param str username: (required), if provided, get the gists for this user
         instead of the authenticated user.
     :param int number: (optional), number of gists to return. Default: -1,
         return all of them
@@ -175,14 +321,31 @@ def iter_gists(username=None, number=-1, etag=None):
     :returns: generator of :class:`Gist <github3.gists.Gist>`
 
     """
-    return gh.iter_gists(username, number, etag)
+    if username:
+        return gh.gists_by(username, number, etag)
+    return iter([])
 
 
-def iter_repo_issues(owner, repository, milestone=None, state=None,
-                     assignee=None, mentioned=None, labels=None, sort=None,
-                     direction=None, since=None, number=-1, etag=None):
-    """List issues on owner/repository. Only owner and repository are
-    required.
+@deprecated
+def issues_on(
+    owner,
+    repository,
+    milestone=None,
+    state=None,
+    assignee=None,
+    mentioned=None,
+    labels=None,
+    sort=None,
+    direction=None,
+    since=None,
+    number=-1,
+    etag=None,
+):
+    r"""Iterate over issues on owner/repository.
+
+    .. deprecated:: 1.2.0
+
+        Use :meth:`github3.github.GitHub.issues_on` instead.
 
     .. versionchanged:: 0.9.0
 
@@ -210,18 +373,34 @@ def iter_repo_issues(owner, repository, milestone=None, state=None,
         Default: -1 returns all issues
     :param str etag: (optional), ETag from a previous request to the same
         endpoint
-    :returns: generator of :class:`Issue <github3.issues.Issue>`\ s
+    :returns: generator of :class:`ShortIssue <github3.issues.ShortIssue>`\ s
 
     """
     if owner and repository:
-        return gh.iter_repo_issues(owner, repository, milestone, state,
-                                   assignee, mentioned, labels, sort,
-                                   direction, since, number, etag)
+        return gh.issues_on(
+            owner,
+            repository,
+            milestone,
+            state,
+            assignee,
+            mentioned,
+            labels,
+            sort,
+            direction,
+            since,
+            number,
+            etag,
+        )
     return iter([])
 
 
-def iter_orgs(username, number=-1, etag=None):
-    """List the organizations associated with ``username``.
+@deprecated
+def organizations_with(username, number=-1, etag=None):
+    """List the organizations with ``username`` as a member.
+
+    .. deprecated:: 1.2.0
+
+        Use :meth:`github3.github.GitHub.organizations_with` instead.
 
     :param str username: (required), login of the user
     :param int number: (optional), number of orgs to return. Default: -1,
@@ -229,21 +408,27 @@ def iter_orgs(username, number=-1, etag=None):
     :param str etag: (optional), ETag from a previous request to the same
         endpoint
     :returns: generator of
-        :class:`Organization <github3.orgs.Organization>`
+        :class:`ShortOrganization <github3.orgs.ShortOrganization>`
 
     """
-    return gh.iter_orgs(username, number, etag) if username else []
+    return gh.organizations_with(username, number, etag)
 
 
-def iter_user_repos(login, type=None, sort=None, direction=None, number=-1,
-                    etag=None):
-    """List public repositories for the specified ``login``.
+@deprecated
+def repositories_by(
+    username, type=None, sort=None, direction=None, number=-1, etag=None
+):
+    """List public repositories for the specified ``username``.
+
+    .. deprecated:: 1.2.0
+
+        Use :meth:`github3.github.GitHub.organizations_with` instead.
 
     .. versionadded:: 0.6
 
     .. note:: This replaces github3.iter_repos
 
-    :param str login: (required)
+    :param str username: (required)
     :param str type: (optional), accepted values:
         ('all', 'owner', 'member')
         API default: 'all'
@@ -262,12 +447,19 @@ def iter_user_repos(login, type=None, sort=None, direction=None, number=-1,
 
     """
     if login:
-        return gh.iter_user_repos(login, type, sort, direction, number, etag)
+        return gh.repositories_by(
+            username, type, sort, direction, number, etag
+        )
     return iter([])
 
 
-def iter_starred(username, number=-1, etag=None):
+@deprecated
+def starred_by(username, number=-1, etag=None):
     """Iterate over repositories starred by ``username``.
+
+    .. deprecated:: 1.2.0
+
+        Use :meth:`github3.github.GitHub.starred_by` instead.
 
     :param str username: (optional), name of user whose stars you want to see
     :param int number: (optional), number of repositories to return.
@@ -277,14 +469,18 @@ def iter_starred(username, number=-1, etag=None):
     :returns: generator of :class:`Repository <github3.repos.Repository>`
 
     """
-    return gh.iter_starred(username, number, etag)
+    return gh.starred_by(username, number, etag)
 
 
-def iter_subscriptions(username, number=-1, etag=None):
+@deprecated
+def subscriptions_for(username, number=-1, etag=None):
     """Iterate over repositories subscribed to by ``username``.
 
-    :param str username: (optional), name of user whose subscriptions you want
-        to see
+    .. deprecated:: 1.2.0
+
+        Use :meth:`github3.github.GitHub.subscriptions_for` instead.
+
+    :param str username: name of user whose subscriptions you want to see
     :param int number: (optional), number of repositories to return.
         Default: -1 returns all repositories
     :param str etag: (optional), ETag from a previous request to the same
@@ -292,11 +488,16 @@ def iter_subscriptions(username, number=-1, etag=None):
     :returns: generator of :class:`Repository <github3.repos.Repository>`
 
     """
-    return gh.iter_subscriptions(username, number, etag)
+    return gh.subscriptions_for(username, number, etag)
 
 
+@deprecated
 def create_gist(description, files):
     """Create an anonymous public gist.
+
+    .. deprecated:: 1.2.0
+
+        Use :meth:`github3.github.GitHub.create_gist` instead.
 
     :param str description: (required), short description of the gist
     :param dict files: (required), file names with associated
@@ -308,8 +509,13 @@ def create_gist(description, files):
     return gh.create_gist(description, files)  # (No coverage)
 
 
+@deprecated
 def issue(owner, repository, number):
     """Anonymously gets issue :number on :owner/:repository.
+
+    .. deprecated:: 1.2.0
+
+        Use :meth:`github3.github.GitHub.issue` instead.
 
     :param str owner: (required), repository owner
     :param str repository: (required), repository name
@@ -320,8 +526,13 @@ def issue(owner, repository, number):
     return gh.issue(owner, repository, number)
 
 
-def markdown(text, mode='', context='', raw=False):
+@deprecated
+def markdown(text, mode="", context="", raw=False):
     """Render an arbitrary markdown document.
+
+    .. deprecated:: 1.2.0
+
+        Use :meth:`github3.github.GitHub.markdown` instead.
 
     :param str text: (required), the text of the document to render
     :param str mode: (optional), 'markdown' or 'gfm'
@@ -335,8 +546,13 @@ def markdown(text, mode='', context='', raw=False):
     return gh.markdown(text, mode, context, raw)
 
 
+@deprecated
 def octocat(say=None):
     """Return an easter egg from the API.
+
+    .. deprecated:: 1.2.0
+
+        Use :meth:`github3.github.GitHub.octocat` instead.
 
     :params str say: (optional), pass in what you'd like Octocat to say
     :returns: ascii art of Octocat
@@ -345,13 +561,21 @@ def octocat(say=None):
     return gh.octocat(say)
 
 
-def organization(login):
-    return gh.organization(login)
+@deprecated
+def organization(name):
+    return gh.organization(name)
+
+
 organization.__doc__ = gh.organization.__doc__
 
 
+@deprecated
 def pull_request(owner, repository, number):
     """Anonymously retrieve pull request :number on :owner/:repository.
+
+    .. deprecated:: 1.2.0
+
+        Use :meth:`github3.github.GitHub.pull_request` instead.
 
     :param str owner: (required), repository owner
     :param str repository: (required), repository name
@@ -362,28 +586,37 @@ def pull_request(owner, repository, number):
     return gh.pull_request(owner, repository, number)
 
 
+@deprecated
 def rate_limit():
     return gh.rate_limit()
+
+
 rate_limit.__doc__ = gh.rate_limit.__doc__
 
 
+@deprecated
 def repository(owner, repository):
     return gh.repository(owner, repository)
+
+
 repository.__doc__ = gh.repository.__doc__
 
 
-def ratelimit_remaining():
-    """Get the remaining number of requests allowed.
-
-    :returns: int
-
-    """
-    return gh.ratelimit_remaining
-
-
-def search_code(query, sort=None, order=None, per_page=None,
-                text_match=False, number=-1, etag=None):
+@deprecated
+def search_code(
+    query,
+    sort=None,
+    order=None,
+    per_page=None,
+    text_match=False,
+    number=-1,
+    etag=None,
+):
     """Find code via the code search API.
+
+    .. deprecated:: 1.2.0
+
+        Use :meth:`github3.github.GitHub.search_code` instead.
 
     .. warning::
 
@@ -425,13 +658,26 @@ def search_code(query, sort=None, order=None, per_page=None,
     :return: generator of :class:`CodeSearchResult
         <github3.search.CodeSearchResult>`
     """
-    return gh.search_code(query, sort, order, per_page, text_match, number,
-                          etag)
+    return gh.search_code(
+        query, sort, order, per_page, text_match, number, etag
+    )
 
 
-def search_issues(query, sort=None, order=None, per_page=None,
-                  text_match=False, number=-1, etag=None):
+@deprecated
+def search_issues(
+    query,
+    sort=None,
+    order=None,
+    per_page=None,
+    text_match=False,
+    number=-1,
+    etag=None,
+):
     """Find issues by state and keyword
+
+    .. deprecated:: 1.2.0
+
+        Use :meth:`github3.github.GitHub.search_issues` instead.
 
     .. warning::
 
@@ -481,13 +727,26 @@ def search_issues(query, sort=None, order=None, per_page=None,
     :return: generator of :class:`IssueSearchResult
         <github3.search.IssueSearchResult>`
     """
-    return gh.search_issues(query, sort, order, per_page, text_match,
-                            number, etag)
+    return gh.search_issues(
+        query, sort, order, per_page, text_match, number, etag
+    )
 
 
-def search_repositories(query, sort=None, order=None, per_page=None,
-                        text_match=False, number=-1, etag=None):
+@deprecated
+def search_repositories(
+    query,
+    sort=None,
+    order=None,
+    per_page=None,
+    text_match=False,
+    number=-1,
+    etag=None,
+):
     """Find repositories via various criteria.
+
+    .. deprecated:: 1.2.0
+
+        Use :meth:`github3.github.GitHub.search_repositories` instead.
 
     .. warning::
 
@@ -533,13 +792,26 @@ def search_repositories(query, sort=None, order=None, per_page=None,
     :param str etag: (optional), previous ETag header value
     :return: generator of :class:`Repository <github3.repos.Repository>`
     """
-    return gh.search_repositories(query, sort, order, per_page, text_match,
-                                  number, etag)
+    return gh.search_repositories(
+        query, sort, order, per_page, text_match, number, etag
+    )
 
 
-def search_users(query, sort=None, order=None, per_page=None,
-                 text_match=False, number=-1, etag=None):
+@deprecated
+def search_users(
+    query,
+    sort=None,
+    order=None,
+    per_page=None,
+    text_match=False,
+    number=-1,
+    etag=None,
+):
     """Find users via the Search API.
+
+    .. deprecated:: 1.2.0
+
+        Use :meth:`github3.github.GitHub.search_users` instead.
 
     .. warning::
 
@@ -585,17 +857,26 @@ def search_users(query, sort=None, order=None, per_page=None,
     :return: generator of :class:`UserSearchResult
         <github3.search.UserSearchResult>`
     """
-    return gh.search_users(query, sort, order, per_page, text_match, number,
-                           etag)
+    return gh.search_users(
+        query, sort, order, per_page, text_match, number, etag
+    )
 
 
-def user(login):
-    return gh.user(login)
+@deprecated
+def user(username):
+    return gh.user(username)
+
+
 user.__doc__ = gh.user.__doc__
 
 
+@deprecated
 def zen():
     """Return a quote from the Zen of GitHub. Yet another API Easter Egg.
+
+    .. deprecated:: 1.2.0
+
+        Use :meth:`github3.github.GitHub.zen` instead.
 
     :returns: str
 
