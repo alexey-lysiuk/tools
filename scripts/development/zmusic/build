@@ -17,7 +17,7 @@ cd build
 
 ZMUSIC_OS_MIN_VER=10.9
 MACOS_SDK_DIR=/Volumes/Storage/Work/devbuilds/macos_sdk/MacOSX${ZMUSIC_OS_MIN_VER}.sdk
-DEPS_DIR=/Volumes/Storage/Work/zdoom-macos-deps/
+PREFIX_DIR=/Volumes/Storage/Work/zdoom-macos-deps/prefix
 MPG123_DIR=${DEPS_DIR}mpg123/
 SNDFILE_DIR=${DEPS_DIR}sndfile/
 FSYNTH_DIR=${DEPS_DIR}fluidsynth/
@@ -26,16 +26,11 @@ FSYNTH_DIR=${DEPS_DIR}fluidsynth/
 	-DCMAKE_BUILD_TYPE=Release                              \
 	-DCMAKE_OSX_DEPLOYMENT_TARGET=${ZMUSIC_OS_MIN_VER}      \
 	-DCMAKE_OSX_SYSROOT="${MACOS_SDK_DIR}"                  \
+	-DCMAKE_PREFIX_PATH="${PREFIX_DIR}"                     \
 	-DBUILD_SHARED_LIBS=OFF                                 \
 	-DDYN_FLUIDSYNTH=OFF                                    \
-	-DFLUIDSYNTH_INCLUDE_DIR="${FSYNTH_DIR}include"         \
-	-DFLUIDSYNTH_LIBRARIES="${FSYNTH_DIR}/lib/fluidsynth.a" \
 	-DDYN_MPG123=OFF                                        \
-	-DMPG123_INCLUDE_DIR="${MPG123_DIR}include"             \
-	-DMPG123_LIBRARIES="${MPG123_DIR}lib/libmpg123.a"       \
 	-DDYN_SNDFILE=OFF                                       \
-	-DSNDFILE_INCLUDE_DIR="${SNDFILE_DIR}include"           \
-	-DSNDFILE_LIBRARY="${SNDFILE_DIR}lib/libsndfile.a"      \
 	..
 make -j2
 
