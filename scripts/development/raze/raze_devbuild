@@ -1,0 +1,6 @@
+#!/bin/sh
+
+export ZDOOM_PROJECT=Raze
+export ZDOOM_IDENTIFIER=org.zdoom.raze
+
+"`dirname \"$0\"`/../zdoom/devbuild.sh" $@

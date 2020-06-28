@@ -1,4 +1,11 @@
+#!/bin/sh
+
 set -o errexit
+
+if [ -z "${ZDOOM_PROJECT}" ]; then
+	echo "\nThis script should not be used directly\n"
+	exit 1
+fi
 
 SCRIPT_DIR=$(cd "${0%/*}"; pwd)/
 
@@ -65,8 +72,11 @@ MOLTENVK_DIR=${DEPS_DIR}deps/moltenvk/
 
 mkdir "${DIST_DIR}"
 cp -R "${ZDOOM_DIR}/build/${ZDOOM_PROJECT_LOW}.app" "${BUNDLE_PATH}"
-cp -R "${ZDOOM_DIR}docs/licenses" "${DIST_DIR}Licenses"
 ln -s /Applications "${DIST_DIR}/Applications"
+
+if [ -e "${ZDOOM_DIR}docs/licenses" ]; then
+	cp -R "${ZDOOM_DIR}docs/licenses" "${DIST_DIR}Licenses"
+fi
 
 if [ ! -z "${ZDOOM_VULKAN}" ]; then
 	cp "${MOLTENVK_DIR}lib/libMoltenVK.dylib" "${BUNDLE_PATH}/Contents/MacOS/"
