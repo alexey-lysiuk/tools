@@ -1,0 +1,12 @@
+#!/bin/sh
+
+set -o errexit
+
+SCRIPT_DIR=$(cd "${0%/*}"; pwd)/
+SOURCE_DIR=/Volumes/ramdisk/slade-macos-build
+
+if [ ! -e "${SOURCE_DIR}" ]; then
+	"${SCRIPT_DIR}git_clone"
+fi
+
+"${SOURCE_DIR}/xcode.sh"
