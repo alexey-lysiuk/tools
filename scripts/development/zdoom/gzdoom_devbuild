@@ -1,7 +1,7 @@
 #!/bin/sh
 
-ZDOOM_PROJECT=GZDoom
-ZDOOM_IDENTIFIER=org.drdteam.gzdoom
-ZDOOM_VULKAN=1
+export ZDOOM_PROJECT=GZDoom
+export ZDOOM_IDENTIFIER=org.drdteam.gzdoom
+export ZDOOM_VULKAN=1
 
-. "`dirname \"$0\"`/devbuild.sh" $@
+"`dirname \"$0\"`/../devbuild/devbuild.sh" $@

@@ -1,6 +1,6 @@
 #!/bin/sh
 
-ZDOOM_PROJECT=LZDoom
-ZDOOM_IDENTIFIER=org.zdoom.lzdoom
+export ZDOOM_PROJECT=LZDoom
+export ZDOOM_IDENTIFIER=org.zdoom.lzdoom
 
-. "`dirname \"$0\"`/devbuild.sh" $@
+"`dirname \"$0\"`/../devbuild/devbuild.sh" $@
