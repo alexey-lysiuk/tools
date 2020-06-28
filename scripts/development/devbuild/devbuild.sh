@@ -60,7 +60,8 @@ ZDOOM_COMMIT=$(git log --pretty=format:'%h' -n 1)
 "${DEPS_DIR}/build.py" \
 	--source-path="${ZDOOM_DIR}" \
 	--build-path="${ZDOOM_DIR}/build" \
-	--sdk-path=${SRC_BASE_DIR}/macos_sdk/MacOSX${ZDOOM_OS_MIN_VER}.sdk
+	--os-version="${ZDOOM_OS_MIN_VER}" \
+	--sdk-path="${SRC_BASE_DIR}/macos_sdk/MacOSX${ZDOOM_OS_MIN_VER}.sdk"
 
 # -----------------------------------------------------------------------------
 # Create disk image
