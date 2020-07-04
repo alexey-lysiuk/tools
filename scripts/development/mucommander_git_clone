@@ -1,9 +1,0 @@
-#!/bin/sh
-
-cd /Volumes/ramdisk
-
-git clone https://github.com/alexey-lysiuk/mucommander.git
-cd mucommander
-
-git remote add trol73 https://github.com/trol73/mucommander.git
-git fetch --all
