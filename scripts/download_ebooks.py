@@ -7,6 +7,12 @@ import urllib.parse
 import urllib.request
 
 
+LINK_TYPES = (
+    'fb2',
+    'download',  # other formats
+)
+
+
 def main():
     if len(sys.argv) < 2:
         print('Usage: %s url ...' % sys.argv[0])
@@ -16,7 +22,10 @@ def main():
         print('Downloading %s...' % page_url)
         page_response = urllib.request.urlopen(page_url)
         page_data = page_response.read()
-        links = re.findall(r'<a href="(/b/\d+/fb2)">', str(page_data))
+        links = []
+
+        for link_type in LINK_TYPES:
+            links += re.findall(r'<a href="(/b/\d+/%s)">' % link_type, str(page_data))
 
         parsed_url = list(urllib.parse.urlsplit(page_url))
         parsed_url[2] = ''  # clear path
@@ -26,17 +35,17 @@ def main():
         current = 1
 
         for link in links:
-            fb2_url = urllib.parse.urljoin(domain, link)
+            ebook_url = urllib.parse.urljoin(domain, link)
 
-            print('Downloading %s [%i of %i]...' % (fb2_url, current, total))
-            fb2_response = urllib.request.urlopen(fb2_url)
-            fb2_data = fb2_response.read()
+            print('Downloading %s [%i of %i]...' % (ebook_url, current, total))
+            ebook_response = urllib.request.urlopen(ebook_url)
+            ebook_data = ebook_response.read()
 
-            content_disposition = fb2_response.headers['content-disposition']
+            content_disposition = ebook_response.headers['content-disposition']
             _, cd_params = cgi.parse_header(content_disposition)
 
             with open(cd_params['filename'], 'wb') as f:
-                f.write(fb2_data)
+                f.write(ebook_data)
 
             current += 1
 
