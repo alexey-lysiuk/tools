@@ -13,6 +13,24 @@ LINK_TYPES = (
 )
 
 
+def download(link):
+    try:
+        response = urllib.request.urlopen(link)
+        data = response.read()
+        content_disposition = response.headers['content-disposition']
+
+        if not content_disposition:
+            raise RuntimeError('Could not obtain file content')
+
+        _, cd_params = cgi.parse_header(content_disposition)
+
+        with open(cd_params['filename'], 'wb') as f:
+            f.write(data)
+
+    except Exception as ex:
+        print(f'ERROR: {ex}, {link} skipped')
+
+
 def main():
     if len(sys.argv) < 2:
         print('Usage: %s url ...' % sys.argv[0])
@@ -35,17 +53,10 @@ def main():
         current = 1
 
         for link in links:
-            ebook_url = urllib.parse.urljoin(domain, link)
+            link = urllib.parse.urljoin(domain, link)
 
-            print('Downloading %s [%i of %i]...' % (ebook_url, current, total))
-            ebook_response = urllib.request.urlopen(ebook_url)
-            ebook_data = ebook_response.read()
-
-            content_disposition = ebook_response.headers['content-disposition']
-            _, cd_params = cgi.parse_header(content_disposition)
-
-            with open(cd_params['filename'], 'wb') as f:
-                f.write(ebook_data)
+            print('Downloading %s [%i of %i]...' % (link, current, total))
+            download(link)
 
             current += 1
 
