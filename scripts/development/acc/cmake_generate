@@ -1,0 +1,20 @@
+#!/bin/sh
+
+set -o errexit
+
+SCRIPT_DIR=$(cd "${0%/*}"; pwd)/
+SOURCE_DIR=/Volumes/ramdisk/acc$1
+
+if [ ! -e "${SOURCE_DIR}" ]; then
+	"${SCRIPT_DIR}git_clone" $1
+fi
+
+cd "${SOURCE_DIR}"
+
+if [ ! -e build ]; then
+	mkdir build
+fi
+
+cd build
+/Applications/CMake.app/Contents/bin/cmake -G Xcode ..
+open acc.xcodeproj
