@@ -41,7 +41,7 @@ def download(file_id: str):
                 f.write(chunk)
                 total += len(chunk)
 
-                sys.stdout.write(f'\rDownloading {filename}: {total} bytes')
+                sys.stdout.write(f'\rDownloading {filename}: {total:,} bytes')
                 sys.stdout.flush()
 
     print('')
