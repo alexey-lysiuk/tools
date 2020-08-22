@@ -19,23 +19,16 @@ fi
 cd build
 
 DEPS_DIR=/Volumes/Storage/Work/zdoom-macos-deps/
-MPG123_DIR=${DEPS_DIR}mpg123/
-SNDFILE_DIR=${DEPS_DIR}sndfile/
-FSYNTH_DIR=${DEPS_DIR}fluidsynth/
+PREFIX_DIR=/Volumes/Storage/Work/zdoom-macos-deps/prefix
 
 /Applications/CMake.app/Contents/bin/cmake -GXcode          \
+	-DCMAKE_PREFIX_PATH="${PREFIX_DIR}"                     \
 	-DBUILD_SHARED_LIBS=OFF                                 \
 	-DDYN_MPG123=NO                                         \
 	-DDYN_SNDFILE=NO                                        \
 	-DDYN_FLUIDSYNTH=NO                                     \
 	-DFORCE_INTERNAL_ZLIB=YES                               \
 	-DFORCE_INTERNAL_GME=YES                                \
-	-DMPG123_INCLUDE_DIR=${MPG123_DIR}include               \
-	-DMPG123_LIBRARIES=${MPG123_DIR}lib/libmpg123.a         \
-	-DSNDFILE_INCLUDE_DIR=${SNDFILE_DIR}include             \
-	-DSNDFILE_LIBRARY=${SNDFILE_DIR}lib/libsndfile.a        \
-	-DFLUIDSYNTH_INCLUDE_DIR=${FSYNTH_DIR}include           \
-	-DFLUIDSYNTH_LIBRARIES=${FSYNTH_DIR}lib/libfluidsynth.a \
 	..
 
 open ZMusic.xcodeproj
