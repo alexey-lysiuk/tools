@@ -18,9 +18,6 @@ cd build
 ZMUSIC_OS_MIN_VER=10.9
 MACOS_SDK_DIR=/Volumes/Storage/Work/devbuilds/macos_sdk/MacOSX${ZMUSIC_OS_MIN_VER}.sdk
 PREFIX_DIR=/Volumes/Storage/Work/zdoom-macos-deps/prefix
-MPG123_DIR=${DEPS_DIR}mpg123/
-SNDFILE_DIR=${DEPS_DIR}sndfile/
-FSYNTH_DIR=${DEPS_DIR}fluidsynth/
 
 /Applications/CMake.app/Contents/bin/cmake                  \
 	-DCMAKE_BUILD_TYPE=Release                              \
