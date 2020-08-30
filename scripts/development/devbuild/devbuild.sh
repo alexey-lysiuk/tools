@@ -44,6 +44,8 @@ git clone -s "${SRC_ZDOOM_DIR}" "${ZDOOM_DIR}"
 cd "${DEPS_DIR}"
 git checkout "${ZDOOM_OS_MIN_VER}"
 
+DEPS_COMMIT=$(git log --pretty=format:'%h' -n 1)
+
 cd "${ZDOOM_DIR}"
 
 if [ -n "$1" ]; then
@@ -88,6 +90,7 @@ plutil -replace LSMinimumSystemVersion -string "${ZDOOM_OS_MIN_VER}" "${INFO_PLI
 plutil -replace CFBundleName -string "${ZDOOM_PROJECT}" "${INFO_PLIST_PATH}"
 plutil -replace CFBundleShortVersionString -string "${ZDOOM_VERSION}" "${INFO_PLIST_PATH}"
 plutil -replace CFBundleIdentifier -string "${ZDOOM_IDENTIFIER}" "${INFO_PLIST_PATH}"
+plutil -replace ZDependenciesRepositoryCommit -string "${DEPS_COMMIT}" "${INFO_PLIST_PATH}"
 
 DMG_NAME=${ZDOOM_PROJECT}-${ZDOOM_VERSION}
 DMG_FILENAME=$(echo ${DMG_NAME}.dmg | tr '[:upper:]' '[:lower:]')
