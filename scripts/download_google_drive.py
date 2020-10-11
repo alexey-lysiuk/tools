@@ -15,7 +15,7 @@ import requests
 def download(file_id: str):
     print(f'Requesting {file_id}')
 
-    url = "https://docs.google.com/uc?export=download&id=" + file_id
+    url = 'https://docs.google.com/uc?export=download&id=' + file_id
     session = requests.Session()
     response = session.get(url, stream=True)
 
@@ -35,7 +35,7 @@ def download(file_id: str):
     filename = cd_params['filename']
     total = 0
 
-    with open(filename, "wb") as f:
+    with open(filename, 'wb') as f:
         for chunk in response.iter_content(1024 * 1024):
             if chunk:
                 f.write(chunk)
@@ -49,12 +49,12 @@ def download(file_id: str):
 
 def main():
     if len(sys.argv) < 2:
-        print(f"Usage: {sys.argv[0]} file-id ...")
+        print(f'Usage: {sys.argv[0]} file-id ...')
         return
 
     for file_id in sys.argv[1:]:
         download(file_id)
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()
