@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import cgi
+import re
 import os
 import sys
 
@@ -12,7 +13,23 @@ import requests
 
 # Based on https://stackoverflow.com/a/39225039
 
-def download(file_id: str):
+def get_file_id(request: str) -> str:
+    url_patterns = (
+        r'https://drive.google.com/file/d/([^/]+)/?.*',
+        r'https://drive.google.com/open\?id=([^/]+)'
+    )
+
+    for pattern in url_patterns:
+        url_match = re.match(pattern, request, re.IGNORECASE)
+        if url_match:
+            return url_match.group(1)
+
+    return request
+
+
+def download(request: str) -> None:
+    file_id = get_file_id(request)
+
     print(f'Requesting {file_id}')
 
     url = 'https://docs.google.com/uc?export=download&id=' + file_id
@@ -49,11 +66,11 @@ def download(file_id: str):
 
 def main():
     if len(sys.argv) < 2:
-        print(f'Usage: {sys.argv[0]} file-id ...')
+        print(f'Usage: {sys.argv[0]} id-or-url ...')
         return
 
-    for file_id in sys.argv[1:]:
-        download(file_id)
+    for request in sys.argv[1:]:
+        download(request)
 
 
 if __name__ == '__main__':
