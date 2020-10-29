@@ -52,6 +52,8 @@ if [ -n "$1" ]; then
 	git checkout "$1"
 fi
 
+git submodule update --init --recursive
+
 ZDOOM_VERSION=$(git describe --tags)
 ZDOOM_COMMIT=$(git log --pretty=format:'%h' -n 1)
 
