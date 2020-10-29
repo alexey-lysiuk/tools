@@ -22,3 +22,4 @@ git fetch --all
 git checkout -b master origin/master
 git branch -D macOS
 git pull coelckers master
+git submodule update --init --recursive
