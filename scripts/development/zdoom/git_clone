@@ -2,9 +2,14 @@
 
 set -o errexit
 
-SRC_REPO_DIR=/Volumes/Storage/Work/mirrors/gzdoom-macos
+MIRRORS_DIR=/Volumes/Storage/Work/mirrors/
+SRC_REPO_DIR=${MIRRORS_DIR}gzdoom-macos
+WIDEPIX_REPO_DIR=${MIRRORS_DIR}WidePix
 
 cd "${SRC_REPO_DIR}"
+git fetch --all
+
+cd "${WIDEPIX_REPO_DIR}"
 git fetch --all
 
 cd /Volumes/ramdisk
@@ -22,4 +27,4 @@ git fetch --all
 git checkout -b master origin/master
 git branch -D macOS
 git pull coelckers master
-git submodule update --init --recursive
+git submodule update --init --recursive --reference "${WIDEPIX_REPO_DIR}"
