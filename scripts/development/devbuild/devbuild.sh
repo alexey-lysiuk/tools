@@ -18,6 +18,7 @@ fi
 SRC_BASE_DIR=/Volumes/Storage/Work/devbuilds/
 SRC_DEPS_DIR=${SRC_BASE_DIR}zdoom-macos-deps/
 SRC_ZDOOM_DIR=${SRC_BASE_DIR}${ZDOOM_PROJECT_LOW}/
+SRC_WIDEPIX_DIR=${SRC_BASE_DIR}WidePix/
 
 BASE_DIR=/Volumes/ramdisk/${ZDOOM_PROJECT_LOW}-devbuild/
 DEPS_DIR=${BASE_DIR}deps/
@@ -30,10 +31,13 @@ DIST_DIR=${BASE_DIR}dist/
 # ----------------------------------------------------------------------------
 
 cd "${SRC_DEPS_DIR}"
-git fetch
+git fetch --all
 
 cd "${SRC_ZDOOM_DIR}"
 git fetch --all --tags
+
+cd "${SRC_WIDEPIX_DIR}"
+git fetch --all
 
 mkdir "${BASE_DIR}"
 
@@ -52,7 +56,7 @@ if [ -n "$1" ]; then
 	git checkout "$1"
 fi
 
-git submodule update --init --recursive
+git submodule update --init --recursive --reference "${SRC_WIDEPIX_DIR}"
 
 ZDOOM_VERSION=$(git describe --tags)
 ZDOOM_COMMIT=$(git log --pretty=format:'%h' -n 1)
