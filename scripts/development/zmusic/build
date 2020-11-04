@@ -2,8 +2,13 @@
 
 set -o errexit
 
+SRC_REPO_DIR=/Volumes/Storage/Work/mirrors/zmusic
+
+cd "${SRC_REPO_DIR}"
+git fetch --all
+
 cd /Volumes/ramdisk
-git clone https://github.com/coelckers/ZMusic.git zmusic-build
+git clone -s "${SRC_REPO_DIR}" zmusic-build
 
 cd zmusic-build
 
