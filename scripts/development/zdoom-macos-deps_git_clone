@@ -16,3 +16,6 @@ git remote add origin https://github.com/alexey-lysiuk/zdoom-macos-deps.git
 git fetch --all
 git branch -u origin/10.9
 git pull
+
+mkdir sdk
+ln -s /Volumes/Storage/Work/devbuilds/macos_sdk/MacOSX10.9.sdk sdk
