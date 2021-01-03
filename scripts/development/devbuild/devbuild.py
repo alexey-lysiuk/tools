@@ -177,6 +177,9 @@ class BuildState:
             os.chdir(old_cwd)
 
     def create_disk_image(self):
+        args = ('codesign', '--sign', '-', '--deep', self.bundle_path)
+        subprocess.run(args, check=True)
+
         tmp_dmg_path = self.disk_image_path + '-tmp.dmg'
 
         args = (
