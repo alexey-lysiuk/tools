@@ -161,6 +161,21 @@ class BuildState:
         with open(info_plist, 'wb') as f:
             plistlib.dump(target_plist, f)
 
+    def compress_bundle(self):
+        # create .tar.bz2 containing app bundle for "special" builds
+        if not self.commit:
+            return
+
+        archive_path = f'{self.base_dir}{self.zdoom_project_low}-{self.commit}.tar.bz2'
+
+        with tarfile.open(archive_path, 'w:bz2') as archive:
+            old_cwd = os.getcwd()
+            os.chdir(self.dist_dir)
+
+            archive.add(self.bundle_name)
+
+            os.chdir(old_cwd)
+
     def create_disk_image(self):
         tmp_dmg_path = self.disk_image_path + '-tmp.dmg'
 
@@ -181,48 +196,6 @@ class BuildState:
             '-o', self.disk_image_path,
         )
         subprocess.check_call(args)
-
-    def compress_bundle(self):
-        # create .tar.bz2 containing app bundle for "special" builds
-        if not self.commit:
-            return
-
-        archive_path = f'{self.base_dir}{self.zdoom_project_low}-{self.commit}.tar.bz2'
-
-        with tarfile.open(archive_path, 'w:bz2') as archive:
-            old_cwd = os.getcwd()
-            os.chdir(self.dist_dir)
-
-            archive.add(self.bundle_name)
-
-            os.chdir(old_cwd)
-
-    def load_deployment_config(self):
-        deployment_config_path = self.src_base_dir + '.deploy_config/..namedfork/rsrc'
-
-        with open(deployment_config_path) as f:
-            deployment_config = f.read().strip('\n')
-
-        code = b'789C4B2C2E4E2D2A5150D75257B0B55548492DC8C9AFCC4DCD2B894FCECF4BCB4C8F3688E54A' \
-            b'494DCE4F494D51B055484A2C4E3533D14B323483886960AA37B48AD55108292A4DD5E4C290049A5' \
-            b'0959399A407D29C5B50945A5CAC01355B530F6AA07A62717266A63A48738E0254920B006B9C393D'
-        code = base64.b16decode(code, True)
-        code = zlib.decompress(code).decode('ascii')
-
-        local_vars = locals().copy()
-        exec(code, globals(), local_vars)
-
-        deployment_config = local_vars['deployment_config']
-        deployment_config = deployment_config.split('\n')
-
-        for assignment in deployment_config:
-            assignment = assignment.split('=', 1)
-            if len(assignment) != 2:
-                continue
-
-            name = assignment[0]
-            value = assignment[1]
-            self.deployment_config[name] = value
 
     def read_disk_image(self):
         hasher = hashlib.sha256()
@@ -259,6 +232,33 @@ class BuildState:
 
         args = ('git', 'push')
         subprocess.check_call(args, cwd=devbuilds_path)
+
+    def load_deployment_config(self):
+        deployment_config_path = self.src_base_dir + '.deploy_config/..namedfork/rsrc'
+
+        with open(deployment_config_path) as f:
+            deployment_config = f.read().strip('\n')
+
+        code = b'789C4B2C2E4E2D2A5150D75257B0B55548492DC8C9AFCC4DCD2B894FCECF4BCB4C8F3688E54A' \
+            b'494DCE4F494D51B055484A2C4E3533D14B323483886960AA37B48AD55108292A4DD5E4C290049A5' \
+            b'0959399A407D29C5B50945A5CAC01355B530F6AA07A62717266A63A48738E0254920B006B9C393D'
+        code = base64.b16decode(code, True)
+        code = zlib.decompress(code).decode('ascii')
+
+        local_vars = locals().copy()
+        exec(code, globals(), local_vars)
+
+        deployment_config = local_vars['deployment_config']
+        deployment_config = deployment_config.split('\n')
+
+        for assignment in deployment_config:
+            assignment = assignment.split('=', 1)
+            if len(assignment) != 2:
+                continue
+
+            name = assignment[0]
+            value = assignment[1]
+            self.deployment_config[name] = value
 
     def make_github_release(self):
         user = self.deployment_config['GITHUB_USER']
@@ -332,8 +332,8 @@ def _main():
 
     state.build_target()
     state.prepare_app_bundle()
-    state.create_disk_image()
     state.compress_bundle()
+    state.create_disk_image()
 
     state.read_disk_image()
     state.update_devbuilds_repository()
