@@ -126,7 +126,7 @@ class BuildState:
 
         args = (
             f'--source-path={self.zdoom_dir}',
-            f'--output-path={self.dist_dir}'
+            f'--output-path={self.dist_dir}',
             f'--sdk-path-x64={self.src_base_dir}/macos_sdk/MacOSX{self.zdoom_os_min_ver}.sdk',
             # ARM64 target uses the latest 11.x SDK for now
         )
