@@ -133,15 +133,16 @@ class BuildState:
         builder(args).run()
 
     def prepare_app_bundle(self):
-        os.rename(self.dist_dir + self.zdoom_project_low + '.app', self.bundle_path)
+        output_path = self.dist_dir + os.sep + self.zdoom_project_low + os.sep
+        os.rename(output_path + self.zdoom_project_low + '.app', self.bundle_path)
+        os.rmdir(output_path)
 
         apps = '/Applications'
         os.symlink(apps, self.dist_dir + apps)
 
         src_licenses = self.zdoom_dir + 'docs/licenses'
-        dst_target_licenses = self.dist_dir + 'Licenses'
-
         if os.path.exists(src_licenses):
+            dst_target_licenses = self.dist_dir + 'Licenses'
             shutil.copytree(src_licenses, dst_target_licenses)
 
             if os.path.exists(self.bundle_path + '/Contents/MacOS/libMoltenVK.dylib'):
