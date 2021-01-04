@@ -13,6 +13,8 @@ import tarfile
 import time
 import zlib
 
+sys.dont_write_bytecode = True
+
 import github3
 import ptyprocess
 
@@ -323,8 +325,6 @@ def _main():
     if len(sys.argv) < 2:
         print(f'Usage: {sys.argv[0]} target [commit]')
         exit(1)
-
-    sys.dont_write_bytecode = True
 
     target = sys.argv[1]
     commit = sys.argv[2] if len(sys.argv) > 2 else None
