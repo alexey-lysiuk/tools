@@ -160,7 +160,7 @@ class BuildState:
         subprocess.run(args, check=True)
 
     def _sign_bunble(self):
-        args = ('codesign', '--sign', '-', '--deep', self.bundle_path)
+        args = ('codesign', '--sign', '-', '--deep', '--force', self.bundle_path)
         subprocess.run(args, check=True)
 
     def _compress_bundle(self):
