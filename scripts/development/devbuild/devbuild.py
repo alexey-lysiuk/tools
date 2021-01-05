@@ -297,6 +297,7 @@ class BuildState:
         release.upload_asset('application/octet-stream', self.package_filename, self.package_content)
 
     def upload_to_drdteam(self):
+        print('Connecting to DRD Team...')
         login = self.deployment_config['SFTP_LOGIN']
         host = self.deployment_config['SFTP_HOST']
 
@@ -321,6 +322,7 @@ class BuildState:
         sftp.write(f'cd {directory}\n')
         wait_for_prompt()
 
+        print('Uploading build to DRD Team...')
         sftp.write(f'put -P "{self.package_path}"\n')
         wait_for_prompt()
 
