@@ -36,6 +36,7 @@ class BuildState:
         self.target = BuildState.TARGETS[self.target_name_lower]
         self.target_os_version = '10.9'
         self.checkout = checkout
+        self.zip_package = True
 
         # Source directories
         self.script_dir = os.path.dirname(os.path.abspath(__file__)) + os.sep
@@ -54,11 +55,11 @@ class BuildState:
         self.bundle_name = self.target.name + '.app'
         self.bundle_path = self.dist_dir + self.bundle_name
 
-        self.disk_image_name = None
-        self.disk_image_filename = None
-        self.disk_image_path = None
-        self.disk_image_content = None
-        self.disk_image_checksum = None
+        self.volume_name = None
+        self.package_filename = None
+        self.package_path = None
+        self.package_content = None
+        self.package_checksum = None
 
         self.deps_commit = None
         self.target_version = None
@@ -106,9 +107,9 @@ class BuildState:
         self.target_version = BuildState._run(args, self.target_dir)
         self.target_commit = BuildState._run(log_commit_args, self.target_dir)
 
-        self.disk_image_name = self.target.name + '-' + self.target_version
-        self.disk_image_filename = self.disk_image_name.lower() + '.dmg'
-        self.disk_image_path = self.base_dir + self.disk_image_filename
+        self.volume_name = self.target.name + '-' + self.target_version
+        self.package_filename = self.volume_name.lower() + ('.zip' if self.zip_package else '.dmg')
+        self.package_path = self.base_dir + self.package_filename
 
     def build_target(self):
         sys.path.append(self.deps_dir)
@@ -129,8 +130,9 @@ class BuildState:
         os.rename(output_path + self.target_name_lower + '.app', self.bundle_path)
         os.rmdir(output_path)
 
-        apps = '/Applications'
-        os.symlink(apps, self.dist_dir + apps)
+        if not self.zip_package:
+            apps = '/Applications'
+            os.symlink(apps, self.dist_dir + apps)
 
         src_licenses = self.target_dir + 'docs/licenses'
         if os.path.exists(src_licenses):
@@ -153,9 +155,17 @@ class BuildState:
         with open(info_plist, 'wb') as f:
             plistlib.dump(target_plist, f)
 
-    def compress_bundle(self):
+    def _create_zip_package(self):
+        args = ('ditto', '-c', '-k', '--zlibCompressionLevel', '9', self.dist_dir, self.package_path)
+        subprocess.run(args, check=True)
+
+    def _sign_bunble(self):
+        args = ('codesign', '--sign', '-', '--deep', self.bundle_path)
+        subprocess.run(args, check=True)
+
+    def _compress_bundle(self):
         # create .tar.bz2 containing app bundle for "special" builds
-        if not self.checkout:
+        if self.zip_package or not self.checkout:
             return
 
         archive_path = f'{self.base_dir}{self.target_name_lower}-{self.target_commit}.tar.bz2'
@@ -168,17 +178,14 @@ class BuildState:
 
             os.chdir(old_cwd)
 
-    def create_disk_image(self):
-        args = ('codesign', '--sign', '-', '--deep', self.bundle_path)
-        subprocess.run(args, check=True)
-
-        tmp_dmg_path = self.disk_image_path + '-tmp.dmg'
+    def _create_disk_image(self):
+        tmp_dmg_path = self.package_path + '-tmp.dmg'
 
         args = (
             'hdiutil', 'create',
             '-srcfolder', self.dist_dir,
             '-format', 'UDRO',
-            '-volname', self.disk_image_name,
+            '-volname', self.volume_name,
             tmp_dmg_path,
         )
         subprocess.check_call(args)
@@ -188,18 +195,29 @@ class BuildState:
             tmp_dmg_path,
             '-format', 'UDBZ',
             '-imagekey', 'bzip2-level=9',
-            '-o', self.disk_image_path,
+            '-o', self.package_path,
         )
         subprocess.check_call(args)
 
-    def read_disk_image(self):
+    def _read_package(self):
         hasher = hashlib.sha256()
 
-        with open(self.disk_image_path, 'rb') as f:
-            self.disk_image_content = f.read()
-            hasher.update(self.disk_image_content)
+        with open(self.package_path, 'rb') as f:
+            self.package_content = f.read()
+            hasher.update(self.package_content)
 
-        self.disk_image_checksum = hasher.hexdigest()
+        self.package_checksum = hasher.hexdigest()
+
+    def create_package(self):
+        if self.zip_package:
+            self._sign_bunble()
+            self._create_zip_package()
+        else:
+            self._compress_bundle()
+            self._sign_bunble()
+            self._create_disk_image()
+
+        self._read_package()
 
     def update_devbuilds_repository(self):
         devbuilds_path = self.src_base_dir + self.target_devbuilds + os.sep
@@ -210,10 +228,10 @@ class BuildState:
             readme_content = f.readlines()
 
         repo_url = 'https://github.com/alexey-lysiuk/' + self.target_devbuilds
-        download_url = f'{repo_url}/releases/download/{self.target_version}/{self.disk_image_filename}'
+        download_url = f'{repo_url}/releases/download/{self.target_version}/{self.package_filename}'
 
         table_top = readme_content.index('|---|---|\n') + 1
-        new_entry = f'|[`{self.target_version}`]({download_url})|`{self.disk_image_checksum}`|\n'
+        new_entry = f'|[`{self.target_version}`]({download_url})|`{self.package_checksum}`|\n'
         readme_content.insert(table_top, new_entry)
 
         with open(devbuilds_readme, 'w') as f:
@@ -271,12 +289,12 @@ class BuildState:
         print('Creating GitHub release...')
         release_name = self.target.name + ' ' + self.target_version
         release_description = \
-            f'Development build at {target_repository_url}@{self.target_commit}\nSHA-256: {self.disk_image_checksum}'
+            f'Development build at {target_repository_url}@{self.target_commit}\nSHA-256: {self.package_checksum}'
         release = repository.create_release(
             self.target_version, name=release_name, body=release_description, prerelease=True)
 
         print('Uploading GitHub release asset...')
-        release.upload_asset('application/octet-stream', self.disk_image_filename, self.disk_image_content)
+        release.upload_asset('application/octet-stream', self.package_filename, self.package_content)
 
     def upload_to_drdteam(self):
         login = self.deployment_config['SFTP_LOGIN']
@@ -303,7 +321,7 @@ class BuildState:
         sftp.write(f'cd {directory}\n')
         wait_for_prompt()
 
-        sftp.write(f'put -P "{self.disk_image_path}"\n')
+        sftp.write(f'put -P "{self.package_path}"\n')
         wait_for_prompt()
 
         sftp.write('bye\n')
@@ -325,10 +343,8 @@ def _main():
 
     state.build_target()
     state.prepare_app_bundle()
-    state.compress_bundle()
-    state.create_disk_image()
+    state.create_package()
 
-    state.read_disk_image()
     state.update_devbuilds_repository()
     state.load_deployment_config()
     state.make_github_release()
