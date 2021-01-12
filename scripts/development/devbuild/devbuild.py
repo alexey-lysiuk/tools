@@ -99,6 +99,12 @@ class BuildState:
         args = ('git', 'submodule', 'update', '--init', '--recursive', '--reference', self.src_widepix_dir)
         subprocess.check_call(args, cwd=self.target_dir)
 
+        sdk_path = self.deps_dir + 'sdk' + os.sep
+        os.makedirs(sdk_path)
+
+        for entry in os.scandir(self.src_base_dir + 'macos_sdk'):
+            os.symlink(entry.path, sdk_path + entry.name)
+
     def setup_target(self):
         log_commit_args = ('git', 'log', '--pretty=format:%h', '-n', '1')
         self.deps_commit = BuildState._run(log_commit_args, self.deps_dir)
@@ -118,10 +124,8 @@ class BuildState:
         builder = build_module.__dict__['Builder']
 
         args = (
-            f'--source-path={self.target_dir}',
-            f'--output-path={self.dist_dir}',
-            f'--sdk-path-x64={self.src_base_dir}/macos_sdk/MacOSX{self.target_os_version}.sdk',
-            # ARM64 target uses the latest 11.x SDK for now
+            '--source-path=' + self.target_dir,
+            '--output-path=' + self.dist_dir,
         )
         builder(args).run()
 
