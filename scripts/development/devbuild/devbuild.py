@@ -120,7 +120,7 @@ class BuildState:
     def build_target(self):
         sys.path.append(self.deps_dir)
 
-        build_module = importlib.import_module('build')
+        build_module = importlib.import_module('aedi')
         builder = build_module.__dict__['Builder']
 
         args = (
