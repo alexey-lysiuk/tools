@@ -124,7 +124,7 @@ class BuildState:
         builder = build_module.__dict__['Builder']
 
         args = (
-            '--source-path=' + self.target_dir,
+            '--source=' + self.target_dir,
             '--output-path=' + self.dist_dir,
         )
         builder(args).run()
