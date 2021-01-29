@@ -10,4 +10,4 @@ if [ ! -e "${SOURCE_DIR}" ]; then
 	"${SCRIPT_DIR}git_clone" $1
 fi
 
-"${DEPS_DIR}build.py" --xcode --source-path="${SOURCE_DIR}" --build-path="${SOURCE_DIR}/build"
+"${DEPS_DIR}build.py" --xcode --source="${SOURCE_DIR}" --build-path="${SOURCE_DIR}/build"
