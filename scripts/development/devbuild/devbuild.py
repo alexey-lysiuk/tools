@@ -81,29 +81,39 @@ class BuildState:
         subprocess.check_call(args, cwd=self.src_target_dir)
         subprocess.check_call(args, cwd=self.src_widepix_dir)
 
-        os.makedirs(self.base_dir)
+        os.makedirs(self.base_dir, exist_ok=True)
+
+        if os.path.exists(self.dist_dir):
+            shutil.rmtree(self.dist_dir)
 
         clone_args = ('git', 'clone', '-s')
-        args = clone_args + (self.src_deps_dir, self.deps_dir)
-        subprocess.check_call(args, cwd=self.base_dir)
-        args = clone_args + (self.src_target_dir, self.target_dir)
-        subprocess.check_call(args, cwd=self.base_dir)
+
+        if not os.path.exists(self.deps_dir):
+            args = clone_args + (self.src_deps_dir, self.deps_dir)
+            subprocess.check_call(args, cwd=self.base_dir)
+
+        if not os.path.exists(self.target_dir):
+            args = clone_args + (self.src_target_dir, self.target_dir)
+            subprocess.check_call(args, cwd=self.base_dir)
 
         args = ('git', 'checkout', self.target_os_version)
         subprocess.check_call(args, cwd=self.deps_dir)
 
-        if self.checkout:
-            args = ('git', 'checkout', self.checkout)
-            subprocess.check_call(args, cwd=self.target_dir)
+        # TODO: get default branch name from repository
+        commit = self.checkout if self.checkout else 'master'
+        args = ('git', 'checkout', commit)
+        subprocess.check_call(args, cwd=self.target_dir)
 
         args = ('git', 'submodule', 'update', '--init', '--recursive', '--reference', self.src_widepix_dir)
         subprocess.check_call(args, cwd=self.target_dir)
 
         sdk_path = self.deps_dir + 'sdk' + os.sep
-        os.makedirs(sdk_path)
 
-        for entry in os.scandir(self.src_base_dir + 'macos_sdk'):
-            os.symlink(entry.path, sdk_path + entry.name)
+        if not os.path.exists(sdk_path):
+            os.makedirs(sdk_path)
+
+            for entry in os.scandir(self.src_base_dir + 'macos_sdk'):
+                os.symlink(entry.path, sdk_path + entry.name)
 
     def setup_target(self):
         log_commit_args = ('git', 'log', '--pretty=format:%h', '-n', '1')
@@ -185,6 +195,9 @@ class BuildState:
     def _create_disk_image(self):
         tmp_dmg_path = self.package_path + '-tmp.dmg'
 
+        if os.path.exists(tmp_dmg_path):
+            os.remove(tmp_dmg_path)
+
         args = (
             'hdiutil', 'create',
             '-srcfolder', self.dist_dir,
@@ -213,6 +226,9 @@ class BuildState:
         self.package_checksum = hasher.hexdigest()
 
     def create_package(self):
+        if os.path.exists(self.package_path):
+            os.remove(self.package_path)
+
         if self.zip_package:
             self._sign_bunble()
             self._create_zip_package()
