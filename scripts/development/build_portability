@@ -1,0 +1,66 @@
+#!/bin/sh
+
+set -o errexit
+
+cd /Volumes/ramdisk
+mkdir portability-build
+
+cd portability-build
+mkdir rust temp #.cargo
+
+#
+# Download and extract Rust
+#
+
+cd temp
+
+# See https://forge.rust-lang.org/infra/other-installation-methods.html#standalone-installers
+RUST_PACKAGE=rust-1.46.0-x86_64-apple-darwin.pkg
+curl -JOL "https://static.rust-lang.org/dist/${RUST_PACKAGE}"
+
+echo "28ede7eb27c6ae0eb62a668db10d763d3126e3d7b0050b0cd50f7050a1f71d4c  ${RUST_PACKAGE}" > rust.sha256
+shasum -c rust.sha256
+
+xar -xf rust-1.46.0-x86_64-apple-darwin.pkg
+
+tar -xf cargo.pkg/Scripts
+cp -r cargo/* ../rust
+
+tar -xf rustc.pkg/Scripts
+cp -r rustc/* ../rust
+
+tar -xf rust-std.pkg/Scripts
+cp -r rust-std-x86_64-apple-darwin/* ../rust
+
+cd ..
+rm -rf temp
+
+#
+# Prepare build environment
+#
+
+export PATH=$PATH:`pwd`/rust/bin
+export CPPFLAGS="-mmacosx-version-min=10.11 -isysroot /Volumes/Storage/Work/devbuilds/macos_sdk/MacOSX10.11.sdk"
+export CFLAGS=${CPPFLAGS}
+export CXXFLAGS=${CPPFLAGS}
+export OBJCFLAGS=${CPPFLAGS}
+export OBJCXXFLAGS=${CPPFLAGS}
+export LDFLAGS=${CPPFLAGS}
+export CARGO_HOME=`pwd`/.cargo
+export MACOSX_DEPLOYMENT_TARGET=10.11
+
+#
+# Download and build Portability
+#
+
+git clone https://github.com/gfx-rs/portability.git
+cd portability
+
+if [ -n "$1" ]; then
+	git checkout "$1"
+fi
+
+cargo -vv build --manifest-path libportability/Cargo.toml --features metal --release
+
+cd target/release
+zip -9 ../../../libportability.zip libportability.dylib
