@@ -3,32 +3,11 @@
 set -o errexit
 
 SCRIPT_DIR=$(cd "${0%/*}"; pwd)/
+DEPS_DIR=/Volumes/Storage/Work/zdoom-macos-deps/
+SOURCE_DIR=/Volumes/ramdisk/zmusic$1
 
-cd /Volumes/ramdisk
-
-if [ ! -e zmusic$1 ]; then
+if [ ! -e "${SOURCE_DIR}" ]; then
 	"${SCRIPT_DIR}git_clone" $1
 fi
 
-cd zmusic$1
-
-if [ ! -e build ]; then
-	mkdir build
-fi
-
-cd build
-
-DEPS_DIR=/Volumes/Storage/Work/zdoom-macos-deps/
-PREFIX_DIR=/Volumes/Storage/Work/zdoom-macos-deps/prefix
-
-/Applications/CMake.app/Contents/bin/cmake -GXcode          \
-	-DCMAKE_PREFIX_PATH="${PREFIX_DIR}"                     \
-	-DBUILD_SHARED_LIBS=OFF                                 \
-	-DDYN_MPG123=NO                                         \
-	-DDYN_SNDFILE=NO                                        \
-	-DDYN_FLUIDSYNTH=NO                                     \
-	-DFORCE_INTERNAL_ZLIB=YES                               \
-	-DFORCE_INTERNAL_GME=YES                                \
-	..
-
-open ZMusic.xcodeproj
+"${DEPS_DIR}build.py" --xcode --source="${SOURCE_DIR}" --build-path="${SOURCE_DIR}/build"
