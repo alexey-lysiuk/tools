@@ -6,7 +6,7 @@ cd /Volumes/ramdisk
 mkdir portability-build
 
 cd portability-build
-mkdir rust temp #.cargo
+mkdir rust temp .cargo
 
 #
 # Download and extract Rust
@@ -15,13 +15,13 @@ mkdir rust temp #.cargo
 cd temp
 
 # See https://forge.rust-lang.org/infra/other-installation-methods.html#standalone-installers
-RUST_PACKAGE=rust-1.46.0-x86_64-apple-darwin.pkg
+RUST_PACKAGE=rust-1.50.0-x86_64-apple-darwin.pkg
 curl -JOL "https://static.rust-lang.org/dist/${RUST_PACKAGE}"
 
-echo "28ede7eb27c6ae0eb62a668db10d763d3126e3d7b0050b0cd50f7050a1f71d4c  ${RUST_PACKAGE}" > rust.sha256
+echo "fb708afbeb0cd334277483aa4b4a5236d1b41abcca2fab0f91e3c51a57eefa6a  ${RUST_PACKAGE}" > rust.sha256
 shasum -c rust.sha256
 
-xar -xf rust-1.46.0-x86_64-apple-darwin.pkg
+xar -xf "${RUST_PACKAGE}"
 
 tar -xf cargo.pkg/Scripts
 cp -r cargo/* ../rust
