@@ -23,9 +23,12 @@ def download(link):
             raise RuntimeError('Could not obtain file content')
 
         _, cd_params = cgi.parse_header(content_disposition)
+        filename = cd_params['filename']
 
-        with open(cd_params['filename'], 'wb') as f:
-            f.write(data)
+        with open(filename, 'wb') as f:
+            written = f.write(data)
+
+        print(f'Saved to {filename} [{written:,} bytes]')
 
     except Exception as ex:
         print(f'ERROR: {ex}, {link} skipped')
