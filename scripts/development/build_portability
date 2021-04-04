@@ -15,10 +15,10 @@ mkdir rust temp .cargo
 cd temp
 
 # See https://forge.rust-lang.org/infra/other-installation-methods.html#standalone-installers
-RUST_PACKAGE=rust-1.50.0-x86_64-apple-darwin.pkg
+RUST_PACKAGE=rust-1.51.0-x86_64-apple-darwin.pkg
 curl -JOL "https://static.rust-lang.org/dist/${RUST_PACKAGE}"
 
-echo "fb708afbeb0cd334277483aa4b4a5236d1b41abcca2fab0f91e3c51a57eefa6a  ${RUST_PACKAGE}" > rust.sha256
+echo "d838ecfe023c3aa2677fc9817190d3b45f09cc65afe3be8119b857795adc0f31  ${RUST_PACKAGE}" > rust.sha256
 shasum -c rust.sha256
 
 xar -xf "${RUST_PACKAGE}"
