@@ -136,7 +136,6 @@ class BuildState:
         args = (
             '--source=' + self.target_dir,
             '--output-path=' + self.dist_dir,
-            '--skip-checkout',
         )
         builder(args).run()
 
