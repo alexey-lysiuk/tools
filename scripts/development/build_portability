@@ -15,13 +15,27 @@ mkdir rust temp .cargo
 cd temp
 
 # See https://forge.rust-lang.org/infra/other-installation-methods.html#standalone-installers
-RUST_PACKAGE=rust-1.51.0-x86_64-apple-darwin.pkg
-curl -JOL "https://static.rust-lang.org/dist/${RUST_PACKAGE}"
+RUST_VERSION=1.51.0
 
-echo "d838ecfe023c3aa2677fc9817190d3b45f09cc65afe3be8119b857795adc0f31  ${RUST_PACKAGE}" > rust.sha256
+RUST_PACKAGE_INTEL=rust-${RUST_VERSION}-x86_64-apple-darwin.pkg
+curl -JOL "https://static.rust-lang.org/dist/${RUST_PACKAGE_INTEL}"
+
+RUST_PACKAGE_ARM=rust-${RUST_VERSION}-aarch64-apple-darwin.pkg
+curl -JOL "https://static.rust-lang.org/dist/${RUST_PACKAGE_ARM}"
+
+echo "d838ecfe023c3aa2677fc9817190d3b45f09cc65afe3be8119b857795adc0f31  ${RUST_PACKAGE_INTEL}" >> rust.sha256
+echo "cff7bcc350ccf57be4fcc03d28c72a7223d426ea78d5793991dfc352495b4c3f  ${RUST_PACKAGE_ARM}" >> rust.sha256
 shasum -c rust.sha256
 
-xar -xf "${RUST_PACKAGE}"
+if [[ "$(uname -m)" -eq "x86_64" ]]; then
+	RUST_PACKAGE_NATIVE=${RUST_PACKAGE_INTEL}
+	RUST_PACKAGE_OTHER=${RUST_PACKAGE_ARM}
+else
+	RUST_PACKAGE_NATIVE=${RUST_PACKAGE_ARM}
+	RUST_PACKAGE_OTHER=${RUST_PACKAGE_INTEL}
+fi
+
+xar -xf "${RUST_PACKAGE_NATIVE}"
 
 tar -xf cargo.pkg/Scripts
 cp -r cargo/* ../rust
@@ -30,28 +44,22 @@ tar -xf rustc.pkg/Scripts
 cp -r rustc/* ../rust
 
 tar -xf rust-std.pkg/Scripts
-cp -r rust-std-x86_64-apple-darwin/* ../rust
+cp -r rust-std-*-apple-darwin/* ../rust
+
+xar -xf "${RUST_PACKAGE_OTHER}"
+
+tar -xf rust-std.pkg/Scripts
+cp -r rust-std-*-apple-darwin/* ../rust
 
 cd ..
 rm -rf temp
 
 #
-# Prepare build environment
+# Download and build Portability
 #
 
 export PATH=$PATH:`pwd`/rust/bin
-export CPPFLAGS="-mmacosx-version-min=10.11 -isysroot /Volumes/Storage/Work/devbuilds/macos_sdk/MacOSX10.11.sdk"
-export CFLAGS=${CPPFLAGS}
-export CXXFLAGS=${CPPFLAGS}
-export OBJCFLAGS=${CPPFLAGS}
-export OBJCXXFLAGS=${CPPFLAGS}
-export LDFLAGS=${CPPFLAGS}
 export CARGO_HOME=`pwd`/.cargo
-export MACOSX_DEPLOYMENT_TARGET=10.11
-
-#
-# Download and build Portability
-#
 
 git clone https://github.com/gfx-rs/portability.git
 cd portability
@@ -60,7 +68,24 @@ if [ -n "$1" ]; then
 	git checkout "$1"
 fi
 
-cargo -vv build --manifest-path libportability/Cargo.toml --features metal --release
+cargo_build()
+{
+	ARCH=$1
+	VERSION=$2
 
-cd target/release
-zip -9 ../../../libportability.zip libportability.dylib
+	export CPPFLAGS="-mmacosx-version-min=${VERSION} -isysroot /Volumes/Storage/Work/devbuilds/macos_sdk/MacOSX${VERSION}.sdk"
+	export CFLAGS=${CPPFLAGS}
+	export CXXFLAGS=${CPPFLAGS}
+	export OBJCFLAGS=${CPPFLAGS}
+	export OBJCXXFLAGS=${CPPFLAGS}
+	export LDFLAGS=${CPPFLAGS}
+	export MACOSX_DEPLOYMENT_TARGET=${VERSION}
+
+	cargo -vv build --manifest-path libportability/Cargo.toml --target ${ARCH}-apple-darwin --features metal --release
+}
+
+cargo_build x86_64 10.11
+cargo_build aarch64 11.0
+
+lipo target/x86_64-apple-darwin/release/libportability.dylib target/aarch64-apple-darwin/release/libportability.dylib -create -output libvulkan.dylib
+zip -9 ../gfx-portability.zip libvulkan.dylib
