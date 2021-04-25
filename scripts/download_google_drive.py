@@ -4,6 +4,7 @@ import cgi
 import re
 import os
 import sys
+import urllib.parse
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)) + '/development/devbuild')
 sys.dont_write_bytecode = True
@@ -25,6 +26,18 @@ def get_file_id(request: str) -> str:
             return url_match.group(1)
 
     return request
+
+
+def get_filename(cd_params: dict) -> str:
+    filename_key = 'filename*' if 'filename*' in cd_params else 'filename'
+    filename = cd_params[filename_key]
+    filename_prefix = "UTF-8''"
+
+    if filename.startswith(filename_prefix):
+        filename = filename[len(filename_prefix):]
+        filename = urllib.parse.unquote(filename)
+
+    return filename
 
 
 def download(request: str) -> None:
@@ -49,7 +62,7 @@ def download(request: str) -> None:
 
     content_disposition = response.headers['content-disposition']
     _, cd_params = cgi.parse_header(content_disposition)
-    filename = cd_params['filename']
+    filename = get_filename(cd_params)
     total = 0
 
     with open(filename, 'wb') as f:
