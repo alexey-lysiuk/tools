@@ -29,15 +29,14 @@ def get_file_id(request: str) -> str:
 
 
 def get_filename(cd_params: dict) -> str:
-    filename_key = 'filename*' if 'filename*' in cd_params else 'filename'
-    filename = cd_params[filename_key]
-    filename_prefix = "UTF-8''"
+    encoded_filename_directive = 'filename*'
 
-    if filename.startswith(filename_prefix):
-        filename = filename[len(filename_prefix):]
-        filename = urllib.parse.unquote(filename)
+    if encoded_filename_directive in cd_params:
+        filename = cd_params[encoded_filename_directive]
+        encoding, _, filename = filename.split("'")
+        return urllib.parse.unquote(filename, encoding)
 
-    return filename
+    return cd_params['filename']
 
 
 def download(request: str) -> None:
