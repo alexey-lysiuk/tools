@@ -5,7 +5,6 @@ The Repository objects represent various different repository representations
 returned by GitHub.
 
 """
-from __future__ import unicode_literals
 
 import base64
 import json as jsonlib
@@ -44,6 +43,7 @@ from . import stats
 from . import status
 from . import tag
 from . import topics
+from . import traffic
 
 
 class _Repository(models.GitHubCore):
@@ -557,6 +557,60 @@ class _Repository(models.GitHubCore):
             params = {"anon": "true"}
         return self._iter(int(number), url, users.Contributor, params, etag)
 
+    def views(self, per="day"):
+        """Get the total number of repository views and breakdown per day or
+        week for the last 14 days.
+
+        .. versionadded:: 1.4.0
+
+        See also: https://developer.github.com/v3/repos/traffic/
+
+        :param str per:
+            (optional), ('day', 'week'), views reporting period. Default 'day'
+            will return views per day for the last 14 days.
+        :returns:
+            views data
+        :rtype:
+            :class:`~github3.repos.traffic.ViewsStats`
+        :raises:
+            ValueError if per is not a valid choice
+        """
+        params = {}
+        if per in ("day", "week"):
+            params.update(per=per)
+        else:
+            raise ValueError("per must be 'day' or 'week'")
+        url = self._build_url("traffic", "views", base_url=self._api)
+        json = self._json(self._get(url, params=params), 200)
+        return self._instance_or_null(traffic.ViewsStats, json)
+
+    def clones(self, per="day"):
+        """Get the total number of repository clones and breakdown per day or
+        week for the last 14 days.
+
+        .. versionadded:: 1.4.0
+
+        See also: https://developer.github.com/v3/repos/traffic/
+
+        :param str per:
+            (optional), ('day', 'week'), clones reporting period. Default 'day'
+            will return clones per day for the last 14 days.
+        :returns:
+            clones data
+        :rtype:
+            :class:`~github3.repos.traffic.ClonesStats`
+        :raises:
+            ValueError if per is not a valid choice
+        """
+        params = {}
+        if per in ("day", "week"):
+            params.update(per=per)
+        else:
+            raise ValueError("per must be 'day' or 'week'")
+        url = self._build_url("traffic", "clones", base_url=self._api)
+        json = self._json(self._get(url, params=params), 200)
+        return self._instance_or_null(traffic.ClonesStats, json)
+
     @decorators.requires_app_installation_auth
     def create_check_run(
         self,
@@ -671,7 +725,7 @@ class _Repository(models.GitHubCore):
         :returns:
             string of the SHA returned
         :returns:
-            str (on Python 3, unicode on Python 2)
+            str
         """
         sha = ""
         if encoding in ("base64", "utf-8"):
@@ -3242,7 +3296,8 @@ class ShortRepository(_Repository):
 
     .. attribute:: owner
 
-        The owner of the repository, e.g., ``sigmavirus24``.
+        A :class:`~github3.users.ShortUser` object representing the owner of
+        the repository.
 
     .. attribute:: private
 

@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 """This module provides the basic models used in github3.py."""
-from __future__ import unicode_literals
-
 import json as jsonlib
 import logging
 
@@ -54,9 +52,10 @@ class GitHubCore(object):
 
     def __getattr__(self, attribute):
         """Proxy access to stored JSON."""
-        if attribute not in self._json_data:
+        _json_data = object.__getattribute__(self, "_json_data")
+        if attribute not in _json_data:
             raise AttributeError(attribute)
-        value = self._json_data.get(attribute)
+        value = _json_data[attribute]
         setattr(self, attribute, value)
         return value
 
@@ -133,7 +132,7 @@ class GitHubCore(object):
             return
         for (k, v) in list(data.items()):
             if v is None:
-                del (data[k])
+                del data[k]
 
     def _instance_or_null(self, instance_class, json):
         if json is not None and not isinstance(json, dict):

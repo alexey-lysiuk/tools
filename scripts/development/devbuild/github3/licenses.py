@@ -4,8 +4,6 @@ This module contains the classes relating to licenses.
 
 See also: https://developer.github.com/v3/licenses/
 """
-from __future__ import unicode_literals
-
 import base64
 
 from . import models
@@ -202,7 +200,7 @@ class RepositoryLicense(models.GitHubCore):
         :returns:
             plain-text content of this license
         :rtype:
-            text (unicode on Python 2, str on Python 3)
+            text (str on Python 3)
         """
         if self.encoding == "base64":
             return base64.b64decode(self.content.encode("utf-8")).decode(

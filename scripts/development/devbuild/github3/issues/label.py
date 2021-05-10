@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 """Module containing the logic for labels."""
-from __future__ import unicode_literals
 
 from json import dumps
 from ..decorators import requires_auth
@@ -102,7 +101,7 @@ class Label(_Label):
 
         The hexadecimeal representation of the background color of this label.
 
-    .. attribute:: desciption
+    .. attribute:: description
 
         The description for this label.
 
