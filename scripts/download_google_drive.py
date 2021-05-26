@@ -14,7 +14,7 @@ import requests
 
 # Based on https://stackoverflow.com/a/39225039
 
-def get_file_id(request: str) -> str:
+def _get_file_id(request: str) -> str:
     url_patterns = (
         r'https://drive.google.com/file/d/([^/]+)/?.*',
         r'https://drive.google.com/open\?id=([^/]+)'
@@ -28,7 +28,7 @@ def get_file_id(request: str) -> str:
     return request
 
 
-def get_filename(cd_params: dict) -> str:
+def _get_filename(cd_params: dict) -> str:
     encoded_filename_directive = 'filename*'
 
     if encoded_filename_directive in cd_params:
@@ -39,8 +39,8 @@ def get_filename(cd_params: dict) -> str:
     return cd_params['filename']
 
 
-def download(request: str) -> None:
-    file_id = get_file_id(request)
+def _download(request: str) -> None:
+    file_id = _get_file_id(request)
 
     print(f'Requesting {file_id}')
 
@@ -61,7 +61,7 @@ def download(request: str) -> None:
 
     content_disposition = response.headers['content-disposition']
     _, cd_params = cgi.parse_header(content_disposition)
-    filename = get_filename(cd_params)
+    filename = _get_filename(cd_params)
     total = 0
 
     with open(filename, 'wb') as f:
@@ -82,7 +82,7 @@ def main():
         return
 
     for request in sys.argv[1:]:
-        download(request)
+        _download(request)
 
 
 if __name__ == '__main__':
