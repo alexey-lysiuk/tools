@@ -2,20 +2,15 @@
 
 set -o errexit
 
-MIRRORS_DIR=/Volumes/Storage/Work/mirrors/
-SLADE_DIR=${MIRRORS_DIR}slade
-BUILD_ENV_NAME=slade-macos-build
+SRC_REPO_DIR=/Volumes/Storage/Work/mirrors/slade
 
-cd "${SLADE_DIR}"
+cd "${SRC_REPO_DIR}"
 git fetch --all
 
 cd /Volumes/ramdisk
-git clone -s "${MIRRORS_DIR}${BUILD_ENV_NAME}"
+git clone -s "${SRC_REPO_DIR}" slade$1
 
-cd "${BUILD_ENV_NAME}"
-git clone -s "${SLADE_DIR}"
-
-cd slade
+cd slade$1
 git remote remove origin
 git remote add origin https://github.com/alexey-lysiuk/SLADE.git
 git remote add sirjuddington https://github.com/sirjuddington/SLADE.git
