@@ -96,9 +96,6 @@ class BuildState:
             args = clone_args + (self.src_target_dir, self.target_dir)
             subprocess.check_call(args, cwd=self.base_dir)
 
-        args = ('git', 'checkout', self.target_os_version)
-        subprocess.check_call(args, cwd=self.deps_dir)
-
         # TODO: get default branch name from repository
         commit = self.checkout if self.checkout else 'master'
         args = ('git', 'checkout', commit)
