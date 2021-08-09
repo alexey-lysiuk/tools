@@ -34,7 +34,6 @@ class BuildState:
     def __init__(self, target: str, checkout: str):
         self.target_name_lower = target.lower()
         self.target = BuildState.TARGETS[self.target_name_lower]
-        self.target_os_version = '10.9'
         self.checkout = checkout
         self.zip_package = True
 
@@ -157,7 +156,6 @@ class BuildState:
         with open(info_plist, 'rb') as f:
             target_plist = plistlib.load(f)
 
-        target_plist['LSMinimumSystemVersion'] = self.target_os_version
         target_plist['CFBundleName'] = self.target.name
         target_plist['CFBundleShortVersionString'] = self.target_version
         target_plist['CFBundleIdentifier'] = self.target.identifier
