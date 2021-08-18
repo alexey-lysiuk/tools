@@ -26,48 +26,74 @@ import sys
 
 
 class HrotPakEntry:
-    def __init__(self, name: str = None, offset: int = -1, size: int = -1):
-        self.name = name
+    def __init__(self, filename: str = None, offset: int = -1, size: int = -1):
+        self.filename = filename
         self.offset = offset
         self.size = size
-        self.data = []
+        self.data = None
 
 
 class HrotPakFile:
     HEADER_STRUCT = struct.Struct('<4sII')
     ENTRY_STRUCT = struct.Struct('<120sII')
 
-    def __init__(self):
+    def __init__(self, path: str = None, with_data=True):
         self.entries = []
 
-    def load(self, path: str):
+        if path:
+            self.load(path, with_data)
+
+    def load(self, path: str, with_data=True):
         self.entries.clear()
 
         with open(path, 'rb') as f:
-            buf = f.read(self.HEADER_STRUCT.size)
-            header = self.HEADER_STRUCT.unpack(buf)
+            self._load_toc(f)
 
-            signature = header[0]
-            toc_pos = header[1]
-            toc_size = header[2]
+            if with_data:
+                self._load_data(f)
 
-            if signature != b'HROT':
-                raise RuntimeError('Not a HROT .pak file')
-            elif toc_size % self.ENTRY_STRUCT.size != 0:
-                raise RuntimeError('Invalid TOC size')
-            elif f.seek(toc_pos, os.SEEK_SET) != toc_pos:
-                raise RuntimeError('Invalid TOC position')
+    def list(self):
+        print('      Size      Offset  Filename')
+        print('-' * 80)
 
-            for _ in range(toc_size // self.ENTRY_STRUCT.size):
-                buf = f.read(self.ENTRY_STRUCT.size)
-                raw = self.ENTRY_STRUCT.unpack(buf)
-                name = ctypes.create_string_buffer(raw[0]).value
-                entry = HrotPakEntry(name.decode('ascii'), raw[1], raw[2])
-                self.entries.append(entry)
+        for entry in self.entries:
+            print(f'{entry.size:10}  {hex(entry.offset):>10}  {entry.filename}')
 
-            for entry in self.entries:
-                f.seek(entry.offset)
-                entry.data = f.read(entry.size)
+    def extract(self, output_path: str = None):
+        if not output_path:
+            output_path = os.getcwd()
+
+        for entry in self.entries:
+            abs_path = os.path.join(output_path, entry.filename)
+            with open(abs_path, 'wb') as f:
+                f.write(entry.data)
+
+    def _load_toc(self, f):
+        buf = f.read(self.HEADER_STRUCT.size)
+        header = self.HEADER_STRUCT.unpack(buf)
+
+        signature = header[0]
+        toc_pos = header[1]
+        toc_size = header[2]
+
+        if signature != b'HROT':
+            raise RuntimeError('Not a HROT .pak file')
+        elif toc_size % self.ENTRY_STRUCT.size != 0:
+            raise RuntimeError('Invalid TOC size')
+        elif f.seek(toc_pos, os.SEEK_SET) != toc_pos:
+            raise RuntimeError('Invalid TOC position')
+
+        for _ in range(toc_size // self.ENTRY_STRUCT.size):
+            buf = f.read(self.ENTRY_STRUCT.size)
+            raw = self.ENTRY_STRUCT.unpack(buf)
+            name = ctypes.create_string_buffer(raw[0]).value
+            entry = HrotPakEntry(name.decode('ascii'), raw[1], raw[2])
+            self.entries.append(entry)
+
+    def _load_data(self, f):
+        for entry in self.entries:
+            f.seek(entry.offset)
+            entry.data = f.read(entry.size)
 
 
 def _parse_args():
@@ -90,12 +116,12 @@ def _main():
 
     arguments = _parse_args()
 
-    pak = HrotPakFile()
-    pak.load(arguments.file)
+    pak = HrotPakFile(arguments.file, arguments.extract)
 
     if arguments.list:
-        for entry in pak.entries:
-            print(f'{entry.name}  {entry.size}')
+        pak.list()
+    elif arguments.extract:
+        pak.extract()
 
 
 if __name__ == '__main__':
