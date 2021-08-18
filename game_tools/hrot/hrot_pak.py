@@ -52,15 +52,19 @@ class HrotPakFile:
             if with_data:
                 self._load_data(f)
 
-    def list(self):
-        print('      Size      Offset  Filename')
-        print('-' * 80)
+    def list(self, output_path: str = None):
+        output = open(output_path, 'w') if output_path else sys.stdout
+
+        print('      Size      Offset  Filename', file=output)
+        print('-' * 80, file=output)
 
         for entry in self.entries:
-            print(f'{entry.size:10}  {hex(entry.offset):>10}  {entry.filename}')
+            print(f'{entry.size:10}  {hex(entry.offset):>10}  {entry.filename}', file=output)
 
     def extract(self, output_path: str = None):
-        if not output_path:
+        if output_path:
+            os.makedirs(output_path, exist_ok=True)
+        else:
             output_path = os.getcwd()
 
         for entry in self.entries:
@@ -104,6 +108,9 @@ def _parse_args():
     group.add_argument('--list', action='store_true', help='list .pak file table of content')
     group.add_argument('--extract', action='store_true', help='extract content of .pak file')
 
+    group = parser.add_argument_group()
+    group.add_argument('--output', metavar='path', help='path to write output')
+
     return parser.parse_args()
 
 
@@ -119,9 +126,9 @@ def _main():
     pak = HrotPakFile(arguments.file, arguments.extract)
 
     if arguments.list:
-        pak.list()
+        pak.list(arguments.output)
     elif arguments.extract:
-        pak.extract()
+        pak.extract(arguments.output)
 
 
 if __name__ == '__main__':
