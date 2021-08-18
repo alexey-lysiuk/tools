@@ -30,24 +30,22 @@ class HrotPakEntry:
         self.name = name
         self.offset = offset
         self.size = size
+        self.data = []
 
 
 class HrotPakFile:
     HEADER_STRUCT = struct.Struct('<4sII')
-    # HEADER_SIZE = 8
     ENTRY_STRUCT = struct.Struct('<120sII')
 
     def __init__(self):
         self.entries = []
 
     def load(self, path: str):
-        # self.path = path
         self.entries.clear()
 
         with open(path, 'rb') as f:
             buf = f.read(self.HEADER_STRUCT.size)
             header = self.HEADER_STRUCT.unpack(buf)
-            # print(header)
 
             signature = header[0]
             toc_pos = header[1]
@@ -66,6 +64,10 @@ class HrotPakFile:
                 name = ctypes.create_string_buffer(raw[0]).value
                 entry = HrotPakEntry(name.decode('ascii'), raw[1], raw[2])
                 self.entries.append(entry)
+
+            for entry in self.entries:
+                f.seek(entry.offset)
+                entry.data = f.read(entry.size)
 
 
 def _parse_args():
