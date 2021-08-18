@@ -36,14 +36,15 @@ class HrotPakEntry:
 class HrotPakFile:
     HEADER_STRUCT = struct.Struct('<4sII')
     ENTRY_STRUCT = struct.Struct('<120sII')
+    SIGNATURE = b'HROT'
 
     def __init__(self, path: str = None, with_data=True):
         self.entries = []
 
         if path:
-            self.load(path, with_data)
+            self.read(path, with_data)
 
-    def load(self, path: str, with_data=True):
+    def read(self, path: str, with_data=True):
         self.entries.clear()
 
         with open(path, 'rb') as f:
@@ -51,6 +52,24 @@ class HrotPakFile:
 
             if with_data:
                 self._load_data(f)
+
+    def write(self, path: str):
+        with open(path, 'wb') as f:
+            toc_size = len(self.entries) * self.ENTRY_STRUCT.size
+            toc_pos = self.HEADER_STRUCT.size
+
+            for entry in self.entries:
+                toc_pos += entry.size
+
+            header = self.HEADER_STRUCT.pack(self.SIGNATURE, toc_pos, toc_size)
+            f.write(header)
+
+            for entry in self.entries:
+                f.write(entry.data)
+
+            for entry in self.entries:
+                raw = self.ENTRY_STRUCT.pack(entry.filename.encode('ascii'), entry.offset, entry.size)
+                f.write(raw)
 
     def list(self, output_path: str = None):
         output = open(output_path, 'w') if output_path else sys.stdout
@@ -80,7 +99,7 @@ class HrotPakFile:
         toc_pos = header[1]
         toc_size = header[2]
 
-        if signature != b'HROT':
+        if signature != self.SIGNATURE:
             raise RuntimeError('Not a HROT .pak file')
         elif toc_size % self.ENTRY_STRUCT.size != 0:
             raise RuntimeError('Invalid TOC size')
