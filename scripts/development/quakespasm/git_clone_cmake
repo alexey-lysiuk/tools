@@ -1,0 +1,22 @@
+#!/bin/sh
+
+set -o errexit
+
+WORK_DIR=/Volumes/ramdisk
+MIRRORS_DIR=/Volumes/Storage/Work/mirrors/
+
+cd "${WORK_DIR}"
+git clone https://github.com/alexey-lysiuk/quakespasm-cmake.git
+
+for submodule in quakespasm quakespasm-spiked vkquake; do
+	SUBMODULE_MIRROR_DIR=${MIRRORS_DIR}${submodule}
+
+	cd "${SUBMODULE_MIRROR_DIR}"
+	git fetch --all
+	
+	cd "${WORK_DIR}/quakespasm-cmake" 
+	git submodule update --init --reference "${SUBMODULE_MIRROR_DIR}" "src/${submodule}"
+
+	cd "src/${submodule}"
+	git checkout master
+done
