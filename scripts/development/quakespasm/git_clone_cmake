@@ -17,6 +17,12 @@ for submodule in quakespasm quakespasm-spiked vkquake; do
 	cd "${WORK_DIR}/quakespasm-cmake" 
 	git submodule update --init --reference "${SUBMODULE_MIRROR_DIR}" "src/${submodule}"
 
+	if [[ "${submodule}" == 'quakespasm-spiked' ]]; then
+		branch=qsrebase
+	else
+		branch=master
+	fi
+
 	cd "src/${submodule}"
-	git checkout master
+	git checkout ${branch}
 done
