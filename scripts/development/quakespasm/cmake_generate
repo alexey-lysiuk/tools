@@ -1,0 +1,32 @@
+#!/bin/sh
+
+set -o errexit
+
+SCRIPT_DIR=$(cd "${0%/*}"; pwd)/
+SOURCE_DIR=/Volumes/ramdisk/quakespasm-cmake
+
+if [ ! -e "${SOURCE_DIR}" ]; then
+	"${SCRIPT_DIR}git_clone_cmake"
+fi
+
+DEPS_DIR=/Volumes/Storage/Work/zdoom-macos-deps/
+
+# Make sure prefix directory is up-to-date
+"${DEPS_DIR}build.py" --target=clean-deps
+
+QUAKE_TARGET=$1
+
+if [[ -z ${QUAKE_TARGET} ]]; then
+	QUAKE_TARGET=quakespasm
+fi
+
+cd "${SOURCE_DIR}"
+mkdir -p build/${QUAKE_TARGET}
+
+PREFIX=${DEPS_DIR}prefix
+LINKER_FLAGS=$("${PREFIX}/bin/pkg-config" --libs ogg sdl2)
+
+cd build/${QUAKE_TARGET}
+"${PREFIX}/bin/cmake" -GXcode -DCMAKE_PREFIX_PATH="${PREFIX}" -DCMAKE_EXE_LINKER_FLAGS="${LINKER_FLAGS}" -DQUAKE_TARGET=${QUAKE_TARGET} ../..
+
+open "${QUAKE_TARGET}.xcodeproj"
