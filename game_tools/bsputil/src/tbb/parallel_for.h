@@ -1,7 +1,7 @@
 //
 //---------------------------------------------------------------------------
 //
-// Copyright(C) 2017 Alexey Lysiuk
+// Copyright(C) 2017-2021 Alexey Lysiuk
 // All rights reserved.
 //
 // This program is free software: you can redistribute it and/or modify
@@ -25,14 +25,17 @@
 #ifndef PARALLEL_FOR_H_INCLUDED
 #define PARALLEL_FOR_H_INCLUDED
 
+namespace tbb
+{
+
 #ifdef HAVE_PARALLEL_FOR
 
 #include <ppl.h>
 
 template <typename Index, typename Function>
-inline void parallel_for(const Index first, const Index last, const Index step, const Function& function)
+inline void parallel_for(const Index first, const Index last, const Function& function)
 {
-	concurrency::parallel_for(first, last, step, function);
+	concurrency::parallel_for(first, last, 1, function);
 }
 
 #elif defined HAVE_DISPATCH_APPLY
@@ -40,23 +43,23 @@ inline void parallel_for(const Index first, const Index last, const Index step, 
 #include <dispatch/dispatch.h>
 
 template <typename Index, typename Function>
-inline void parallel_for(const Index first, const Index last, const Index step, const Function& function)
+inline void parallel_for(const Index first, const Index last, const Function& function)
 {
 	const dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
 
-	dispatch_apply((last - first) / step + 1, queue, ^(size_t slice)
+	dispatch_apply(last - first, queue, ^(size_t slice)
 	{
-		function(slice * step);
+		function(slice);
 	});
 }
 
 #else // Generic loop with optional OpenMP parallelization
 
 template <typename Index, typename Function>
-inline void parallel_for(const Index first, const Index last, const Index step, const Function& function)
+inline void parallel_for(const Index first, const Index last, const Function& function)
 {
 #pragma omp parallel for
-	for (Index i = first; i < last; i += step)
+	for (Index i = first; i < last; ++i)
 	{
 		function(i);
 	}
@@ -64,16 +67,6 @@ inline void parallel_for(const Index first, const Index last, const Index step, 
 
 #endif // HAVE_PARALLEL_FOR
 
-template <typename Index, typename Function>
-inline void parallel_for(const Index count, const Function& function)
-{
-	parallel_for(0, count, 1, function);
-}
-
-template <typename Index, typename Function>
-inline void parallel_for(const Index count, const Index step, const Function& function)
-{
-	parallel_for(0, count, step, function);
-}
+} // namespace tbb
 
 #endif // PARALLEL_FOR_H_INCLUDED
