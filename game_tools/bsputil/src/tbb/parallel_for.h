@@ -34,7 +34,7 @@ namespace tbb
 	template <typename Index, typename Function>
 	inline void parallel_for(const Index first, const Index last, const Function& function)
 	{
-		concurrency::parallel_for(first, last, 1, function);
+		concurrency::parallel_for(first, last, Index(1), function);
 	}
 }
 
