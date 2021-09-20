@@ -25,48 +25,52 @@
 #ifndef PARALLEL_FOR_H_INCLUDED
 #define PARALLEL_FOR_H_INCLUDED
 
-namespace tbb
-{
-
 #ifdef HAVE_PARALLEL_FOR
 
 #include <ppl.h>
 
-template <typename Index, typename Function>
-inline void parallel_for(const Index first, const Index last, const Function& function)
+namespace tbb
 {
-	concurrency::parallel_for(first, last, 1, function);
+	template <typename Index, typename Function>
+	inline void parallel_for(const Index first, const Index last, const Function& function)
+	{
+		concurrency::parallel_for(first, last, 1, function);
+	}
 }
 
 #elif defined HAVE_DISPATCH_APPLY
 
 #include <dispatch/dispatch.h>
 
-template <typename Index, typename Function>
-inline void parallel_for(const Index first, const Index last, const Function& function)
+namespace tbb
 {
-	const dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
-
-	dispatch_apply(last - first, queue, ^(size_t slice)
+	template <typename Index, typename Function>
+	inline void parallel_for(const Index first, const Index last, const Function& function)
 	{
-		function(slice);
-	});
+		const dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
+
+		dispatch_apply(last - first, queue, ^(size_t slice)
+		{
+			function(slice);
+		});
+	}
 }
 
 #else // Generic loop with optional OpenMP parallelization
 
-template <typename Index, typename Function>
-inline void parallel_for(const Index first, const Index last, const Function& function)
+namespace tbb
 {
-#pragma omp parallel for
-	for (Index i = first; i < last; ++i)
+	template <typename Index, typename Function>
+	inline void parallel_for(const Index first, const Index last, const Function& function)
 	{
-		function(i);
+#pragma omp parallel for
+		for (Index i = first; i < last; ++i)
+		{
+			function(i);
+		}
 	}
 }
 
 #endif // HAVE_PARALLEL_FOR
-
-} // namespace tbb
 
 #endif // PARALLEL_FOR_H_INCLUDED
