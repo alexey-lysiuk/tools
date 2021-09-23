@@ -30,3 +30,5 @@ cd build/${QUAKE_TARGET}
 "${PREFIX}/bin/cmake" -GXcode -DCMAKE_PREFIX_PATH="${PREFIX}" -DCMAKE_EXE_LINKER_FLAGS="${LINKER_FLAGS}" -DQUAKE_TARGET=${QUAKE_TARGET} ../..
 
 open "${QUAKE_TARGET}.xcodeproj"
+
+rsync -a /Volumes/Storage/Documents/Quake/Games/* Debug
