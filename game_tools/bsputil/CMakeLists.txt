@@ -40,6 +40,8 @@ if(UNIX)
 	add_definitions(-DLINUX)
 endif()
 
+add_definitions(-DERICWTOOLS_VERSION=v0.18.1-289-gaf7e330)
+
 include_directories("${CMAKE_SOURCE_DIR}/src")
 
 add_executable(${CMAKE_PROJECT_NAME}
