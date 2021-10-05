@@ -24,7 +24,7 @@ fi
 cd "${SOURCE_DIR}"
 mkdir -p build/${QUAKE_TARGET}
 
-for PATCH in patch/*; do
+for PATCH in patch/${QUAKE_TARGET}/*; do
 	echo "Applying $PATCH..."
 	if patch --directory=src/${QUAKE_TARGET} --strip=1 --force --dry-run --quiet < "${PATCH}"; then
 		patch --directory=src/${QUAKE_TARGET} --strip=1 --force < "${PATCH}"
