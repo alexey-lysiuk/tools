@@ -49,8 +49,11 @@ int main(int argc, const char * argv[])
 	std::vector<uint8_t> content;
 	size_t count;
 
-	while (fread(&header, 1, sizeof header, in) == sizeof header)
+	while (true)
 	{
+		count = fread(&header, 1, sizeof header, in);
+		expect(count == sizeof header);
+
 		const uint64_t namesize = convert_octal(header.c_namesize);
 		expect(namesize >= 2);
 		name.resize(namesize);
@@ -96,6 +99,24 @@ int main(int argc, const char * argv[])
 		{
 			count = fwrite(&content[0], 1, filesize, out);
 			expect(count == filesize);
+		}
+
+		if (memcmp(&name[0], "TRAILER!!!", 10) == 0)
+		{
+			expect(filesize == 0);
+
+			content.resize(4096);
+
+			while (true)
+			{
+				count = fread(&content[0], 1, content.size(), in);
+				count = fwrite(&content[0], 1, count, out);
+				
+				if (count != content.size())
+					break;
+			}
+
+			break;
 		}
 	}
 	
