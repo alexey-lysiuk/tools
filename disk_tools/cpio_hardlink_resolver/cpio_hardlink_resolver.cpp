@@ -1,4 +1,6 @@
 
+// clang++ -std=c++11 -O2 cpio_hardlink_resolver.cpp -o cpio_hardlink_resolver
+
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -32,7 +34,7 @@ static uint64_t convert_octal(const char* const str, const size_t size = 6)
 }
 
 #define expect(condition) \
-	if (!(condition)) { printf("ERROR: '%s' test failed at line %i\n", #condition, __LINE__); return __LINE__; }
+	{ if (!(condition)) { fprintf(stderr, "ERROR: '%s' test failed at line %i\n", #condition, __LINE__); return __LINE__; } }
 
 int main(int argc, const char * argv[])
 {
@@ -41,7 +43,7 @@ int main(int argc, const char * argv[])
 
 	FILE* out = argc > 2 ? fopen(argv[2], "wb") : stdout;
 	expect(out != nullptr);
-	
+
 	cpio_odc_header header;
 
 	std::unordered_map<uint64_t, std::vector<uint8_t>> entries;
@@ -60,7 +62,7 @@ int main(int argc, const char * argv[])
 
 		count = fread(&name[0], 1, namesize, in);
 		expect(count == namesize);
-		
+
 		const uint64_t filesize = convert_octal(header.c_filesize, 11);
 		if (filesize > 0)
 		{
@@ -68,7 +70,7 @@ int main(int argc, const char * argv[])
 
 			count = fread(&content[0], 1, filesize, in);
 			expect(count == filesize);
-			
+
 			const uint64_t nlink = convert_octal(header.c_nlink);
 			if (nlink > 1)
 			{
@@ -119,6 +121,6 @@ int main(int argc, const char * argv[])
 			break;
 		}
 	}
-	
+
 	return 0;
 }
