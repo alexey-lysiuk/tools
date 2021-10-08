@@ -31,13 +31,16 @@ static uint64_t convert_octal(const char* const str, const size_t size = 6)
 	return strtol(termstr, nullptr, 8);
 }
 
+#define expect(condition) \
+	if (!(condition)) { printf("ERROR: '%s' test failed at line %i\n", #condition, __LINE__); return __LINE__; }
+
 int main(int argc, const char * argv[])
 {
 	FILE* in = argc > 1 ? fopen(argv[1], "rb") : stdin;
-	assert(in != nullptr);
+	expect(in != nullptr);
 
 	FILE* out = argc > 2 ? fopen(argv[2], "wb") : stdout;
-	assert(out != nullptr);
+	expect(out != nullptr);
 	
 	cpio_odc_header header;
 
@@ -49,11 +52,11 @@ int main(int argc, const char * argv[])
 	while (fread(&header, 1, sizeof header, in) == sizeof header)
 	{
 		const uint64_t namesize = convert_octal(header.c_namesize);
-		assert(namesize >= 2);
+		expect(namesize >= 2);
 		name.resize(namesize);
 
 		count = fread(&name[0], 1, namesize, in);
-		assert(count == namesize);
+		expect(count == namesize);
 		
 		const uint64_t filesize = convert_octal(header.c_filesize, 11);
 		if (filesize > 0)
@@ -61,9 +64,7 @@ int main(int argc, const char * argv[])
 			content.resize(filesize);
 
 			count = fread(&content[0], 1, filesize, in);
-			//assert(count == filesize);
-			if (count != filesize)
-				return 1;
+			expect(count == filesize);
 			
 			const uint64_t nlink = convert_octal(header.c_nlink);
 			if (nlink > 1)
@@ -79,28 +80,23 @@ int main(int argc, const char * argv[])
 				}
 				else
 				{
-					assert(content.size() == iter->second.size());
+					expect(content.size() == iter->second.size());
 					content = iter->second;
 				}
 			}
 		}
 
 		count = fwrite(&header, 1, sizeof header, out);
-		assert(count == sizeof header);
+		expect(count == sizeof header);
 		
 		count = fwrite(&name[0], 1, name.size(), out);
-		assert(count == name.size());
+		expect(count == name.size());
 
 		if (filesize > 0)
 		{
 			count = fwrite(&content[0], 1, filesize, out);
-			assert(count == filesize);
+			expect(count == filesize);
 		}
-		
-		// TODO: write header
-		// TODO: write name
-		// TODO: write content if not empty
-		
 	}
 	
 	return 0;
