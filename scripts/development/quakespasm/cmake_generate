@@ -35,7 +35,12 @@ PREFIX=${DEPS_DIR}prefix
 LINKER_FLAGS=$("${PREFIX}/bin/pkg-config" --libs ogg sdl2)
 
 cd build/${QUAKE_TARGET}
-"${PREFIX}/bin/cmake" -GXcode -DCMAKE_PREFIX_PATH="${PREFIX}" -DCMAKE_EXE_LINKER_FLAGS="${LINKER_FLAGS}" -DQUAKE_TARGET=${QUAKE_TARGET} ../..
+"${PREFIX}/bin/cmake" -GXcode \
+	-DCMAKE_PREFIX_PATH="${PREFIX}" \
+	-DCMAKE_EXE_LINKER_FLAGS="${LINKER_FLAGS}" \
+	-DQUAKE_TARGET=${QUAKE_TARGET} \
+	-DQUAKE_MACOS_BUNDLE=OFF \
+	../..
 
 open "${QUAKE_TARGET}.xcodeproj"
 
