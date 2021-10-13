@@ -1,7 +1,6 @@
 #!/bin/sh
 
 set -o errexit
-shopt -s nullglob
 
 SCRIPT_DIR=$(cd "${0%/*}"; pwd)/
 SOURCE_DIR=/Volumes/ramdisk/quakespasm-cmake
@@ -23,13 +22,6 @@ fi
 
 cd "${SOURCE_DIR}"
 mkdir -p build/${QUAKE_TARGET}
-
-for PATCH in patch/${QUAKE_TARGET}/*; do
-	echo "Applying $PATCH..."
-	if patch --directory=src/${QUAKE_TARGET} --strip=1 --force --dry-run --quiet < "${PATCH}"; then
-		patch --directory=src/${QUAKE_TARGET} --strip=1 --force < "${PATCH}"
-	fi
-done
 
 PREFIX=${DEPS_DIR}prefix
 LINKER_FLAGS=$("${PREFIX}/bin/pkg-config" --libs ogg sdl2)
