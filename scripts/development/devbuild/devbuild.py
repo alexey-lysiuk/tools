@@ -24,7 +24,6 @@ class BuildState:
 
     _TARGETS_LIST = (
         Target('GZDoom', 'org.drdteam.gzdoom'),
-        Target('GZDoom-GLES', 'org.drdteam.gzdoom-gles'),
         Target('QZDoom', 'org.drdteam.qzdoom'),
         Target('LZDoom', 'org.zdoom.lzdoom'),
         Target('Raze', 'org.zdoom.raze'),
@@ -67,10 +66,8 @@ class BuildState:
 
         self.deployment_config = {}
 
-        # LZDoom and GZDoom-GLES don't have own devbuilds repositories
-        self.target_devbuilds = self.target_name_lower
-        if self.target_devbuilds == 'lzdoom' or self.target_devbuilds == 'gzdoom-gles':
-            self.target_devbuilds = 'gzdoom'
+        # LZDoom doesn't have separate devbuilds repository
+        self.target_devbuilds = 'gzdoom' if self.target_name_lower == 'lzdoom' else self.target_name_lower
         self.target_devbuilds += '-macos-devbuilds'
 
     @staticmethod
@@ -143,13 +140,8 @@ class BuildState:
         builder(args).run()
 
     def prepare_app_bundle(self):
-        # GZDoom-GLES is built via regular GZDoom target
-        target_name = self.target_name_lower
-        if target_name == 'gzdoom-gles':
-            target_name = 'gzdoom'
-
-        output_path = self.dist_dir + os.sep + target_name + os.sep
-        os.rename(output_path + target_name + '.app', self.bundle_path)
+        output_path = self.dist_dir + os.sep + self.target_name_lower + os.sep
+        os.rename(output_path + self.target_name_lower + '.app', self.bundle_path)
         os.rmdir(output_path)
 
         if not self.zip_package:
