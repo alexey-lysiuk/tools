@@ -1,0 +1,32 @@
+#!/bin/sh
+
+set -o errexit
+
+SCRIPT_DIR=$(cd "${0%/*}"; pwd)/
+SOURCE_DIR=/Volumes/ramdisk/quakespasm-exp
+
+if [ ! -e "${SOURCE_DIR}" ]; then
+	"${SCRIPT_DIR}git_clone_exp"
+fi
+
+DEPS_DIR=/Volumes/Storage/Work/zdoom-macos-deps/
+
+# Make sure prefix directory is up-to-date
+"${DEPS_DIR}build.py" --target=clean-deps
+
+cd "${SOURCE_DIR}"
+mkdir -p build
+
+PREFIX=${DEPS_DIR}prefix
+LINKER_FLAGS=$("${PREFIX}/bin/pkg-config" --libs ogg sdl2)
+
+cd build
+"${PREFIX}/bin/cmake" -GXcode \
+	-DCMAKE_PREFIX_PATH="${PREFIX}" \
+	-DCMAKE_EXE_LINKER_FLAGS="${LINKER_FLAGS}" \
+	-DQUAKE_MACOS_BUNDLE=OFF \
+	..
+
+open quakespasm-exp.xcodeproj
+
+rsync -a /Volumes/Storage/Documents/Quake/Games/* Debug
