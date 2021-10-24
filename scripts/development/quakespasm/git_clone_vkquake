@@ -2,7 +2,7 @@
 
 set -o errexit
 
-SRC_REPO_DIR=/Volumes/Storage/Work/mirrors/vkquake
+SRC_REPO_DIR=/Volumes/Storage/Work/mirrors/quakespasm
 
 cd "${SRC_REPO_DIR}"
 git fetch --all
@@ -15,5 +15,6 @@ git remote remove origin
 git remote add origin https://github.com/alexey-lysiuk/vkQuake.git
 git remote add upstream https://github.com/Novum/vkQuake.git
 git fetch --all
+git checkout -b master origin/master
+git branch -D main
 git pull upstream master
-git branch -u origin/master
