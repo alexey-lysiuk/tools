@@ -101,7 +101,7 @@ class BuildState:
         subprocess.check_call(args, cwd=self.target_dir)
 
         if not self.checkout:
-            args = ('git', 'pull')
+            args = ('git', 'pull', '--ff-only')
             subprocess.check_call(args, cwd=self.target_dir)
 
         args = ('git', 'submodule', 'update', '--init', '--recursive', '--reference', self.src_widepix_dir)
