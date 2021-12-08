@@ -17,3 +17,4 @@ git remote add upstream https://git.code.sf.net/p/quakespasm/quakespasm
 git fetch --all
 git pull origin main
 git branch -u origin/main
+git tag -d $(git tag -l)
