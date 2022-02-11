@@ -12,7 +12,7 @@ done
 
 mkdir -p src/common src/light tmp
 
-COMMIT=af7e3308f635aa486bae602986b12a3fb78dde60
+COMMIT=6e96ae7cc21b1405b3f5b37389383449f17b6a9d
 
 cd tmp
 curl -JOL https://github.com/ericwa/ericw-tools/archive/${COMMIT}.zip
