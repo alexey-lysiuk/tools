@@ -11,7 +11,7 @@ git fetch --all
 cd "${WORK_DIR}"
 git clone https://github.com/alexey-lysiuk/quakespasm-cmake.git
 
-for submodule in quakespasm quakespasm-spiked vkquake; do
+for submodule in quakespasm quakespasm-spiked vkquake ironwail; do
 	cd "${WORK_DIR}/quakespasm-cmake" 
 	git submodule update --init --reference "${MIRROR_DIR}" "src/${submodule}"
 
