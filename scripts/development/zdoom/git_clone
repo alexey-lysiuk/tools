@@ -22,4 +22,4 @@ git remote add coelckers https://github.com/coelckers/gzdoom.git
 git fetch --all
 git checkout -b master origin/master
 git branch -D macOS
-git pull coelckers master
+git pull --ff-only coelckers master
