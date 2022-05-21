@@ -19,11 +19,13 @@ def download(link):
         data = response.read()
         content_disposition = response.headers['content-disposition']
 
-        if not content_disposition:
-            raise RuntimeError('Could not obtain file content')
-
-        _, cd_params = cgi.parse_header(content_disposition)
-        filename = cd_params['filename']
+        if content_disposition:
+            _, cd_params = cgi.parse_header(content_disposition)
+            filename = cd_params['filename']
+        elif response.url:
+            filename = response.url.split('/')[-1]
+        else:
+            raise RuntimeError('Could not obtain file name')
 
         with open(filename, 'wb') as f:
             written = f.write(data)
