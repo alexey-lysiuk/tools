@@ -15,5 +15,5 @@ git remote remove origin
 git remote add origin https://github.com/alexey-lysiuk/Raze.git
 git remote add coelckers https://github.com/coelckers/Raze.git
 git fetch --all
-git pull coelckers master
+git pull --ff-only coelckers master
 git branch -u origin/master
