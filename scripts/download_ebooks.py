@@ -3,14 +3,60 @@
 import cgi
 import re
 import sys
+import typing
 import urllib.parse
 import urllib.request
 
 
-LINK_TYPES = (
-    'fb2',
-    'download',  # other formats
-)
+def _gather_links_kind1(page_url: str, page_data: bytearray) -> typing.List[str]:
+    parsed_url = list(urllib.parse.urlsplit(page_url))
+    parsed_url[2] = ''  # clear path
+    domain = urllib.parse.urlunsplit(parsed_url)
+
+    link_suffices = (
+        'fb2',
+        'download',  # other formats
+    )
+
+    links = []
+
+    for link_suffix in link_suffices:
+        links += re.findall(r'<a href="(/b/\d+/%s)">' % link_suffix, str(page_data))
+
+    return [urllib.parse.urljoin(domain, link) for link in links]
+
+
+def _gather_links_kind2(page_url: str, page_data: bytearray) -> typing.List[str]:
+    subpages = re.findall(r'<a href="(%s[^"]+)/" ' % page_url, str(page_data))
+    links = []
+
+    for subpage in subpages:
+        subpage_response = urllib.request.urlopen(subpage)
+        subpage_data = subpage_response.read()
+
+        links += re.findall(r'<a href="(%s[^"]+)">' % page_url, str(subpage_data))
+
+    def known_ext(link: str) -> bool:
+        for ext in ('.djvu', '.epub', '.pdf', '.zip'):
+            if link.endswith(ext):
+                return True
+        return False
+
+    return [link for link in links if known_ext(link)]
+
+
+def gather_links(page_url: str) -> typing.List[str]:
+    print('Downloading %s...' % page_url)
+    page_response = urllib.request.urlopen(page_url)
+    page_data = page_response.read()
+
+    gatherers = (_gather_links_kind1, _gather_links_kind2)
+    links = []
+
+    for gatherer in gatherers:
+        links += gatherer(page_url, page_data)
+
+    return links
 
 
 def download(link):
@@ -23,7 +69,7 @@ def download(link):
             _, cd_params = cgi.parse_header(content_disposition)
             filename = cd_params['filename']
         elif response.url:
-            filename = response.url.split('/')[-1]
+            filename = urllib.parse.urlsplit(response.url).path.split('/')[-1]
         else:
             raise RuntimeError('Could not obtain file name')
 
@@ -42,24 +88,11 @@ def main():
         return 0
 
     for page_url in sys.argv[1:]:
-        print('Downloading %s...' % page_url)
-        page_response = urllib.request.urlopen(page_url)
-        page_data = page_response.read()
-        links = []
-
-        for link_type in LINK_TYPES:
-            links += re.findall(r'<a href="(/b/\d+/%s)">' % link_type, str(page_data))
-
-        parsed_url = list(urllib.parse.urlsplit(page_url))
-        parsed_url[2] = ''  # clear path
-        domain = urllib.parse.urlunsplit(parsed_url)
-
+        links = gather_links(page_url)
         total = len(links)
         current = 1
 
         for link in links:
-            link = urllib.parse.urljoin(domain, link)
-
             print('Downloading %s [%i of %i]...' % (link, current, total))
             download(link)
 
