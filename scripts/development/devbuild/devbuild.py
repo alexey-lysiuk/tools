@@ -42,7 +42,6 @@ class BuildState:
         self.src_base_dir = '/Volumes/Storage/Work/devbuilds/'
         self.src_deps_dir = self.src_base_dir + 'zdoom-macos-deps' + os.sep
         self.src_target_dir = self.src_base_dir + self.target_name_lower + os.sep
-        self.src_widepix_dir = self.src_base_dir + 'WidePix' + os.sep
 
         # Build directories
         self.base_dir = f'/Volumes/ramdisk/{self.target_name_lower}-devbuild/'
@@ -78,7 +77,6 @@ class BuildState:
         args = ('git', 'fetch', '--all', '--tags')
         subprocess.check_call(args, cwd=self.src_deps_dir)
         subprocess.check_call(args, cwd=self.src_target_dir)
-        subprocess.check_call(args, cwd=self.src_widepix_dir)
 
         os.makedirs(self.base_dir, exist_ok=True)
 
@@ -103,9 +101,6 @@ class BuildState:
         if not self.checkout:
             args = ('git', 'pull', '--ff-only')
             subprocess.check_call(args, cwd=self.target_dir)
-
-        args = ('git', 'submodule', 'update', '--init', '--recursive', '--reference', self.src_widepix_dir)
-        subprocess.check_call(args, cwd=self.target_dir)
 
         sdk_path = self.deps_dir + 'sdk' + os.sep
 
