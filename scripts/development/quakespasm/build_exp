@@ -1,0 +1,11 @@
+#!/bin/sh
+
+set -o errexit
+
+source "${0%/*}/cmake_generate_exp"
+
+XCODE_CONFIG=Release
+xcodebuild -project "${XCODE_PROJECT}" -scheme ALL_BUILD -configuration "${XCODE_CONFIG}"
+
+cd "${XCODE_CONFIG}"
+tar -cJf "${SOURCE_DIR}/../quakespasm-exp-bin@$(git rev-parse --short HEAD).tar.xz" *

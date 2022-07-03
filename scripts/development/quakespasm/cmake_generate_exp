@@ -28,6 +28,7 @@ cd build
 	-DQUAKE_MACOS_MOUSE_ACCELERATION=ON \
 	..
 
-open quakespasm-exp.xcodeproj
+XCODE_PROJECT=quakespasm-exp.xcodeproj
+open "${XCODE_PROJECT}"
 
 rsync -a /Volumes/Storage/Documents/Quake/Games/* Debug
