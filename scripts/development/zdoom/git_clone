@@ -14,7 +14,7 @@ git clone -s "${SRC_REPO_DIR}" zdoom$1
 cd zdoom$1
 git remote remove origin
 git remote add origin https://github.com/alexey-lysiuk/gzdoom.git
-git remote add coelckers https://github.com/coelckers/gzdoom.git
+git remote add official https://github.com/ZDoom-Official/gzdoom.git
 # Additional remotes, disabled by default
 #git remote add rheit https://github.com/rheit/zdoom.git
 #git remote add rachael https://github.com/madame-rachelle/qzdoom.git
@@ -22,4 +22,4 @@ git remote add coelckers https://github.com/coelckers/gzdoom.git
 git fetch --all
 git checkout -b master origin/master
 git branch -D macOS
-git pull --ff-only coelckers master
+git pull --ff-only official master
