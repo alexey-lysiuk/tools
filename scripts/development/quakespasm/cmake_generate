@@ -12,7 +12,7 @@ fi
 DEPS_DIR=/Volumes/Storage/Work/zdoom-macos-deps/
 
 # Make sure prefix directory is up-to-date
-"${DEPS_DIR}build.py" --target=clean-deps
+"${DEPS_DIR}build.py" --target=build-prefix
 
 QUAKE_TARGET=$1
 
