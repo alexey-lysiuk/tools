@@ -13,7 +13,7 @@ git clone -s "${SRC_REPO_DIR}" raze$1
 cd raze$1
 git remote remove origin
 git remote add origin https://github.com/alexey-lysiuk/Raze.git
-git remote add official https://github.com/ZDoom-Official/Raze.git
+git remote add zdoom-org https://github.com/ZDoom/Raze.git
 git fetch --all
-git pull --ff-only official master
+git pull --ff-only zdoom-org master
 git branch -u origin/master
