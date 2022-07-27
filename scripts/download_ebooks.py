@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
 
 import cgi
+import os
 import re
 import sys
 import typing
 import urllib.parse
 import urllib.request
+import zipfile
 
 
 def _gather_links_kind1(page_url: str, page_data: bytearray) -> typing.List[str]:
@@ -59,6 +61,18 @@ def gather_links(page_url: str) -> typing.List[str]:
     return links
 
 
+def _post_process(filename: str):
+    filename_lower = filename.lower()
+
+    if not filename_lower.endswith('.zip') or filename_lower.endswith('.fb2.zip'):
+        return
+
+    with zipfile.ZipFile(filename) as archive:
+        archive.extractall()
+
+    os.unlink(filename)
+
+
 def download(link):
     try:
         response = urllib.request.urlopen(link)
@@ -77,6 +91,7 @@ def download(link):
             written = f.write(data)
 
         print(f'Saved to {filename} [{written:,} bytes]')
+        _post_process(filename)
 
     except Exception as ex:
         print(f'ERROR: {ex}, {link} skipped')
