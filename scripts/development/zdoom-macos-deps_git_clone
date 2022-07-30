@@ -12,7 +12,7 @@ git clone -s "${SRC_REPO_DIR}"
 
 cd zdoom-macos-deps
 git remote remove origin
-git remote add origin https://github.com/alexey-lysiuk/zdoom-macos-deps.git
+git remote add origin https://github.com/ZDoom/zdoom-macos-deps.git
 git fetch --all
 git branch -u origin/main
 git pull --ff-only
