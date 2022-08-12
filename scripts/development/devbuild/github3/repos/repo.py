@@ -1,32 +1,13 @@
-# -*- coding: utf-8 -*-
 """This module contains Repository objects.
 
 The Repository objects represent various different repository representations
 returned by GitHub.
 
 """
-
 import base64
 import json as jsonlib
 
 import uritemplate as urit
-
-from .. import checks
-from .. import decorators
-from .. import events
-from .. import exceptions
-from .. import git
-from .. import issues
-from ..issues import event as ievent
-from ..issues import label
-from ..issues import milestone
-from .. import licenses
-from .. import models
-from .. import notifications
-from .. import projects
-from .. import pulls
-from .. import users
-from .. import utils
 
 from . import branch
 from . import comment
@@ -44,6 +25,22 @@ from . import status
 from . import tag
 from . import topics
 from . import traffic
+from .. import checks
+from .. import decorators
+from .. import events
+from .. import exceptions
+from .. import git
+from .. import issues
+from .. import licenses
+from .. import models
+from .. import notifications
+from .. import projects
+from .. import pulls
+from .. import users
+from .. import utils
+from ..issues import event as ievent
+from ..issues import label
+from ..issues import milestone
 
 
 class _Repository(models.GitHubCore):
@@ -107,7 +104,7 @@ class _Repository(models.GitHubCore):
         self.trees_urlt = urit.URITemplate(repo["trees_url"])
 
     def _repr(self):
-        return "<{0} [{1}]>".format(self.class_name, self)
+        return f"<{self.class_name} [{self}]>"
 
     def __str__(self):
         return self.full_name
@@ -1151,7 +1148,9 @@ class _Repository(models.GitHubCore):
         return self._instance_or_null(projects.Project, json)
 
     @decorators.requires_auth
-    def create_pull(self, title, base, head, body=None):
+    def create_pull(
+        self, title, base, head, body=None, maintainer_can_modify=None
+    ):
         """Create a pull request of ``head`` onto ``base`` branch in this repo.
 
         :param str title:
@@ -1162,12 +1161,17 @@ class _Repository(models.GitHubCore):
             (required), e.g., 'username:branch'
         :param str body:
             (optional), markdown formatted description
+        :param bool maintainer_can_modify:
+            (optional), Indicates whether a maintainer is allowed to modify the
+            pull request or not.
         :returns:
             the created pull request
         :rtype:
             :class:`~github3.pulls.ShortPullRequest`
         """
         data = {"title": title, "body": body, "base": base, "head": head}
+        if maintainer_can_modify is not None:
+            data["maintainer_can_modify"] = maintainer_can_modify
         return self._create_pull(data)
 
     @decorators.requires_auth
@@ -1322,7 +1326,7 @@ class _Repository(models.GitHubCore):
             'blob'
         :param dict tagger:
             (required), containing the name, email of the
-            tagger and the date it was tagged
+            tagger and optionally the date it was tagged
         :param bool lightweight:
             (optional), if False, create an annotated
             tag, otherwise create a lightweight tag (a Reference).
@@ -1337,7 +1341,7 @@ class _Repository(models.GitHubCore):
             return self.create_ref("refs/tags/" + tag, sha)
 
         json = None
-        if tag and message and sha and obj_type and len(tagger) == 3:
+        if tag and message and sha and obj_type and len(tagger) >= 2:
             data = {
                 "tag": tag,
                 "message": message,
@@ -2494,7 +2498,7 @@ class _Repository(models.GitHubCore):
         """
         json = None
         if ref:
-            url = self._build_url("git", "refs", ref, base_url=self._api)
+            url = self._build_url("git", "ref", ref, base_url=self._api)
             json = self._json(self._get(url), 200)
         return self._instance_or_null(git.Reference, json)
 
@@ -2626,10 +2630,16 @@ class _Repository(models.GitHubCore):
         :returns:
             generator of users
         :rtype:
-            :class:`~github3.users.ShortUser`
+            :class:`~github3.users.Stargazer`
         """
         url = self._build_url("stargazers", base_url=self._api)
-        return self._iter(int(number), url, users.ShortUser, etag=etag)
+        return self._iter(
+            int(number),
+            url,
+            users.Stargazer,
+            etag=etag,
+            headers={"Accept": "application/vnd.github.v3.star+json"},
+        )
 
     def statuses(self, sha, number=-1, etag=None):
         """Iterate over the statuses for a specific SHA.
@@ -3044,7 +3054,7 @@ class Repository(_Repository):
     class_name = "Repository"
 
     def _update_attributes(self, repo):
-        super(Repository, self)._update_attributes(repo)
+        super()._update_attributes(repo)
         self.allow_merge_commit = repo.get("allow_merge_commit")
         self.allow_rebase_merge = repo.get("allow_rebase_merge")
         self.allow_squash_merge = repo.get("allow_squash_merge")
@@ -3387,7 +3397,7 @@ class StarredRepository(models.GitHubCore):
         self.repo = self.repository
 
     def _repr(self):
-        return "<StarredRepository [{0!r}]>".format(self.repository)
+        return f"<StarredRepository [{self.repository!r}]>"
 
 
 def repo_issue_params(

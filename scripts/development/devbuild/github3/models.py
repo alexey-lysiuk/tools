@@ -1,19 +1,25 @@
-# -*- coding: utf-8 -*-
 """This module provides the basic models used in github3.py."""
 import json as jsonlib
 import logging
+import typing as t
 
 import dateutil.parser
-import requests
 import requests.compat
 
 from . import exceptions
 from . import session
 
+
+if t.TYPE_CHECKING:
+    from . import structs
+
 LOG = logging.getLogger(__package__)
 
 
-class GitHubCore(object):
+T = t.TypeVar("T")
+
+
+class GitHubCore:
     """The base object for all objects that require a session.
 
     The :class:`GitHubCore <GitHubCore>` object provides some
@@ -22,9 +28,9 @@ class GitHubCore(object):
     """
 
     _ratelimit_resource = "core"
-    _refresh_to = None
+    _refresh_to: t.Optional["GitHubCore"] = None
 
-    def __init__(self, json, session):
+    def __init__(self, json, session: session.GitHubSession):
         """Initialize our basic object.
 
         Pretty much every object will pass in decoded JSON and a Session.
@@ -124,7 +130,7 @@ class GitHubCore(object):
         return hash(self._uniq)
 
     def _repr(self):
-        return "<github3-core at 0x{0:x}>".format(id(self))
+        return f"<github3-core at 0x{id(self):x}>"
 
     @staticmethod
     def _remove_none(data):
@@ -231,7 +237,7 @@ class GitHubCore(object):
     def _api(self):
         value = "{0.scheme}://{0.netloc}{0.path}".format(self._uri)
         if self._uri.query:
-            value += "?{}".format(self._uri.query)
+            value += f"?{self._uri.query}"
         return value
 
     @staticmethod
@@ -246,14 +252,14 @@ class GitHubCore(object):
 
     def _iter(
         self,
-        count,
-        url,
-        cls,
-        params=None,
-        etag=None,
-        headers=None,
-        list_key=None,
-    ):
+        count: int,
+        url: str,
+        cls: t.Type[T],
+        params: t.Optional[t.Mapping[str, t.Optional[str]]] = None,
+        etag: t.Optional[str] = None,
+        headers: t.Optional[t.Mapping[str, str]] = None,
+        list_key: t.Optional[str] = None,
+    ) -> "structs.GitHubIterator[T]":
         """Generic iterator for this project.
 
         :param int count: How many items to return.
@@ -284,7 +290,7 @@ class GitHubCore(object):
         self._remaining = core.get("remaining", 0)
         return self._remaining
 
-    def refresh(self, conditional=False):
+    def refresh(self, conditional: bool = False) -> "GitHubCore":
         """Re-retrieve the information for this object.
 
         The reasoning for the return value is the following example: ::

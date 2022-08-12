@@ -1,15 +1,27 @@
-# -*- coding: utf-8 -*-
 """This module contains all of the classes related to organizations."""
+import typing as t
 from json import dumps
 
 from uritemplate import URITemplate
 
-from . import users, models
-
+from . import models
+from . import users
 from .decorators import requires_auth
 from .events import Event
 from .projects import Project
-from .repos import Repository, ShortRepository
+from .repos import Repository
+from .repos import ShortRepository
+
+if t.TYPE_CHECKING:
+    from . import users as _users
+
+
+class ShortRepositoryWithPermissions(ShortRepository):
+    class_name = "ShortRepositoryWithPermissions"
+
+    def _update_attributes(self, repo) -> None:
+        super()._update_attributes(repo)
+        self.permissions = repo["permissions"]
 
 
 class _Team(models.GitHubCore):
@@ -26,8 +38,15 @@ class _Team(models.GitHubCore):
         self.members_urlt = URITemplate(team["members_url"])
         self.name = team["name"]
         self.permission = team["permission"]
+        self.privacy = team.get(
+            "privacy"
+        )  # TODO: Re-record cassettes to ensure this exists
         self.repositories_url = team["repositories_url"]
         self.slug = team["slug"]
+        self.parent = None
+        parent = team.get("parent")
+        if parent:
+            self.parent = ShortTeam(parent, self)
 
     def _repr(self):
         return "<{s.class_name} [{s.name}]>".format(s=self)
@@ -99,20 +118,39 @@ class _Team(models.GitHubCore):
         return self._boolean(self._delete(self._api), 204, 404)
 
     @requires_auth
-    def edit(self, name, permission=""):
+    def edit(
+        self,
+        name: str,
+        permission: str = "",
+        parent_team_id: t.Optional[int] = None,
+        privacy: t.Optional[str] = None,
+    ):
         """Edit this team.
 
         :param str name:
             (required), the new name of this team
         :param str permission:
             (optional), one of ('pull', 'push', 'admin')
+            .. deprecated:: 3.0.0
+
+                This was deprecated by the GitHub API.
+        :param int parent_team_id:
+            (optional), id of the parent team for this team
+        :param str privacy:
+            (optional), one of "closed" or "secret"
         :returns:
             True if successful, False otherwise
         :rtype:
             bool
         """
         if name:
-            data = {"name": name, "permission": permission}
+            data: t.Dict[str, t.Union[str, int]] = {"name": name}
+            if permission:
+                data["permission"] = permission
+            if parent_team_id is not None:
+                data["parent_team_id"] = parent_team_id
+            if privacy in {"closed", "secret"}:
+                data["privacy"] = privacy
             json = self._json(self._patch(self._api, data=dumps(data)), 200)
             if json:
                 self._update_attributes(json)
@@ -167,6 +205,15 @@ class _Team(models.GitHubCore):
         )
 
     @requires_auth
+    def permissions_for(
+        self, repository: str
+    ) -> ShortRepositoryWithPermissions:
+        headers = {"Accept": "application/vnd.github.v3.repository+json"}
+        url = self._build_url("repos", repository, base_url=self._api)
+        json = self._json(self._get(url, headers=headers), 200)
+        return ShortRepositoryWithPermissions(json, self)
+
+    @requires_auth
     def repositories(self, number=-1, etag=None):
         """Iterate over the repositories this team has access to.
 
@@ -178,12 +225,14 @@ class _Team(models.GitHubCore):
         :returns:
             generator of repositories this team has access to
         :rtype:
-            :class:`~github3.repos.ShortRepository`
+            :class:`~github3.orgs.ShortRepositoryWithPermissions`
         """
-        headers = {"Accept": "application/vnd.github.ironman-preview+json"}
         url = self._build_url("repos", base_url=self._api)
         return self._iter(
-            int(number), url, ShortRepository, etag=etag, headers=headers
+            int(number),
+            url,
+            ShortRepositoryWithPermissions,
+            etag=etag,
         )
 
     @requires_auth
@@ -268,7 +317,7 @@ class Team(_Team):
     class_name = "Team"
 
     def _update_attributes(self, team):
-        super(Team, self)._update_attributes(team)
+        super()._update_attributes(team)
         self.created_at = self._strptime(team["created_at"])
         self.members_count = team["members_count"]
         self.organization = ShortOrganization(team["organization"], self)
@@ -300,6 +349,10 @@ class ShortTeam(_Team):
 
         The level of permissions this team has, e.g., ``push``, ``pull``,
         or ``admin``.
+
+    .. attribute:: privacy
+
+        The privacy level of this team inside the organization.
 
     .. attribute:: repos_count
 
@@ -335,10 +388,6 @@ class _Organization(models.GitHubCore):
         http://developer.github.com/v3/orgs/
     """
 
-    PREVIEW_HEADERS = {
-        "Accept": "application/vnd.github.hellcat-preview+json"
-    }
-
     class_name = "_Organization"
 
     # Filters available when listing members. Note: ``"2fa_disabled"``
@@ -373,7 +422,7 @@ class _Organization(models.GitHubCore):
         display_name = ""
         name = getattr(self, "name", None)
         if name is not None:
-            display_name = ":{}".format(name)
+            display_name = f":{name}"
         return "<{s.class_name} [{s.login}{display}]>".format(
             s=self, display=display_name
         )
@@ -429,8 +478,84 @@ class _Organization(models.GitHubCore):
         if int(team_id) < 0:
             return False
 
-        url = self._build_url("teams", str(team_id), "repos", str(repository))
+        url = self._build_url(
+            "organizations",
+            str(self.id),
+            "team",
+            str(team_id),
+            "repos",
+            str(repository),
+        )
         return self._boolean(self._put(url), 204, 404)
+
+    @requires_auth
+    def blocked_users(
+        self, number: int = -1, etag: t.Optional[str] = None
+    ) -> t.Generator[users.ShortUser, None, None]:
+        """Iterate over the users blocked by this organization.
+
+        .. versionadded:: 2.1.0
+
+        :param int number:
+            (optional), number of users to iterate over.  Default: -1 iterates
+            over all values
+        :param str etag:
+            (optional), ETag from a previous request to the same endpoint
+        :returns:
+            generator of the members of this team
+        :rtype:
+            :class:`~github3.users.ShortUser`
+        """
+        url = self._build_url("blocks", base_url=self._api)
+        return self._iter(int(number), url, users.ShortUser, etag=etag)
+
+    @requires_auth
+    def block(self, username: users.UserLike) -> bool:
+        """Block a specific user from an organization.
+
+        .. versionadded:: 2.1.0
+
+        :parameter str username:
+            Name (or user-like instance) of the user to block.
+        :returns:
+            True if successful, Fales otherwise
+        :rtype:
+            bool
+        """
+        url = self._build_url("blocks", str(username), base_url=self._api)
+        return self._boolean(self._put(url), 204, 404)
+
+    @requires_auth
+    def unblock(self, username: users.UserLike) -> bool:
+        """Unblock a specific user from an organization.
+
+        .. versionadded:: 2.1.0
+
+        :parameter str username:
+            Name (or user-like instance) of the user to unblock.
+        :returns:
+            True if successful, Fales otherwise
+        :rtype:
+            bool
+        """
+        url = self._build_url("blocks", str(username), base_url=self._api)
+        return self._boolean(self._delete(url), 204, 404)
+
+    @requires_auth
+    def is_blocking(self, username: users.UserLike) -> bool:
+        """Check if this organization is blocking a specific user.
+
+        .. versionadded:: 2.1.0
+
+        :parameter str username:
+            Name (or user-like instance) of the user to unblock.
+        :returns:
+            True if successful, Fales otherwise
+        :rtype:
+            bool
+        """
+        url = self._build_url("blocks", str(username), base_url=self._api)
+        return self._boolean(self._get(url), 204, 404)
 
     @requires_auth
     def create_hook(self, name, config, events=["push"], active=True):
@@ -577,11 +702,14 @@ class _Organization(models.GitHubCore):
     @requires_auth
     def create_team(
         self,
-        name,
-        repo_names=[],
-        permission="pull",
-        parent_team_id=None,
-        privacy="secret",
+        name: str,
+        repo_names: t.Optional[t.Sequence[str]] = [],
+        maintainers: t.Optional[
+            t.Union[t.Sequence[str], t.Sequence["_users._User"]]
+        ] = [],
+        permission: str = "pull",
+        parent_team_id: t.Optional[int] = None,
+        privacy: str = "secret",
     ):
         """Create a new team and return it.
 
@@ -591,6 +719,8 @@ class _Organization(models.GitHubCore):
             (required), name to be given to the team
         :param list repo_names:
             (optional) repositories, e.g.  ['github/dotfiles']
+        :param list maintainers:
+            (optional) list of usernames who will be maintainers
         :param str permission:
             (optional), options:
 
@@ -613,22 +743,22 @@ class _Organization(models.GitHubCore):
         :rtype:
             :class:`~github3.orgs.Team`
         """
-        data = {
+        data: t.Dict[str, t.Union[t.List[str], str, int]] = {
             "name": name,
-            "repo_names": repo_names,
+            "repo_names": [
+                getattr(r, "full_name", r) for r in (repo_names or [])
+            ],
+            "maintainers": [
+                getattr(m, "login", m) for m in (maintainers or [])
+            ],
             "permission": permission,
             "privacy": privacy,
         }
-        headers = (
-            self.PREVIEW_HEADERS
-            if parent_team_id or privacy == "closed"
-            else None
-        )
         if parent_team_id:
             data.update({"parent_team_id": parent_team_id})
 
         url = self._build_url("teams", base_url=self._api)
-        json = self._json(self._post(url, data, headers=headers), 201)
+        json = self._json(self._post(url, data), 201)
         return self._instance_or_null(Team, json)
 
     @requires_auth
@@ -1030,7 +1160,7 @@ class _Organization(models.GitHubCore):
         return self._iter(int(number), url, ShortTeam, etag=etag)
 
     @requires_auth
-    def publicize_member(self, username):
+    def publicize_member(self, username: str) -> bool:
         """Make ``username``'s membership in this organization public.
 
         :param str username:
@@ -1044,7 +1174,7 @@ class _Organization(models.GitHubCore):
         return self._boolean(self._put(url), 204, 404)
 
     @requires_auth
-    def remove_member(self, username):
+    def remove_member(self, username: str) -> bool:
         """Remove the user named ``username`` from this organization.
 
         .. note::
@@ -1063,7 +1193,11 @@ class _Organization(models.GitHubCore):
         return self._boolean(self._delete(url), 204, 404)
 
     @requires_auth
-    def remove_repository(self, repository, team_id):
+    def remove_repository(
+        self,
+        repository: t.Union[Repository, ShortRepository, str],
+        team_id: int,
+    ):
         """Remove ``repository`` from the team with ``team_id``.
 
         :param str repository:
@@ -1077,13 +1211,18 @@ class _Organization(models.GitHubCore):
         """
         if int(team_id) > 0:
             url = self._build_url(
-                "teams", str(team_id), "repos", str(repository)
+                "organizations",
+                str(self.id),
+                "team",
+                str(team_id),
+                "repos",
+                str(repository),
             )
             return self._boolean(self._delete(url), 204, 404)
         return False
 
     @requires_auth
-    def team(self, team_id):
+    def team(self, team_id: int) -> t.Optional[Team]:
         """Return the team specified by ``team_id``.
 
         :param int team_id:
@@ -1095,12 +1234,14 @@ class _Organization(models.GitHubCore):
         """
         json = None
         if int(team_id) > 0:
-            url = self._build_url("teams", str(team_id))
+            url = self._build_url(
+                "organizations", str(self.id), "team", str(team_id)
+            )
             json = self._json(self._get(url), 200)
         return self._instance_or_null(Team, json)
 
     @requires_auth
-    def team_by_name(self, team_slug):
+    def team_by_name(self, team_slug: str) -> t.Optional[Team]:
         """Return the team specified by ``team_slug``.
 
         :param str team_slug:
@@ -1178,7 +1319,7 @@ class Organization(_Organization):
     class_name = "Organization"
 
     def _update_attributes(self, org):
-        super(Organization, self)._update_attributes(org)
+        super()._update_attributes(org)
         self.created_at = self._strptime(org["created_at"])
         self.followers_count = org["followers"]
         self.following_count = org["following"]
@@ -1367,7 +1508,7 @@ class Membership(models.GitHubCore):
     """
 
     def _repr(self):
-        return "<Membership [{0}]>".format(self.organization)
+        return f"<Membership [{self.organization}]>"
 
     def _update_attributes(self, membership):
         self._api = membership["url"]
@@ -1457,7 +1598,7 @@ class OrganizationHook(models.GitHubCore):
         self.updated_at = self._strptime(hook["updated_at"])
 
     def _repr(self):
-        return "<OrganizationHook [{0}]>".format(self.name)
+        return f"<OrganizationHook [{self.name}]>"
 
     @requires_auth
     def delete(self):

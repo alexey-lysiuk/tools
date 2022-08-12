@@ -1,11 +1,9 @@
-# -*- coding: utf-8 -*-
 """This module contains the Contents object."""
-
-from base64 import b64decode, b64encode
+from base64 import b64decode
+from base64 import b64encode
 from json import dumps
 
 from .. import models
-
 from ..decorators import requires_auth
 from ..git import Commit
 
@@ -87,7 +85,7 @@ class Contents(models.GitHubCore):
         self.content = content.get("content")
         self.encoding = content.get("encoding")
         self.decoded = self.content
-        if self.encoding == "base64" and self.content:
+        if self.encoding == "base64" and self.content is not None:
             self.decoded = b64decode(self.content.encode())
         self.download_url = content["download_url"]
         self.git_url = content["git_url"]
@@ -102,7 +100,7 @@ class Contents(models.GitHubCore):
         self.type = content["type"]
 
     def _repr(self):
-        return "<Contents [{0}]>".format(self.path)
+        return f"<Contents [{self.path}]>"
 
     def __eq__(self, other):
         return self.decoded == other

@@ -1,8 +1,5 @@
-# -*- coding: utf-8 -*-
 """The module containing deployment logic."""
-
 from .. import users
-
 from ..models import GitHubCore
 
 
@@ -73,14 +70,15 @@ class Deployment(GitHubCore):
         self.updated_at = self._strptime(deployment["updated_at"])
 
     def _repr(self):
-        return "<Deployment [{0} @ {1}]>".format(self.id, self.sha)
+        return f"<Deployment [{self.id} @ {self.sha}]>"
 
     def create_status(self, state, target_url=None, description=None):
         """Create a new deployment status for this deployment.
 
         :param str state:
             (required), The state of the status. Can be one of
-            ``pending``, ``success``, ``error``, or ``failure``.
+            ``pending``, ``success``, ``error``, ``inactive``,
+            ``in_progress``, ``queued``, or ``failure``.
         :param str target_url:
             The target URL to associate with this status.
             This URL should contain output to keep the user updated while the
@@ -95,7 +93,15 @@ class Deployment(GitHubCore):
         """
         json = None
 
-        if state in ("pending", "success", "error", "failure"):
+        if state in (
+            "pending",
+            "success",
+            "error",
+            "inactive",
+            "in_progress",
+            "queued",
+            "failure",
+        ):
             data = {
                 "state": state,
                 "target_url": target_url,
@@ -179,4 +185,4 @@ class DeploymentStatus(GitHubCore):
         self.updated_at = self._strptime(status["updated_at"])
 
     def _repr(self):
-        return "<DeploymentStatus [{0}]>".format(self.id)
+        return f"<DeploymentStatus [{self.id}]>"
