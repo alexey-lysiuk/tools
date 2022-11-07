@@ -2,10 +2,20 @@
 
 set -o errexit
 
-source "${0%/*}/cmake_generate_exp"
+SCRIPT_DIR=$(cd "${0%/*}"; pwd)/
+DEPS_DIR=/Volumes/Storage/Work/zdoom-macos-deps/
+SOURCE_DIR=/Volumes/ramdisk/quakespasm-exp$1
+BUILD_DIR=${SOURCE_DIR}/build
+OUTPUT_DIR=${BUILD_DIR}/output
 
-XCODE_CONFIG=Release
-xcodebuild -project "${XCODE_PROJECT}" -scheme ALL_BUILD -configuration "${XCODE_CONFIG}"
+git -C "${DEPS_DIR}" pull --ff-only
 
-cd "${XCODE_CONFIG}"
-tar -cJf "${SOURCE_DIR}/../quakespasm-exp-bin@$(git rev-parse --short HEAD).tar.xz" *
+if [ ! -e "${SOURCE_DIR}" ]; then
+	"${SCRIPT_DIR}git_clone_exp" $1
+fi
+
+cd "${SOURCE_DIR}"
+"${DEPS_DIR}build.py" --source=. --build-path="${BUILD_DIR}" --output-path="${OUTPUT_DIR}" --disable-arm
+
+cd "${OUTPUT_DIR}/quakespasm-exp"
+tar -cJf "${SOURCE_DIR}/../quakespasm-exp-bin@$(git rev-parse --short HEAD).tar.xz" quakespasm-exp quakespasm.pak
