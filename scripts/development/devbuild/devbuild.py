@@ -131,6 +131,7 @@ class BuildState:
         args = (
             '--source=' + self.target_dir,
             '--output-path=' + self.dist_dir,
+            '--static-moltenvk',
         )
         builder(args).run()
 
