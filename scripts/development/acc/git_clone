@@ -6,6 +6,6 @@ cd /Volumes/ramdisk
 git clone https://github.com/alexey-lysiuk/acc.git acc$1
 
 cd acc$1
-git remote add rheit https://github.com/rheit/acc.git
+git remote add zdoom-org https://github.com/ZDoom/acc.git
 git fetch --all
-git pull rheit master
+git pull --ff-only zdoom-org master
