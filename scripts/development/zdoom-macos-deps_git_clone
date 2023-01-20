@@ -22,6 +22,3 @@ mkdir sdk
 for sdk in /Volumes/Storage/Work/devbuilds/macos_sdk/*; do
 	ln -s "$sdk" sdk
 done
-
-open -b com.jetbrains.pycharm.ce .
-./build.py --target=build-prefix
