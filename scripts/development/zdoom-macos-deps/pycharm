@@ -2,8 +2,12 @@
 
 set -o errexit
 
-SCRIPT_DIR=$(cd "${0%/*}"; pwd)
-source "${SCRIPT_DIR}/git_clone"
+SOURCE_DIR=/Volumes/ramdisk/zdoom-macos-deps
+SCRIPT_DIR=$(cd "${0%/*}"; pwd)/
 
-open -b com.jetbrains.pycharm.ce .
-./build.py --target=build-prefix
+if [ ! -e "${SOURCE_DIR}" ]; then
+	"${SCRIPT_DIR}git_clone"
+fi
+
+open -b com.jetbrains.pycharm.ce "${SOURCE_DIR}"
+"${SOURCE_DIR}/build.py" --target=build-prefix
