@@ -132,6 +132,7 @@ class BuildState:
             '--source=' + self.target_dir,
             '--output-path=' + self.dist_dir,
             '--static-moltenvk',
+            '--quasi-glib',
         )
         builder(args).run()
 
