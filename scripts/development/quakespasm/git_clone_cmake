@@ -2,18 +2,33 @@
 
 set -o errexit
 
-WORK_DIR=/Volumes/ramdisk
-MIRROR_DIR=/Volumes/Storage/Work/mirrors/quakespasm
+WORK_DIR=/Volumes/ramdisk/
+#SOURCE_DIR=${WORK_DIR}quakespasm-cmake
 
-cd "${MIRROR_DIR}"
+MIRRORS_DIR=/Volumes/Storage/Work/mirrors/
+SOURCE_MIRROR_DIR=${MIRRORS_DIR}quakespasm-cmake
+SUBMODULES_MIRROR_DIR=${MIRRORS_DIR}quakespasm
+
+cd "${SOURCE_MIRROR_DIR}"
+git fetch --all
+
+cd "${SUBMODULES_MIRROR_DIR}"
 git fetch --all
 
 cd "${WORK_DIR}"
-git clone https://github.com/alexey-lysiuk/quakespasm-cmake.git
+git clone -s "${SOURCE_MIRROR_DIR}"
+
+#cd "${SOURCE_DIR}"
+cd quakespasm-cmake
+git remote remove origin
+git remote add origin https://github.com/alexey-lysiuk/quakespasm-cmake.git
+git fetch --all
+git pull --ff-only origin main
+git branch -u origin/main
 
 for submodule in quakespasm quakespasm-spiked vkquake ironwail; do
-	cd "${WORK_DIR}/quakespasm-cmake" 
-	git submodule update --init --reference "${MIRROR_DIR}" "src/${submodule}"
+	#cd "${SOURCE_DIR}"
+	git submodule update --init --reference "${SUBMODULES_MIRROR_DIR}" "src/${submodule}"
 
 	if [[ "${submodule}" == 'quakespasm-spiked' ]]; then
 		branch=qsrebase
@@ -23,4 +38,5 @@ for submodule in quakespasm quakespasm-spiked vkquake ironwail; do
 
 	cd "src/${submodule}"
 	git checkout ${branch}
+	cd -
 done
