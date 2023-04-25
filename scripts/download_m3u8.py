@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import sys
+import time
 import typing
 import urllib.parse
 import urllib.request
@@ -33,20 +34,31 @@ def gather_chunks(m3u8_url: str) -> typing.List[str]:
 
 def download(link) -> typing.Optional[bytes]:
     result = None
+    retry = 0
 
-    try:
-        response = urllib.request.urlopen(link)
-        data = response.read()
-        size = len(data)
+    while True:
+        try:
+            response = urllib.request.urlopen(link)
+            data = response.read()
+            size = len(data)
 
-        if size > 10 * 1024:
-            print(f'Chunk retrieved [{size:,} bytes]')
-            result = data
-        else:
-            print(f'Chunk skipped because of its size [{size} bytes]')
+            if size > 10 * 1024:
+                print(f'Chunk retrieved [{size:,} bytes]')
+                result = data
+            else:
+                print(f'Chunk skipped because of its size [{size} bytes]')
 
-    except Exception as ex:
-        print(f'ERROR: {ex}, {link} skipped')
+            break
+
+        except Exception as ex:
+            time.sleep(10 * retry)
+            retry += 1
+
+            if retry < 10:
+                print(f'WARNING: {ex}, {link}, retry #{retry}')
+            else:
+                print(f'ERROR: {ex}, {link} skipped')
+                break
 
     return result
 
