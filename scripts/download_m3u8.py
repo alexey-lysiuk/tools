@@ -12,19 +12,21 @@ def gather_chunks(m3u8_url: str) -> typing.List[str]:
     m3u8_response = urllib.request.urlopen(m3u8_url)
     m3u8_data = m3u8_response.read().decode()
 
-    parsed_url = list(urllib.parse.urlsplit(m3u8_url))
-    path = parsed_url[2]
-    parsed_url[2] = path[:path.rfind('/') + 1]  # remove filename from path
-    parsed_url[3] = ''  # clear query
-    domain = urllib.parse.urlunsplit(parsed_url)
-
+    base_url = ''
     links = []
 
     for line in m3u8_data.split('\n'):
         if not line or line.startswith('#'):
             continue
 
-        links.append(domain + line)
+        if not line.startswith('http'):
+            parsed_url = list(urllib.parse.urlsplit(m3u8_url))
+            path = parsed_url[2]
+            parsed_url[2] = path[:path.rfind('/') + 1]  # remove filename from path
+            parsed_url[3] = ''  # clear query
+            base_url = urllib.parse.urlunsplit(parsed_url)
+
+        links.append(base_url + line)
 
     return links
 
