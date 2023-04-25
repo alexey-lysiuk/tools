@@ -1,13 +1,12 @@
 #!/usr/bin/env python3
 
-import cgi
 import sys
 import typing
 import urllib.parse
 import urllib.request
 
 
-def gather_links(m3u8_url: str) -> typing.List[str]:
+def gather_chunks(m3u8_url: str) -> typing.List[str]:
     print('Downloading %s...' % m3u8_url)
 
     m3u8_response = urllib.request.urlopen(m3u8_url)
@@ -15,14 +14,14 @@ def gather_links(m3u8_url: str) -> typing.List[str]:
 
     parsed_url = list(urllib.parse.urlsplit(m3u8_url))
     path = parsed_url[2]
-    parsed_url[2] = path[:path.rfind('/') + 1]
+    parsed_url[2] = path[:path.rfind('/') + 1]  # remove filename from path
     parsed_url[3] = ''  # clear query
     domain = urllib.parse.urlunsplit(parsed_url)
 
     links = []
 
     for line in m3u8_data.split('\n'):
-        if line.startswith('#'):
+        if not line or line.startswith('#'):
             continue
 
         links.append(domain + line)
@@ -30,44 +29,44 @@ def gather_links(m3u8_url: str) -> typing.List[str]:
     return links
 
 
-def download(link):
+def download(link) -> typing.Optional[bytes]:
+    result = None
+
     try:
         response = urllib.request.urlopen(link)
         data = response.read()
-        content_disposition = response.headers['content-disposition']
+        size = len(data)
 
-        if content_disposition:
-            _, cd_params = cgi.parse_header(content_disposition)
-            filename = cd_params['filename']
-        elif response.url:
-            filename = urllib.parse.urlsplit(response.url).path.split('/')[-1]
+        if size > 10 * 1024:
+            print(f'Chunk retrieved [{size:,} bytes]')
+            result = data
         else:
-            raise RuntimeError('Could not obtain file name')
-
-        with open(filename, 'wb') as f:
-            written = f.write(data)
-
-        print(f'Saved to {filename} [{written:,} bytes]')
+            print(f'Chunk skipped because of its size [{size} bytes]')
 
     except Exception as ex:
         print(f'ERROR: {ex}, {link} skipped')
 
+    return result
+
 
 def main():
-    if len(sys.argv) < 2:
-        print(f'Usage: {sys.argv[0]} url ...')
+    if len(sys.argv) < 3:
+        print(f'Usage: {sys.argv[0]} url output')
         return 0
 
-    for page_url in sys.argv[1:]:
-        links = gather_links(page_url)
-        total = len(links)
-        current = 1
+    output_file = open(sys.argv[2], 'wb')
 
-        for link in links:
-            print('Downloading %s [%i of %i]...' % (link, current, total))
-            download(link)
+    chunks = gather_chunks(sys.argv[1])
+    total = len(chunks)
+    current = 1
 
-            current += 1
+    for chunk in chunks:
+        print('Downloading %s [%i of %i]...' % (chunk, current, total))
+
+        if data := download(chunk):
+            output_file.write(data)
+
+        current += 1
 
 
 if '__main__' == __name__:
