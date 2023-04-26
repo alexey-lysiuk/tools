@@ -7,6 +7,7 @@ DEPS_DIR=/Volumes/Storage/Work/zdoom-macos-deps/
 SOURCE_DIR=/Volumes/ramdisk/quakespasm-exp$1
 BUILD_DIR=${SOURCE_DIR}/build
 OUTPUT_DIR=${BUILD_DIR}/output
+BUNDLE_ICON=${SOURCE_DIR}/MacOSX/QuakeSpasm.icns
 
 git -C "${DEPS_DIR}" pull --ff-only
 
@@ -18,4 +19,9 @@ cd "${SOURCE_DIR}"
 "${DEPS_DIR}build.py" --source=. --build-path="${BUILD_DIR}" --output-path="${OUTPUT_DIR}" --disable-arm
 
 cd "${OUTPUT_DIR}/quakespasm-exp"
+sips -i "${BUNDLE_ICON}"
+DeRez -only icns "${BUNDLE_ICON}" > icon.rsrc
+SetFile -a c "${BUNDLE_ICON}"
+Rez -append icon.rsrc -o quakespasm-exp
+SetFile -a C quakespasm-exp
 tar -cJf "${SOURCE_DIR}/../quakespasm-exp-bin@$(git rev-parse --short HEAD).tar.xz" quakespasm-exp quakespasm.pak
