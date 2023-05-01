@@ -366,7 +366,7 @@ def _main():
     state.update_devbuilds_repository()
     state.load_deployment_config()
     state.make_github_release()
-    state.upload_to_drdteam()
+    # state.upload_to_drdteam()
 
 
 if __name__ == '__main__':
