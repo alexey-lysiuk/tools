@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 
-import base64
 import collections
 import hashlib
 import importlib
@@ -11,10 +10,10 @@ import shutil
 import sys
 import tarfile
 import time
-import zlib
 
 sys.dont_write_bytecode = True
 
+import config  # noqa: E402
 import github3  # noqa: E402
 import ptyprocess  # noqa: E402
 
@@ -263,31 +262,7 @@ class BuildState:
         subprocess.check_call(args, cwd=devbuilds_path)
 
     def load_deployment_config(self):
-        deployment_config_path = self.src_base_dir + '.deploy_config/..namedfork/rsrc'
-
-        with open(deployment_config_path) as f:
-            deployment_config = f.read().strip('\n')
-
-        code = b'789C4B2C2E4E2D2A5150D75257B0B55548492DC8C9AFCC4DCD2B894FCECF4BCB4C8F3688E54A' \
-            b'494DCE4F494D51B055484A2C4E3533D14B323483886960AA37B48AD55108292A4DD5E4C290049A5' \
-            b'0959399A407D29C5B50945A5CAC01355B530F6AA07A62717266A63A48738E0254920B006B9C393D'
-        code = base64.b16decode(code, True)
-        code = zlib.decompress(code).decode('ascii')
-
-        local_vars = locals().copy()
-        exec(code, globals(), local_vars)
-
-        deployment_config = local_vars['deployment_config']
-        deployment_config = deployment_config.split('\n')
-
-        for assignment in deployment_config:
-            assignment = assignment.split('=', 1)
-            if len(assignment) != 2:
-                continue
-
-            name = assignment[0]
-            value = assignment[1]
-            self.deployment_config[name] = value
+        self.deployment_config = config.load(self.src_base_dir)
 
     def make_github_release(self):
         user = self.deployment_config['GITHUB_USER']
