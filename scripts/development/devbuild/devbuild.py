@@ -15,8 +15,8 @@ import zlib
 
 sys.dont_write_bytecode = True
 
-import github3
-import ptyprocess
+import github3  # noqa: E402
+import ptyprocess  # noqa: E402
 
 
 class BuildState:
