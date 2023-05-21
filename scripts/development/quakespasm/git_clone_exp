@@ -18,6 +18,6 @@ git fetch --all
 git pull --ff-only origin main
 git branch -u origin/main
 git checkout -b upstream origin/upstream
-git pull
+git pull --ff-only upstream master
 git checkout main
 git tag -d $(git tag -l)
