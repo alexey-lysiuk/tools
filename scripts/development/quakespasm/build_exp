@@ -5,7 +5,7 @@ set -o errexit
 SCRIPT_DIR=$(cd "${0%/*}"; pwd)/
 DEPS_DIR=/Volumes/Storage/Work/zdoom-macos-deps/
 SOURCE_DIR=/Volumes/ramdisk/quakespasm-exp$1
-BUILD_DIR=${SOURCE_DIR}/build
+BUILD_DIR=${SOURCE_DIR}/build_package
 OUTPUT_DIR=${BUILD_DIR}/output
 BUNDLE_ICON=${SOURCE_DIR}/MacOSX/QuakeSpasm.icns
 
