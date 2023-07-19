@@ -15,6 +15,6 @@ git remote remove origin
 git remote add origin https://github.com/alexey-lysiuk/quakespasm-spiked.git
 git remote add upstream https://github.com/Shpoike/Quakespasm.git
 git fetch --all
-git checkout -b master origin/master
+git checkout -b qsrebase origin/qsrebase
 git branch -D main
-git pull upstream master
+git pull upstream qsrebase
