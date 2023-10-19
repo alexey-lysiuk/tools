@@ -24,4 +24,4 @@ DeRez -only icns "${BUNDLE_ICON}" > icon.rsrc
 SetFile -a c "${BUNDLE_ICON}"
 Rez -append icon.rsrc -o quakespasm-exp
 SetFile -a C quakespasm-exp
-tar -cJf "${SOURCE_DIR}/../quakespasm-exp-bin@$(git rev-parse --short HEAD).tar.xz" quakespasm-exp quakespasm.pak
+tar -cJf "${SOURCE_DIR}/../quakespasm-exp-bin@$(git rev-parse --short HEAD).tar.xz" quakespasm-exp quakespasm-exp.pak
