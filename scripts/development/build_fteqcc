@@ -1,0 +1,24 @@
+#!/bin/sh
+
+# See https://www.fteqcc.org/ for commit and build date
+COMMIT=3adec5d0a53ba9ae32a92fc0a805cf6d5ec107fb
+SRC_DIR=fteqw-$COMMIT
+BUILD_DIR=$SRC_DIR/build
+CMAKE_EXE=$(which cmake)
+
+if [ -z $CMAKE_EXE ]; then
+	CMAKE_EXE=/Applications/CMake.app/Contents/bin/cmake
+fi
+
+set -o errexit
+
+curl -JOL https://github.com/fte-team/fteqw/archive/$COMMIT.zip
+unzip $SRC_DIR.zip
+"$CMAKE_EXE" \
+	-DCMAKE_BUILD_TYPE=Release \
+	-DCMAKE_C_FLAGS="-DSVNREVISION=git-6446-3adec5d0a -DSVNDATE=\"Thu Aug 3 12:48:26 UTC 2023\"" \
+	-S $SRC_DIR \
+	-B $BUILD_DIR
+"$CMAKE_EXE" \
+	--build $BUILD_DIR \
+	--target fteqcc
