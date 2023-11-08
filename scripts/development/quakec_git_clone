@@ -1,0 +1,31 @@
+#!/bin/sh
+
+set -o errexit
+
+WORK_DIR=/Volumes/ramdisk/quakec
+MIRROR_DIR=/Volumes/Storage/Work/mirrors/quakec
+
+if [ ! -e "$MIRROR_DIR" ]; then
+	# Create mirror repository with all submodules added as remotes
+	git clone --mirror https://github.com/alexey-lysiuk/quakec.git "$MIRROR_DIR"
+
+	cd "$MIRROR_DIR"
+	git remote add arcanedimensions https://github.com/SimsOCallaghan/ArcaneDimensions.git
+	git remote add alkaline https://github.com/fabiolimamp/alkaline.git
+	git remote add copper https://github.com/itslunaranyo/copper.git
+	git remote add progs_dump https://github.com/dumptruckDS/progs_dump_qc.git
+	git remote add rerelease https://github.com/id-Software/quake-rerelease-qc.git
+	git fetch --all --tags
+	git gc
+fi
+
+git -C "$MIRROR_DIR" fetch --all --tags
+git clone --shared --no-tags "$MIRROR_DIR" "$WORK_DIR"
+
+cd "$WORK_DIR"
+git remote remove origin
+git remote add origin https://github.com/alexey-lysiuk/quakec.git
+git fetch --all --tags
+git pull --ff-only origin main
+git branch --set-upstream-to=origin/main
+git submodule update --init --recursive --reference "$MIRROR_DIR"
