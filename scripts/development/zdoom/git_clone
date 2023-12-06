@@ -3,7 +3,7 @@
 set -o errexit
 
 MIRRORS_DIR=/Volumes/Storage/Work/mirrors/
-SRC_REPO_DIR=${MIRRORS_DIR}gzdoom-macos
+SRC_REPO_DIR=${MIRRORS_DIR}gzdoom
 
 cd "${SRC_REPO_DIR}"
 git fetch --all
