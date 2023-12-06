@@ -19,4 +19,4 @@ git fetch --all
 git remote remove temp
 git checkout -b qsrebase origin/qsrebase
 git branch -D main
-git pull upstream qsrebase
+git pull --ff-only upstream qsrebase
