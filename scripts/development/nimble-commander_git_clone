@@ -1,0 +1,30 @@
+#!/bin/sh
+
+set -o errexit
+
+ORIGIN_URL=https://github.com/alexey-lysiuk/nimble-commander.git
+UPSTREAM_URL=https://github.com/alexey-lysiuk/nimble-commander.git
+
+MIRROR_DIR=/Volumes/Storage/Work/mirrors/nimble-commander
+WORK_DIR=/Volumes/ramdisk/nimble-commander
+
+if [ ! -e "$MIRROR_DIR" ]; then
+	# Create mirror repository with origin and upstream remotes
+	git clone --mirror "${ORIGIN_URL}" "$MIRROR_DIR"
+
+	cd "$MIRROR_DIR"
+	git remote add upstream "${UPSTREAM_URL}"
+	git fetch --all --tags
+	git gc
+fi
+
+git -C "$MIRROR_DIR" fetch --all --tags
+git clone --shared "$MIRROR_DIR" "$WORK_DIR"
+
+cd "$WORK_DIR"
+git remote remove origin
+git remote add origin "${ORIGIN_URL}"
+git remote add upstream "${UPSTREAM_URL}"
+git fetch --all --tags
+git branch --set-upstream-to=origin/main
+git pull --ff-only
