@@ -20,4 +20,3 @@ git branch -u origin/main
 git checkout -b upstream origin/upstream
 git pull --ff-only upstream master
 git checkout main
-git tag -d $(git tag -l)
