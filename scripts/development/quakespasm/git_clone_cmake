@@ -12,7 +12,7 @@ cd "${SOURCE_MIRROR_DIR}"
 git fetch --all
 
 cd "${SUBMODULES_MIRROR_DIR}"
-git fetch --all
+git fetch --all --tags
 
 cd "${WORK_DIR}"
 git clone -s "${SOURCE_MIRROR_DIR}"

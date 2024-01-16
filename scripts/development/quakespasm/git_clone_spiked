@@ -5,7 +5,7 @@ set -o errexit
 SRC_REPO_DIR=/Volumes/Storage/Work/mirrors/quakespasm
 
 cd "${SRC_REPO_DIR}"
-git fetch --all
+git fetch --all --tags
 
 cd /Volumes/ramdisk
 git clone -s "${SRC_REPO_DIR}" quakespasm-spiked$1
@@ -15,7 +15,7 @@ git remote rename origin temp
 git remote add origin https://github.com/alexey-lysiuk/quakespasm-spiked.git
 git remote add upstream https://github.com/Shpoike/Quakespasm.git
 git remote add qss-m https://github.com/timbergeron/QSS-M.git
-git fetch --all
+git fetch --all --tags
 git remote remove temp
 git checkout -b qsrebase origin/qsrebase
 git branch -D main

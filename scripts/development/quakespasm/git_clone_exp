@@ -14,7 +14,7 @@ cd quakespasm-exp$1
 git remote remove origin
 git remote add origin https://github.com/alexey-lysiuk/quakespasm-exp.git
 git remote add upstream https://git.code.sf.net/p/quakespasm/quakespasm
-git fetch --all
+git fetch --all --tags
 git pull --ff-only origin main
 git branch -u origin/main
 git checkout -b upstream origin/upstream
