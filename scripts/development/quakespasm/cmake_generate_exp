@@ -7,6 +7,8 @@ DEPS_DIR=/Volumes/Storage/Work/zdoom-macos-deps/
 SOURCE_DIR=/Volumes/ramdisk/quakespasm-exp$1
 BUILD_DIR=${SOURCE_DIR}/build
 
+git -C "${DEPS_DIR}" pull --ff-only
+
 if [ ! -e "${SOURCE_DIR}" ]; then
 	"${SCRIPT_DIR}git_clone_exp" $1
 fi
