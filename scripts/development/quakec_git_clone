@@ -15,6 +15,7 @@ if [ ! -e "$MIRROR_DIR" ]; then
 	git remote add copper https://github.com/itslunaranyo/copper.git
 	git remote add progs_dump https://github.com/dumptruckDS/progs_dump_qc.git
 	git remote add rerelease https://github.com/id-Software/quake-rerelease-qc.git
+	git remote add smp https://github.com/quake-mapping-community/smp.git
 	git fetch --all --tags
 	git gc
 fi
