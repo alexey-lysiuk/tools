@@ -3,7 +3,7 @@
 set -o errexit
 
 ORIGIN_URL=https://github.com/alexey-lysiuk/nimble-commander.git
-UPSTREAM_URL=https://github.com/alexey-lysiuk/nimble-commander.git
+UPSTREAM_URL=https://github.com/mikekazakov/nimble-commander.git
 
 MIRROR_DIR=/Volumes/Storage/Work/mirrors/nimble-commander
 WORK_DIR=/Volumes/ramdisk/nimble-commander
@@ -27,4 +27,4 @@ git remote add origin "${ORIGIN_URL}"
 git remote add upstream "${UPSTREAM_URL}"
 git fetch --all --tags
 git branch --set-upstream-to=origin/main
-git pull --ff-only
+git pull --ff-only upstream main
