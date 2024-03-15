@@ -101,14 +101,6 @@ class BuildState:
             args = ('git', 'pull', '--ff-only')
             subprocess.check_call(args, cwd=self.target_dir)
 
-        sdk_path = self.deps_dir + 'sdk' + os.sep
-
-        if not os.path.exists(sdk_path):
-            os.makedirs(sdk_path)
-
-            for entry in os.scandir(self.src_base_dir + 'macos_sdk'):
-                os.symlink(entry.path, sdk_path + entry.name)
-
     def setup_target(self):
         log_commit_args = ('git', 'log', '--pretty=format:%h', '-n', '1')
         self.deps_commit = BuildState._run(log_commit_args, self.deps_dir)
