@@ -148,6 +148,7 @@ class BuildState:
         with open(info_plist, 'rb') as f:
             target_plist = plistlib.load(f)
 
+        target_plist['LSMinimumSystemVersion'] = '10.15'  # TODO: use OS_VERSION_X86_64 from aedi 
         target_plist['CFBundleName'] = self.target.name
         target_plist['CFBundleShortVersionString'] = self.target_version
         target_plist['CFBundleIdentifier'] = self.target.identifier
