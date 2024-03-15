@@ -16,9 +16,3 @@ git remote add origin https://github.com/ZDoom/zdoom-macos-deps.git
 git fetch --all
 git branch -u origin/main
 git pull --ff-only
-
-mkdir sdk
-
-for sdk in /Volumes/Storage/Work/devbuilds/macos_sdk/*; do
-	ln -s "$sdk" sdk
-done
