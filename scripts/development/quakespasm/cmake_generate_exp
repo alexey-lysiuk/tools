@@ -20,6 +20,10 @@ BUILD_ID1_DIR=${BUILD_DEBUG_DIR}/id1
 
 rsync -a /Volumes/Storage/Documents/Quake/Games/* "${BUILD_DEBUG_DIR}"
 
+SCRIPTS_DIR=${SOURCE_DIR}/Misc/qs_pak/scripts
+
 if [ ! -e "${BUILD_ID1_DIR}/scripts" ]; then
-	ln -s "${SOURCE_DIR}/Misc/qs_pak/scripts" "${BUILD_ID1_DIR}"
+	ln -s "${SCRIPTS_DIR}" "${BUILD_ID1_DIR}"
 fi
+
+open "${SCRIPTS_DIR}"/*.lua
