@@ -1,0 +1,39 @@
+#!/bin/sh
+
+set -o errexit
+
+IMGUI_VERSION=1.90.8
+IMGUI_TARGZ=imgui-${IMGUI_VERSION}.tar.gz
+IMGUI_SHA256=f606b4fb406aa0f8dad36d4a9dd3d6f0fd39f5f0693e7468abc02d545fb505ae
+IMGUI_DIR=imgui-${IMGUI_VERSION}
+EXAMPLE_DIR=${IMGUI_DIR}/examples/example_sdl2_opengl2
+
+cd /Volumes/ramdisk
+
+if [ ! -e $IMGUI_DIR ]; then
+	curl -JOL "https://github.com/ocornut/imgui/archive/refs/tags/v${IMGUI_VERSION}.tar.gz"
+	printf "$IMGUI_SHA256  $IMGUI_TARGZ\n" | shasum -a 256 -c
+	tar -xf $IMGUI_TARGZ
+
+	patch << EOF
+--- ${EXAMPLE_DIR}/main.cpp
++++ ${EXAMPLE_DIR}/main.cpp
+@@ -39,7 +39,7 @@
+     SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
+     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
+     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
+-    SDL_WindowFlags window_flags = (SDL_WindowFlags)(SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI);
++    SDL_WindowFlags window_flags = (SDL_WindowFlags)(SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
+     SDL_Window* window = SDL_CreateWindow("Dear ImGui SDL2+OpenGL example", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 1280, 720, window_flags);
+     if (window == nullptr)
+     {
+EOF
+fi
+
+cd $EXAMPLE_DIR
+export PATH=$PATH:/Volumes/Storage/Work/zdoom-macos-deps/prefix/bin
+c++ -std=c++11 -O2 \
+	`sdl2-config --cflags` -I.. -I../.. -I../../backends -DIMGUI_DISABLE_OBSOLETE_FUNCTIONS \
+	main.cpp ../../backends/imgui_impl_sdl2.cpp ../../backends/imgui_impl_opengl2.cpp ../../imgui*.cpp \
+	`sdl2-config --libs` -framework OpenGL \
+	-o ../../../imgui_sdl2_opengl2
