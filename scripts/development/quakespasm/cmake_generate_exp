@@ -19,7 +19,7 @@ BUILD_DEBUG_DIR=${BUILD_DIR}/Debug
 BUILD_ID1_DIR=${BUILD_DEBUG_DIR}/id1
 
 rsync -a /Volumes/Storage/Documents/Quake/Games/* "${BUILD_DEBUG_DIR}"
-sed -i '' -e 's/vid_fullscreen 1/vid_width 1440;vid_height 900;nosound 1/' "${BUILD_DEBUG_DIR}/id1/autoexec.cfg"
+sed -i '' -e 's/vid_fullscreen 1/vid_width 1440;vid_height 900;nosound 1;map e1m1/' "${BUILD_DEBUG_DIR}/id1/autoexec.cfg"
 
 SCRIPTS_DIR=${SOURCE_DIR}/Misc/qs_pak/scripts
 
