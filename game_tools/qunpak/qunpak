@@ -116,7 +116,7 @@ class PakExtractor(object):
     def print_status(self, filename, done, total):
         if self.progress:
             maxdots = 20
-            dots = int(done * 20 / total)
+            dots = int(done * 20 / total) if total > 0 else 20
             dotstring = '.' * dots + ' ' * (maxdots - dots)
             self._write_ok(sys.stdout, '\r%s (%d/%d) |%s|' % (filename, done, total, dotstring))
         else:
