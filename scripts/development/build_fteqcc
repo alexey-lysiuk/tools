@@ -1,8 +1,10 @@
 #!/bin/sh
 
-# See https://www.fteqcc.org/ for commit and build date
-COMMIT=3adec5d0a53ba9ae32a92fc0a805cf6d5ec107fb
+# See artifacts at https://github.com/fte-team/fteqw/actions/ for commit and build date
+COMMIT=09768089c006f242c10be2a044968d15ecb99d29
 SRC_DIR=fteqw-$COMMIT
+SRC_TARGZ=$SRC_DIR.tar.gz
+SRC_SHA256=17f37e39db8bd9f6dae7973dc05435e8d60a5951078416632faf271755e67faf
 BUILD_DIR=$SRC_DIR/build
 CMAKE_EXE=$(which cmake)
 
@@ -12,11 +14,14 @@ fi
 
 set -o errexit
 
-curl -JOL https://github.com/fte-team/fteqw/archive/$COMMIT.zip
-unzip $SRC_DIR.zip
+curl -JOL https://github.com/fte-team/fteqw/archive/$COMMIT.tar.gz
+printf "$SRC_SHA256  $SRC_TARGZ\n" | shasum -a 256 -c
+tar -xf $SRC_TARGZ
+
 "$CMAKE_EXE" \
 	-DCMAKE_BUILD_TYPE=Release \
-	-DCMAKE_C_FLAGS="-DSVNREVISION=git-6446-3adec5d0a -DSVNDATE=\"Thu Aug 3 12:48:26 UTC 2023\"" \
+	-DCMAKE_C_FLAGS="-DSVNREVISION=git-30-0976808 -DSVNDATE=2024-09-14" \
+	-DCMAKE_OSX_DEPLOYMENT_TARGET=10.15 \
 	-S $SRC_DIR \
 	-B $BUILD_DIR
 "$CMAKE_EXE" \
