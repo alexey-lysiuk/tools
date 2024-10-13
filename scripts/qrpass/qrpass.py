@@ -14,7 +14,9 @@ def _main():
     characters = string.digits + string.ascii_letters + '_'
     password = random.sample(characters, len(characters))
     password = ''.join(password)
-    print('Password:', password)
+
+    with open('qrpass.txt', 'w') as f:
+        f.write(password)
 
     image = qrcode.make(password, image_factory=PyPNGImage)
     image.save('qrpass.png')
