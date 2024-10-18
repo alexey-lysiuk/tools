@@ -1,0 +1,33 @@
+#!/bin/sh
+
+set -o errexit
+
+download_file() {
+	echo ${1}
+	curl --remote-name https://kexquake.s3.amazonaws.com/${1}
+	echo
+}
+
+download_directory() {
+	if [ ! -z "${1}" ]; then
+		mkdir -p ${1}
+		pushd ${1} > /dev/null
+	fi
+
+	download_file ${1}content.json
+
+	for fn in $(grep --extended-regexp --only-matching '[0-9a-z/_]+\.(pak|jpg|png)' content.json); do
+		dir=$(dirname ${fn})
+		mkdir -p ${dir}
+		pushd ${dir} > /dev/null
+		download_file ${1}${fn}
+		popd > /dev/null
+	done
+
+	if [ ! -z "${1}" ]; then
+		popd > /dev/null
+	fi
+}
+
+download_directory
+download_directory testing/
