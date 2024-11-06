@@ -11,6 +11,7 @@ cd /Volumes/ramdisk
 git clone -s "${SRC_REPO_DIR}" quakespasm-exp$1
 
 cd quakespasm-exp$1
+git tag -d $(git tag -l)
 git remote remove origin
 git remote add origin https://github.com/alexey-lysiuk/quakespasm-exp.git
 git remote add upstream https://git.code.sf.net/p/quakespasm/quakespasm
