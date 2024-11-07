@@ -6,7 +6,7 @@ SOURCE_DIR=/Volumes/ramdisk/zdoom-macos-deps
 SCRIPT_DIR=$(cd "${0%/*}"; pwd)/
 
 if [ ! -e "${SOURCE_DIR}" ]; then
-	"${SCRIPT_DIR}git_clone"
+	"${SCRIPT_DIR}clone"
 fi
 
 open -b com.jetbrains.pycharm.ce "${SOURCE_DIR}"
