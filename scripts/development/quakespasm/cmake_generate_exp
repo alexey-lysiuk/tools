@@ -27,4 +27,4 @@ if [ ! -e "${BUILD_ID1_DIR}/scripts" ]; then
 	ln -s "${SCRIPTS_DIR}" "${BUILD_ID1_DIR}"
 fi
 
-open "${SCRIPTS_DIR}"/*.lua
+open -b dev.zed.Zed "${SCRIPTS_DIR}"
