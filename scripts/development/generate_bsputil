@@ -3,7 +3,7 @@
 set -o errexit
 
 SCRIPT_DIR=$(cd "${0%/*}"; pwd)
-SOURCE_DIR=${SCRIPT_DIR}/../../../game_tools/bsputil
+SOURCE_DIR=${SCRIPT_DIR}/../../game_tools/bsputil
 BUILD_DIR=/Volumes/ramdisk/bsputil_build
 
 mkdir -p "${BUILD_DIR}"
