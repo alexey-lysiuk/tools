@@ -13,7 +13,7 @@ fi
 DEPS_DIR=${WORK_DIR}zdoom-macos-deps/
 
 if [ ! -e "${DEPS_DIR}" ]; then
-	"${SCRIPT_DIR}../zdoom-macos-deps/git_clone"
+	"${SCRIPT_DIR}../zdoom-macos-deps/clone"
 fi
 
 if [ ! -e "${DEPS_DIR}/deps/glslang" ]; then
