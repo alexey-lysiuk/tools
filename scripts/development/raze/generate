@@ -7,7 +7,7 @@ DEPS_DIR=/Volumes/Storage/Work/zdoom-macos-deps/
 SOURCE_DIR=/Volumes/ramdisk/raze$1
 
 if [ ! -e "${SOURCE_DIR}" ]; then
-	"${SCRIPT_DIR}git_clone" $1
+	"${SCRIPT_DIR}clone" $1
 fi
 
 "${DEPS_DIR}build.py" --xcode --source="${SOURCE_DIR}" --build-path="${SOURCE_DIR}/build"
