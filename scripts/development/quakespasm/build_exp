@@ -12,7 +12,7 @@ BUNDLE_ICON=${SOURCE_DIR}/MacOSX/QuakeSpasm.icns
 git -C "${DEPS_DIR}" pull --ff-only
 
 if [ ! -e "${SOURCE_DIR}" ]; then
-	"${SCRIPT_DIR}git_clone_exp" $1
+	"${SCRIPT_DIR}clone_exp" $1
 fi
 
 cd "${SOURCE_DIR}"

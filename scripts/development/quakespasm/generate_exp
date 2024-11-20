@@ -10,7 +10,7 @@ BUILD_DIR=${SOURCE_DIR}/build
 git -C "${DEPS_DIR}" pull --ff-only
 
 if [ ! -e "${SOURCE_DIR}" ]; then
-	"${SCRIPT_DIR}git_clone_exp" $1
+	"${SCRIPT_DIR}clone_exp" $1
 fi
 
 "${DEPS_DIR}build.py" --xcode --source="${SOURCE_DIR}" --build-path="${BUILD_DIR}"
