@@ -6,7 +6,7 @@ SCRIPT_DIR=$(cd "${0%/*}"; pwd)/
 SOURCE_DIR=/Volumes/ramdisk/quakespasm-cmake
 
 if [ ! -e "${SOURCE_DIR}" ]; then
-	"${SCRIPT_DIR}git_clone_cmake"
+	"${SCRIPT_DIR}clone_cmake"
 fi
 
 DEPS_DIR=/Volumes/Storage/Work/zdoom-macos-deps/

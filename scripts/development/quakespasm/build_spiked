@@ -8,7 +8,7 @@ WORK_DIR=/Volumes/ramdisk/
 SOURCE_DIR=${WORK_DIR}quakespasm-cmake
 
 if [ ! -e "${SOURCE_DIR}" ]; then
-	"${SCRIPT_DIR}git_clone_cmake"
+	"${SCRIPT_DIR}clone_cmake"
 fi
 
 # Make deps directory is up-to-date
