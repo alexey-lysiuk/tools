@@ -31,6 +31,7 @@ EOF
 fi
 
 cd $EXAMPLE_DIR
+echo 'Building ImGui demo...'
 export PATH=$PATH:/Volumes/Storage/Work/zdoom-macos-deps/prefix/bin
 c++ -std=c++11 -O2 \
 	`sdl2-config --cflags` -I.. -I../.. -I../../backends -DIMGUI_DISABLE_OBSOLETE_FUNCTIONS \
