@@ -1,0 +1,21 @@
+#!/bin/sh
+
+set -o errexit
+
+REPO_URL=https://github.com/alexey-lysiuk/a6r-tools.git
+WORK_DIR=/Volumes/ramdisk/a6r-tools
+MIRROR_DIR=/Volumes/Storage/Work/mirrors/a6r-tools
+
+if [ ! -e "$MIRROR_DIR" ]; then
+	git clone --mirror $REPO_URL "$MIRROR_DIR"
+fi
+
+git -C "$MIRROR_DIR" fetch --all --tags
+git clone --shared --no-tags "$MIRROR_DIR" "$WORK_DIR"
+
+cd "$WORK_DIR"
+git remote remove origin
+git remote add origin $REPO_URL
+git fetch --all --tags
+git pull --ff-only origin main
+git branch --set-upstream-to=origin/main
