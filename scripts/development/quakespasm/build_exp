@@ -15,9 +15,7 @@ if [ ! -e "${SOURCE_DIR}" ]; then
 	"${SCRIPT_DIR}clone_exp" $1
 fi
 
-cd "${SOURCE_DIR}"
-echo 'static const char* const expversion = "'$(git describe --tags)'";' > Quake/expversion.h
-"${DEPS_DIR}build.py" --source=. --build-path="${BUILD_DIR}" --output-path="${OUTPUT_DIR}" --disable-arm
+"${DEPS_DIR}build.py" --source="${SOURCE_DIR}" --build-path="${BUILD_DIR}" --output-path="${OUTPUT_DIR}" --disable-arm
 
 cd "${OUTPUT_DIR}/quakespasm-exp"
 sips -i "${BUNDLE_ICON}"
