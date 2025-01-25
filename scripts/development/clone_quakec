@@ -13,7 +13,8 @@ if [ ! -e "$MIRROR_DIR" ]; then
 	git remote add arcanedimensions https://github.com/SimsOCallaghan/ArcaneDimensions.git
 	git remote add alkaline https://github.com/fabiolimamp/alkaline.git
 	git remote add copper https://github.com/itslunaranyo/copper.git
-	git remote add progs_dump https://github.com/dumptruckDS/progs_dump_qc.git
+	git remote add progs_dump https://github.com/progs-dump-dev/progs_dump.git
+	git remote add progs_dump-old https://github.com/dumptruckDS/progs_dump_qc.git
 	git remote add remobilize https://github.com/EmeraldTiger/Re-Mobilize.git
 	git remote add rerelease https://github.com/id-Software/quake-rerelease-qc.git
 	git remote add smp https://github.com/quake-mapping-community/smp.git
