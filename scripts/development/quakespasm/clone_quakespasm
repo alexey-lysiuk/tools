@@ -13,7 +13,7 @@ git clone -s "${SRC_REPO_DIR}" quakespasm$1
 cd quakespasm$1
 git remote remove origin
 git remote add origin https://github.com/alexey-lysiuk/quakespasm.git
-git remote add upstream https://git.code.sf.net/p/quakespasm/quakespasm
+git remote add upstream https://github.com/sezero/quakespasm.git
 git remote add ironwail https://github.com/andrei-drexler/ironwail.git
 git fetch --all --tags
 git checkout -b master origin/master
