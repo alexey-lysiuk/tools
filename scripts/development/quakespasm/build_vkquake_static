@@ -17,7 +17,7 @@ if [ ! -e "${DEPS_DIR}" ]; then
 fi
 
 if [ ! -e "${DEPS_DIR}/deps/glslang" ]; then
-	tar -C "${DEPS_DIR}/deps" -xf /Volumes/Storage/Documents/Tools/glslang-15.0.0-bin.tar.xz
+	tar -C "${DEPS_DIR}/deps" -xf /Volumes/Storage/Documents/Tools/glslang-15.1.0-bin.tar.xz
 fi
 
 # Make sure prefix directory is up-to-date
