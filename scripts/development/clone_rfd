@@ -1,0 +1,25 @@
+#!/bin/sh
+
+set -o errexit
+
+REPO_NAME=radio-frequency-devices
+REPO_URL=https://github.com/alexey-lysiuk/$REPO_NAME
+MIRROR_DIR=/Volumes/Storage/Work/mirrors/$REPO_NAME
+WORK_DIR=/Volumes/ramdisk/$REPO_NAME
+
+if [ ! -e "$MIRROR_DIR" ]; then
+	git clone --mirror "$REPO_URL" "$MIRROR_DIR"
+fi
+
+git -C "$MIRROR_DIR" fetch --all --tags
+git clone --shared "$MIRROR_DIR" "$WORK_DIR"
+
+cd "$WORK_DIR"
+git remote remove origin
+git remote add origin "$REPO_URL"
+git fetch --all --tags
+git pull --ff-only origin main
+git branch --set-upstream-to=origin/main
+curl --location --no-progress-meter --remote-name "$REPO_URL/releases/download/data/devices.7z"
+tar -xf devices.7z
+rm devices.7z
