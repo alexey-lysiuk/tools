@@ -9,6 +9,8 @@ WORK_DIR=/Volumes/ramdisk/$REPO_NAME
 
 if [ ! -e "$MIRROR_DIR" ]; then
 	git clone --mirror "$REPO_URL" "$MIRROR_DIR"
+	curl --location --no-progress-meter --remote-name --output-dir \
+		"$MIRROR_DIR" "$REPO_URL/releases/download/data/devices.7z"
 fi
 
 git -C "$MIRROR_DIR" fetch --all --tags
@@ -20,6 +22,4 @@ git remote add origin "$REPO_URL"
 git fetch --all --tags
 git pull --ff-only origin main
 git branch --set-upstream-to=origin/main
-curl --location --no-progress-meter --remote-name "$REPO_URL/releases/download/data/devices.7z"
-tar -xf devices.7z
-rm devices.7z
+tar -xf "$MIRROR_DIR/devices.7z"
