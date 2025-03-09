@@ -1,0 +1,25 @@
+#!/bin/sh
+
+set -o errexit
+
+SCRIPT_DIR=$(cd "${0%/*}"; pwd)
+WORK_DIR=/Volumes/ramdisk
+QSEXP_DIR=$WORK_DIR/quakespasm-exp
+CTE_DIR=$WORK_DIR/ImGuiColorTextEdit
+
+if [ ! -e "$QSEXP_DIR" ]; then
+	"$SCRIPT_DIR/clone_exp" $1
+fi
+
+if [ -e "$CTE_DIR" ]; then
+	git -C "$CTE_DIR" pull
+else
+	git clone https://github.com/goossens/ImGuiColorTextEdit.git
+fi
+
+for f in TextEditor.cpp TextEditor.h; do
+	cp -f "$CTE_DIR/$f" "$QSEXP_DIR/Quake/ImGuiColorTextEdit/$f"
+done
+
+CTE_COMMIT=$(git -C "$CTE_DIR" rev-parse HEAD)
+echo "Updated ImGuiColorTextEdit to $CTE_COMMIT"
