@@ -22,4 +22,7 @@ git remote add origin "$REPO_URL"
 git fetch --all --tags
 git pull --ff-only origin main
 git branch --set-upstream-to=origin/main
-tar -xf "$MIRROR_DIR/devices.7z"
+
+for f in devices spectrum; do
+	tar -xf "$MIRROR_DIR/$f.7z"
+done
