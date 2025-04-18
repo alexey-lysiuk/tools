@@ -2,7 +2,6 @@
 
 import collections
 import hashlib
-import importlib
 import os
 import plistlib
 import subprocess
@@ -114,18 +113,14 @@ class BuildState:
         self.package_path = self.base_dir + self.package_filename
 
     def build_target(self):
-        sys.path.append(self.deps_dir)
-
-        build_module = importlib.import_module('aedi')
-        builder = build_module.__dict__['Builder']
-
         args = (
+            './build.py',
             '--source=' + self.target_dir,
             '--output-path=' + self.dist_dir,
             '--static-moltenvk',
             '--quasi-glib',
         )
-        builder(args).run()
+        subprocess.check_call(args, cwd=self.deps_dir)
 
     def prepare_app_bundle(self):
         output_path = self.dist_dir + os.sep + self.target_name_lower + os.sep
