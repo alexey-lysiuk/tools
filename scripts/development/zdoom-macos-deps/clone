@@ -2,17 +2,32 @@
 
 set -o errexit
 
-SRC_REPO_DIR=/Volumes/Storage/Work/mirrors/zdoom-macos-deps
+MIRRORS_ROOT_DIR=/Volumes/Storage/Work/mirrors/
 
-cd "${SRC_REPO_DIR}"
-git fetch --all
+PROJECT=zdoom-macos-deps
+REPO_URL=https://github.com/ZDoom/$PROJECT.git
+MIRROR_DIR=$MIRRORS_ROOT_DIR$PROJECT
+WORK_DIR=/Volumes/ramdisk/$PROJECT
 
-cd /Volumes/ramdisk
-git clone -s "${SRC_REPO_DIR}"
+CORE_PROJECT=aedi-core
+CORE_REPO_URL=https://github.com/alexey-lysiuk/$CORE_PROJECT.git
+CORE_MIRROR_DIR=$MIRRORS_ROOT_DIR$CORE_PROJECT
 
-cd zdoom-macos-deps
+if [ ! -e "$MIRROR_DIR" ]; then
+	git clone --mirror "$REPO_URL" "$MIRROR_DIR"
+fi
+
+if [ ! -e "$CORE_MIRROR_DIR" ]; then
+	git clone --mirror "$CORE_REPO_URL" "$CORE_MIRROR_DIR"
+fi
+
+git -C "$MIRROR_DIR" fetch --all
+git clone --shared "$MIRROR_DIR" "$WORK_DIR"
+
+cd "$WORK_DIR"
 git remote remove origin
-git remote add origin https://github.com/ZDoom/zdoom-macos-deps.git
+git remote add origin "$REPO_URL"
 git fetch --all
 git branch -u origin/main
 git pull --ff-only
+git submodule update --init --recursive --reference "$CORE_MIRROR_DIR"
