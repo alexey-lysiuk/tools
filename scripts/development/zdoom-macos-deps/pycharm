@@ -2,12 +2,7 @@
 
 set -o errexit
 
-SOURCE_DIR=/Volumes/ramdisk/zdoom-macos-deps
-SCRIPT_DIR=$(cd "${0%/*}"; pwd)/
+source "$(cd "${0%/*}"; pwd)/clone"
 
-if [ ! -e "${SOURCE_DIR}" ]; then
-	"${SCRIPT_DIR}clone"
-fi
-
-open -b com.jetbrains.pycharm.ce "${SOURCE_DIR}"
-"${SOURCE_DIR}/build.py" --target=build-prefix
+open -b com.jetbrains.pycharm.ce "$WORK_DIR"
+"$WORK_DIR/build.py" --target=build-prefix

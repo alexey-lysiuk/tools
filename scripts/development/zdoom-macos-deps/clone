@@ -17,17 +17,20 @@ if [ ! -e "$MIRROR_DIR" ]; then
 	git clone --mirror "$REPO_URL" "$MIRROR_DIR"
 fi
 
-if [ ! -e "$CORE_MIRROR_DIR" ]; then
+if [ -e "$CORE_MIRROR_DIR" ]; then
+	git -C "$MIRROR_DIR" fetch --all
+else
 	git clone --mirror "$CORE_REPO_URL" "$CORE_MIRROR_DIR"
 fi
 
-git -C "$MIRROR_DIR" fetch --all
-git clone --shared "$MIRROR_DIR" "$WORK_DIR"
+if [ ! -e "$WORK_DIR" ]; then
+	git clone --shared "$MIRROR_DIR" "$WORK_DIR"
 
-cd "$WORK_DIR"
-git remote remove origin
-git remote add origin "$REPO_URL"
-git fetch --all
-git branch -u origin/main
-git pull --ff-only
-git submodule update --init --recursive --reference "$CORE_MIRROR_DIR"
+	cd "$WORK_DIR"
+	git remote remove origin
+	git remote add origin "$REPO_URL"
+	git fetch --all
+	git branch -u origin/main
+	git pull --ff-only
+	git submodule update --init --recursive --reference "$CORE_MIRROR_DIR"
+fi
