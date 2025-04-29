@@ -4,14 +4,13 @@ set -o errexit
 
 MIRRORS_ROOT_DIR=/Volumes/Storage/Work/mirrors/
 
-PROJECT=rf-macos-deps
-REPO_URL=https://github.com/alexey-lysiuk/$PROJECT.git
+PROJECT=rfreq-macos-deps
+REPO_URL=https://github.com/aedi-org/$PROJECT.git
 MIRROR_DIR=$MIRRORS_ROOT_DIR$PROJECT
 WORK_DIR=/Volumes/ramdisk/$PROJECT
 
-CORE_PROJECT=aedi-core
-CORE_REPO_URL=https://github.com/alexey-lysiuk/$CORE_PROJECT.git
-CORE_MIRROR_DIR=$MIRRORS_ROOT_DIR$CORE_PROJECT
+CORE_REPO_URL=https://github.com/aedi-org/core.git
+CORE_MIRROR_DIR=${MIRRORS_ROOT_DIR}aedi-core
 
 if [ ! -e "$MIRROR_DIR" ]; then
 	git clone --mirror "$REPO_URL" "$MIRROR_DIR"
