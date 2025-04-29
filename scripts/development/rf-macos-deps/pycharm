@@ -1,0 +1,8 @@
+#!/bin/sh
+
+set -o errexit
+
+source "$(cd "${0%/*}"; pwd)/clone"
+
+open -b com.jetbrains.pycharm.ce "$WORK_DIR"
+"$WORK_DIR/build.py" --target=build-prefix
