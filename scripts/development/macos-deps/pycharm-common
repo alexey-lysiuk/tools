@@ -2,7 +2,10 @@
 
 set -o errexit
 
-source "$(cd "${0%/*}"; pwd)/clone"
+if [ -z "$WORK_DIR" ]; then
+	echo 'ERROR: WORK_DIR variable is not set'
+	exit 1
+fi
 
 open -b com.jetbrains.pycharm.ce "$WORK_DIR"
 "$WORK_DIR/build.py" --target=build-prefix
