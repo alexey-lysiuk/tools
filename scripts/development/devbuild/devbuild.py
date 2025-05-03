@@ -10,6 +10,7 @@ import sys
 import tarfile
 import time
 
+os.environ['PYTHONDONTWRITEBYTECODE'] = '1'
 sys.dont_write_bytecode = True
 
 import config  # noqa: E402
@@ -51,15 +52,15 @@ class BuildState:
         self.bundle_name = self.target.name + '.app'
         self.bundle_path = self.dist_dir + self.bundle_name
 
-        self.volume_name = None
-        self.package_filename = None
-        self.package_path = None
-        self.package_content = None
-        self.package_checksum = None
+        self.volume_name = ''
+        self.package_filename = ''
+        self.package_path = ''
+        self.package_content = ''
+        self.package_checksum = ''
 
-        self.deps_commit = None
-        self.target_version = None
-        self.target_commit = None
+        self.deps_commit = ''
+        self.target_version = ''
+        self.target_commit = ''
 
         self.deployment_config = {}
 
@@ -81,18 +82,22 @@ class BuildState:
         if os.path.exists(self.dist_dir):
             shutil.rmtree(self.dist_dir)
 
-        clone_args = ('git', 'clone', '-s')
+        clone_args = ('git', 'clone', '--shared')
 
         if not os.path.exists(self.deps_dir):
             args = clone_args + (self.src_deps_dir, self.deps_dir)
             subprocess.check_call(args, cwd=self.base_dir)
+
+            args = ('git', 'submodule', 'update', '--init', '--recursive',
+                '--reference', self.src_base_dir + 'aedi-core')
+            subprocess.check_call(args, cwd=self.deps_dir)
 
         if not os.path.exists(self.target_dir):
             args = clone_args + (self.src_target_dir, self.target_dir)
             subprocess.check_call(args, cwd=self.base_dir)
 
         # TODO: get default branch name from repository
-        commit = self.checkout if self.checkout else 'master'
+        commit = self.checkout or 'master'
         args = ('git', 'checkout', commit)
         subprocess.check_call(args, cwd=self.target_dir)
 
@@ -143,7 +148,10 @@ class BuildState:
         with open(info_plist, 'rb') as f:
             target_plist = plistlib.load(f)
 
-        target_plist['LSMinimumSystemVersion'] = '10.15'  # TODO: use OS_VERSION_X86_64 from aedi 
+        args = ('python3', '-c', 'import aedi.utility; print(aedi.utility.OS_VERSION_X86_64)')
+        minver = BuildState._run(args, self.deps_dir + 'core')
+
+        target_plist['LSMinimumSystemVersion'] = minver
         target_plist['CFBundleName'] = self.target.name
         target_plist['CFBundleShortVersionString'] = self.target_version
         target_plist['CFBundleIdentifier'] = self.target.identifier
@@ -154,11 +162,11 @@ class BuildState:
 
     def _create_zip_package(self):
         args = ('ditto', '-c', '-k', '--zlibCompressionLevel', '9', self.dist_dir, self.package_path)
-        subprocess.run(args, check=True)
+        subprocess.check_call(args)
 
     def _sign_bunble(self):
         args = ('codesign', '--sign', '-', '--deep', '--force', self.bundle_path)
-        subprocess.run(args, check=True)
+        subprocess.check_call(args)
 
     def _compress_bundle(self):
         # create .tar.bz2 containing app bundle for "special" builds
@@ -316,7 +324,7 @@ def _main():
         exit(1)
 
     target = sys.argv[1]
-    checkout = sys.argv[2] if len(sys.argv) > 2 else None
+    checkout = sys.argv[2] if len(sys.argv) > 2 else ''
 
     state = BuildState(target, checkout)
     state.prepare_directories()
