@@ -4,5 +4,5 @@ set -o errexit
 
 SCRIPT_DIR=$(cd "${0%/*}"; pwd)
 
-source "$SCRIPT_DIR/zdoom-clone"
+source "$SCRIPT_DIR/clone-zdoom"
 source "$SCRIPT_DIR/pycharm-common"
