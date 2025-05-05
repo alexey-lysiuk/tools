@@ -19,12 +19,14 @@ WORK_DIR=/Volumes/ramdisk/$PROJECT
 CORE_REPO_URL=https://github.com/aedi-org/core.git
 CORE_MIRROR_DIR=${MIRRORS_ROOT_DIR}aedi-core
 
-if [ ! -e "$MIRROR_DIR" ]; then
+if [ -e "$MIRROR_DIR" ]; then
+	git -C "$MIRROR_DIR" fetch --all --tags
+else
 	git clone --mirror "$REPO_URL" "$MIRROR_DIR"
 fi
 
 if [ -e "$CORE_MIRROR_DIR" ]; then
-	git -C "$CORE_MIRROR_DIR" fetch --all
+	git -C "$CORE_MIRROR_DIR" fetch --all --tags
 else
 	git clone --mirror "$CORE_REPO_URL" "$CORE_MIRROR_DIR"
 fi
