@@ -2,40 +2,36 @@
 
 set -o errexit
 
-SCRIPT_DIR=$(cd "${0%/*}"; pwd)/
-WORK_DIR=/Volumes/ramdisk/
-SOURCE_DIR=${WORK_DIR}quakespasm-cmake
+SCRIPT_DIR=$(cd "${0%/*}"; pwd)
+WORK_DIR=/Volumes/ramdisk
+SOURCE_DIR=$WORK_DIR/quakespasm-cmake
 
-if [ ! -e "${SOURCE_DIR}" ]; then
-	"${SCRIPT_DIR}clone_cmake"
+if [ ! -e "$SOURCE_DIR" ]; then
+	"$SCRIPT_DIR/clone_cmake"
 fi
 
-DEPS_DIR=${WORK_DIR}zdoom-macos-deps/
+DEPS_DIR=$WORK_DIR/games-macos-deps
 
-if [ ! -e "${DEPS_DIR}" ]; then
-	"${SCRIPT_DIR}../zdoom-macos-deps/clone"
-fi
-
-if [ ! -e "${DEPS_DIR}/deps/glslang" ]; then
-	tar -C "${DEPS_DIR}/deps" -xf /Volumes/Storage/Documents/Tools/glslang-15.1.0-bin.tar.xz
+if [ ! -e "$DEPS_DIR" ]; then
+	"$SCRIPT_DIR/../macos-deps/clone-games"
 fi
 
 # Make sure prefix directory is up-to-date
-"${DEPS_DIR}build.py" --target=build-prefix
+"$DEPS_DIR/build.py" --target=build-prefix
 
-PREFIX=${DEPS_DIR}prefix
-CMAKE_EXE=${PREFIX}/bin/cmake
-LINKER_FLAGS=$("${PREFIX}/bin/pkg-config" --libs ogg sdl2)
-BUILD_DIR=${SOURCE_DIR}/build/vkquake_package
+PREFIX=$DEPS_DIR/prefix
+CMAKE_EXE=$PREFIX/bin/cmake
+LINKER_FLAGS=$("$PREFIX/bin/pkg-config" --libs ogg sdl2)
+BUILD_DIR=$SOURCE_DIR/build/vkquake_package
 
-"${CMAKE_EXE}" \
-	-DCMAKE_PREFIX_PATH="${PREFIX}" \
-	-DCMAKE_EXE_LINKER_FLAGS="-lc++ -framework IOSurface ${LINKER_FLAGS}" \
+"$CMAKE_EXE" \
+	-DCMAKE_PREFIX_PATH="$PREFIX" \
+	-DCMAKE_EXE_LINKER_FLAGS="-lc++ -framework IOSurface $LINKER_FLAGS" \
 	-DQUAKE_TARGET=vkquake \
-	-DVulkan_LIBRARY="${PREFIX}/lib/libMoltenVK-static.a" \
-	-B"${BUILD_DIR}" \
-	-S"${SOURCE_DIR}"
-"${CMAKE_EXE}" --build "${BUILD_DIR}" --parallel
+	-DVulkan_LIBRARY="$PREFIX/lib/libMoltenVK-static.a" \
+	-B"$BUILD_DIR" \
+	-S"$SOURCE_DIR"
+"$CMAKE_EXE" --build "$BUILD_DIR" --parallel
 
-VKQUAKE_REVISION=$(git -C "${SOURCE_DIR}/src/vkquake" rev-parse --short HEAD)
-tar -C "${BUILD_DIR}" -cJf "${WORK_DIR}vkquake-bin@${VKQUAKE_REVISION}.tar.xz" vkquake
+VKQUAKE_REVISION=$(git -C "$SOURCE_DIR/src/vkquake" rev-parse --short HEAD)
+tar -C "$BUILD_DIR" -cJf "$WORK_DIR/vkquake-bin@$VKQUAKE_REVISION.tar.xz" vkquake
