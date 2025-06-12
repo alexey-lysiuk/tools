@@ -1,2 +1,2 @@
 #!/bin/sh
-diskutil erasevolume HFS+ 'ramdisk' `hdiutil attach -nomount ram://16777216`
+diskutil erasevolume APFS 'ramdisk' `hdiutil attach -nomount ram://16777216`
