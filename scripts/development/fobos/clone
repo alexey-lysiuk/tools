@@ -2,7 +2,10 @@
 
 set -o errexit
 
-PROJECT=libfobos
+if [ -z "$PROJECT" ]; then
+	PROJECT=libfobos
+fi
+
 ORIGIN_URL=https://github.com/alexey-lysiuk/$PROJECT.git
 UPSTREAM_URL=https://github.com/rigexpert/$PROJECT.git
 
