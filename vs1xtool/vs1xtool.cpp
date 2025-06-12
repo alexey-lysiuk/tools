@@ -1,6 +1,6 @@
 /*
  * VS1X Tool
- * Copyright (C) 2016, 2017  Alexey Lysiuk
+ * Copyright (C) 2016-2025  Alexey Lysiuk
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -61,6 +61,7 @@ enum class Version
 	VS14,
 	VS15,
 	VS16,
+	VS17,
 };
 
 struct ProcessData
@@ -90,6 +91,9 @@ SHORT GetProductID(const Version version)
 	case Version::VS16:
 		return 9278;
 
+	case Version::VS17:
+		return 9678;
+
 	default:
 		FatalExit(-1);
 	}
@@ -109,6 +113,9 @@ const TCHAR* GetLicenseKeyName(const Version version)
 
 	case Version::VS16:
 		return _T("Licenses\\41717607-F34E-432C-A138-A3CFD7E25CDA");
+
+	case Version::VS17:
+		return _T("Licenses\\1299B4B9-DFCC-476D-98F0-F65A2B46C96D");
 
 	default:
 		FatalExit(-1);
@@ -426,6 +433,10 @@ int _tmain(int argc, TCHAR** argv)
 		else if (_tcscmp(argv[i], _T("--vs16")) == 0)
 		{
 			version = Version::VS16;
+		}
+		else if (_tcscmp(argv[i], _T("--vs17")) == 0)
+		{
+			version = Version::VS17;
 		}
 		else if (_tcscmp(argv[i], _T("--prolong")) == 0)
 		{
