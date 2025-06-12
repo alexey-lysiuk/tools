@@ -3,24 +3,29 @@
 set -o errexit
 
 SCRIPT_DIR=$(cd "${0%/*}"; pwd)/
-DEPS_DIR=/Volumes/Storage/Work/zdoom-macos-deps/
-SOURCE_DIR=/Volumes/ramdisk/quakespasm-exp$1
-BUILD_DIR=${SOURCE_DIR}/build_package
-OUTPUT_DIR=${BUILD_DIR}/output
-BUNDLE_ICON=${SOURCE_DIR}/MacOSX/QuakeSpasm.icns
+WORK_DIR=/Volumes/ramdisk
+SOURCE_DIR=$WORK_DIR/quakespasm-exp$1
 
-git -C "${DEPS_DIR}" pull --ff-only
-
-if [ ! -e "${SOURCE_DIR}" ]; then
-	"${SCRIPT_DIR}clone_exp" $1
+if [ ! -e "$SOURCE_DIR" ]; then
+	"$SCRIPT_DIR/clone_exp" $1
 fi
 
-"${DEPS_DIR}build.py" --source="${SOURCE_DIR}" --build-path="${BUILD_DIR}" --output-path="${OUTPUT_DIR}" --disable-arm
+DEPS_DIR=$WORK_DIR/games-macos-deps
 
-cd "${OUTPUT_DIR}/quakespasm-exp"
-sips -i "${BUNDLE_ICON}"
-DeRez -only icns "${BUNDLE_ICON}" > icon.rsrc
-SetFile -a c "${BUNDLE_ICON}"
+if [ ! -e "$DEPS_DIR" ]; then
+	"$SCRIPT_DIR/../macos-deps/clone-games"
+fi
+
+BUILD_DIR=$SOURCE_DIR/build_package
+OUTPUT_DIR=$BUILD_DIR/output
+BUNDLE_ICON=$SOURCE_DIR/MacOSX/QuakeSpasm.icns
+
+"$DEPS_DIR/build.py" --source="$SOURCE_DIR" --build-path="$BUILD_DIR" --output-path="$OUTPUT_DIR" --disable-arm
+
+cd "$OUTPUT_DIR/quakespasm-exp"
+sips -i "$BUNDLE_ICON"
+DeRez -only icns "$BUNDLE_ICON" > icon.rsrc
+SetFile -a c "$BUNDLE_ICON"
 Rez -append icon.rsrc -o quakespasm-exp
 SetFile -a C quakespasm-exp
-tar -cJf "${SOURCE_DIR}/../quakespasm-exp-bin@$(git rev-parse --short HEAD).tar.xz" quakespasm-exp quakespasm-exp.pak
+tar -cJf "$SOURCE_DIR/../quakespasm-exp-bin@$(git rev-parse --short HEAD).tar.xz" quakespasm-exp quakespasm-exp.pak
