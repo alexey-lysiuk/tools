@@ -27,3 +27,5 @@ tar -xf $SRC_TARGZ
 "$CMAKE_EXE" \
 	--build $BUILD_DIR \
 	--target fteqcc
+
+tar -C $BUILD_DIR -cJf fteqcc-bin@${COMMIT:0:9}.tar.xz fteqcc
