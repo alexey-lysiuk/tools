@@ -20,13 +20,13 @@ CORE_REPO_URL=https://github.com/aedi-org/core.git
 CORE_MIRROR_DIR=${MIRRORS_ROOT_DIR}aedi-core
 
 if [ -e "$MIRROR_DIR" ]; then
-	git -C "$MIRROR_DIR" fetch --all --tags
+	git -C "$MIRROR_DIR" fetch --all --prune --tags
 else
 	git clone --mirror "$REPO_URL" "$MIRROR_DIR"
 fi
 
 if [ -e "$CORE_MIRROR_DIR" ]; then
-	git -C "$CORE_MIRROR_DIR" fetch --all --tags
+	git -C "$CORE_MIRROR_DIR" fetch --all --prune --tags
 else
 	git clone --mirror "$CORE_REPO_URL" "$CORE_MIRROR_DIR"
 fi
