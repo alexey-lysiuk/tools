@@ -9,8 +9,11 @@ WORK_DIR=/Volumes/ramdisk/$REPO_NAME
 
 if [ ! -e "$MIRROR_DIR" ]; then
 	git clone --mirror "$REPO_URL" "$MIRROR_DIR"
-	curl --location --no-progress-meter --remote-name --output-dir \
-		"$MIRROR_DIR" "$REPO_URL/releases/download/data/devices.7z"
+
+	for f in devices spectrum; do
+		curl --location --no-progress-meter --remote-name --output-dir \
+			"$MIRROR_DIR" "$REPO_URL/releases/download/data/$f.7z"
+	done
 fi
 
 git -C "$MIRROR_DIR" fetch --all --tags
