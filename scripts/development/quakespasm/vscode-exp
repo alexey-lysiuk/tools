@@ -1,0 +1,33 @@
+#!/bin/sh
+
+set -o errexit
+
+SCRIPT_DIR=$(cd "${0%/*}"; pwd)
+WORK_DIR=/Volumes/ramdisk
+DEPS_DIR=$WORK_DIR/games-macos-deps
+SOURCE_DIR=$WORK_DIR/quakespasm-exp
+VSCODE_DIR=$SOURCE_DIR/.vscode
+BUILD_DIR=$SOURCE_DIR/build/debug
+BUILD_ID1_DIR=$BUILD_DIR/id1
+
+if [ ! -e "$DEPS_DIR" ]; then
+	"$SCRIPT_DIR/../macos-deps/clone-games"
+fi
+
+git -C "$DEPS_DIR" pull --ff-only
+
+if [ ! -e "$SOURCE_DIR" ]; then
+	"$SCRIPT_DIR/clone_exp" $1
+fi
+
+rsync -a /Volumes/Storage/Documents/Quake/Games/* "$BUILD_DIR"
+sed -i '' -e 's/vid_fullscreen 1/vid_width 1440;vid_height 900;nosound 1;bgmvolume 0;map e1m1/' "$BUILD_DIR/id1/autoexec.cfg"
+
+if [ ! -e "$BUILD_ID1_DIR/scripts" ]; then
+	ln -s "$SOURCE_DIR/Misc/qs_pak/scripts" "$BUILD_ID1_DIR"
+fi
+
+mkdir -p "$VSCODE_DIR"
+cp "$SCRIPT_DIR/launch.json" "$VSCODE_DIR"
+cp "$SCRIPT_DIR/CMakeUserPresets.json" "$SOURCE_DIR"
+open -b com.microsoft.VSCode "$SOURCE_DIR"

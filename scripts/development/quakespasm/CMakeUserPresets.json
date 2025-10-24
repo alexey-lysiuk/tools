@@ -1,0 +1,53 @@
+{
+  "version": 10,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 31,
+    "patch": 0
+  },
+  "configurePresets": [
+    {
+      "name": "Debug",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/debug",
+      "cmakeExecutable": "${sourceDir}/../games-macos-deps/prefix/bin/cmake",
+      "$comment": [
+        "Use the following command for CMAKE_EXE_LINKER_FLAGS value below",
+        "% pkgconf --libs ogg SDL2"
+      ],
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "$comment": "",
+        "CMAKE_EXE_LINKER_FLAGS": "-L${sourceDir}/../games-macos-deps/prefix/lib -logg -framework AudioToolbox -framework AVFoundation -framework Carbon -framework Cocoa -framework CoreAudio -framework CoreHaptics -framework CoreVideo -framework ForceFeedback -framework Foundation -framework GameController -framework IOKit -framework Metal -framework QuartzCore",
+        "CMAKE_PREFIX_PATH": "${sourceDir}/../games-macos-deps/prefix",
+        "QUAKE_BUILD_ENGINE_PAK": "OFF",
+        "QUAKE_MACOS_BUNDLE": "OFF",
+        "QUAKE_MACOS_MOUSE_ACCELERATION": "ON"
+      },
+      "environment": {
+        "PATH": "${sourceDir}/../games-macos-deps/prefix/bin:$penv{PATH}"
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "Debug",
+      "configurePreset": "Debug"
+    }
+  ],
+  "workflowPresets": [
+    {
+      "name": "Debug",
+      "steps": [
+        {
+          "type": "configure",
+          "name": "Debug"
+        },
+        {
+          "type": "build",
+          "name": "Debug"
+        }
+      ]
+    }
+  ]
+}
