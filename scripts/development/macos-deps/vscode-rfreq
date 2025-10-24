@@ -1,0 +1,8 @@
+#!/bin/sh
+
+set -o errexit
+
+SCRIPT_DIR=$(cd "${0%/*}"; pwd)
+
+source "$SCRIPT_DIR/clone-rfreq"
+source "$SCRIPT_DIR/vscode-common"
