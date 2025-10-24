@@ -1,0 +1,13 @@
+#!/bin/sh
+
+set -o errexit
+
+SCRIPT_DIR=$(cd "${0%/*}"; pwd)/
+SOURCE_DIR=/Volumes/ramdisk/a6r-tools
+BUILD_DIR=$SOURCE_DIR/build
+
+if [ ! -e "$SOURCE_DIR" ]; then
+	"$SCRIPT_DIR/clone"
+fi
+
+open -b com.microsoft.VSCode "$SOURCE_DIR"
