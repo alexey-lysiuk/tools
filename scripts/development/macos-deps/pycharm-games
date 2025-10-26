@@ -1,8 +1,0 @@
-#!/bin/sh
-
-set -o errexit
-
-SCRIPT_DIR=$(cd "${0%/*}"; pwd)
-
-source "$SCRIPT_DIR/clone-games"
-source "$SCRIPT_DIR/pycharm-common"
