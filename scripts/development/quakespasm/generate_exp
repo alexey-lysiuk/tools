@@ -32,4 +32,4 @@ if [ ! -e "$BUILD_ID1_DIR/scripts" ]; then
 	ln -s "$SCRIPTS_DIR" "$BUILD_ID1_DIR"
 fi
 
-open -b dev.zed.Zed "$SCRIPTS_DIR"
+open -b com.microsoft.VSCode "$SCRIPTS_DIR"
