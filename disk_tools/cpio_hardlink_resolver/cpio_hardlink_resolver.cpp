@@ -25,16 +25,19 @@ struct cpio_odc_header
 	char c_filesize[11];
 };
 
+#define expect(condition) \
+	{ if (!(condition)) { fprintf(stderr, "ERROR: '%s' test failed at line %i\n", #condition, __LINE__); return __LINE__; } }
+
 static uint64_t convert_octal(const char* const str, const size_t size = 6)
 {
-	char termstr[size + 1];
+	constexpr size_t MAX_SIZE = 11;
+	expect(size <= MAX_SIZE);
+
+	char termstr[MAX_SIZE + 1];
 	memcpy(termstr, str, size);
 	termstr[size] = '\0';
 	return strtol(termstr, nullptr, 8);
 }
-
-#define expect(condition) \
-	{ if (!(condition)) { fprintf(stderr, "ERROR: '%s' test failed at line %i\n", #condition, __LINE__); return __LINE__; } }
 
 int main(int argc, const char * argv[])
 {
